@@ -9,7 +9,7 @@ Usage:
     python openrouter_client.py find "search term"
 
 Environment:
-    OPENROUTER_API_KEY - Required API key from https://openrouter.ai/keys
+    SKILL_OPENROUTER_API_KEY - Required API key from https://openrouter.ai/keys
 
 Examples:
     python openrouter_client.py chat anthropic/claude-3.5-sonnet "Explain recursion"
@@ -73,7 +73,7 @@ class OpenRouterClient:
                 # Non-retryable errors
                 error_messages = {
                     400: "Bad request - check parameters",
-                    401: "Invalid API key - check OPENROUTER_API_KEY",
+                    401: "Invalid API key - check SKILL_OPENROUTER_API_KEY",
                     402: "Insufficient credits - add funds at openrouter.ai",
                     403: "Content flagged by moderation",
                     429: "Rate limited - wait before retrying"
@@ -187,9 +187,9 @@ def main():
     args = parser.parse_args()
 
     # Get API key
-    api_key = os.environ.get("OPENROUTER_API_KEY")
+    api_key = os.environ.get("SKILL_OPENROUTER_API_KEY")
     if not api_key:
-        print("Error: OPENROUTER_API_KEY environment variable not set", file=sys.stderr)
+        print("Error: SKILL_OPENROUTER_API_KEY environment variable not set", file=sys.stderr)
         print("Get your key at: https://openrouter.ai/keys", file=sys.stderr)
         sys.exit(1)
 

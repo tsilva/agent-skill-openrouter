@@ -24,7 +24,7 @@ A Claude Code skill that provides access to 300+ AI models via the [OpenRouter](
 Set your OpenRouter API key:
 
 ```bash
-export OPENROUTER_API_KEY="sk-or-..."
+export SKILL_OPENROUTER_API_KEY="sk-or-..."
 ```
 
 Get your API key at [openrouter.ai/keys](https://openrouter.ai/keys)

@@ -5,12 +5,12 @@ description: Invoke 300+ AI models via OpenRouter API for multi-step workflows. 
 
 # OpenRouter
 
-Gateway to 300+ AI models through a unified API. Requires `OPENROUTER_API_KEY` environment variable.
+Gateway to 300+ AI models through a unified API. Requires `SKILL_OPENROUTER_API_KEY` environment variable.
 
 ## Setup
 
 ```bash
-export OPENROUTER_API_KEY="sk-or-..."  # Get key at https://openrouter.ai/keys
+export SKILL_OPENROUTER_API_KEY="sk-or-..."  # Get key at https://openrouter.ai/keys
 ```
 
 ## Quick Reference
@@ -108,7 +108,7 @@ python scripts/openrouter_client.py image google/gemini-2.5-flash-image \
 The script handles retries automatically for transient errors (429, 502, 503).
 
 **Common errors:**
-- `401`: Invalid API key - check `OPENROUTER_API_KEY`
+- `401`: Invalid API key - check `SKILL_OPENROUTER_API_KEY`
 - `402`: Add credits at openrouter.ai
 - `429`: Rate limited - script auto-retries
 
@@ -122,7 +122,7 @@ sys.path.insert(0, "scripts")
 from openrouter_client import OpenRouterClient
 import os
 
-client = OpenRouterClient(os.environ["OPENROUTER_API_KEY"])
+client = OpenRouterClient(os.environ["SKILL_OPENROUTER_API_KEY"])
 
 # Simple chat
 response = client.chat_simple("anthropic/claude-3.5-sonnet", "Hello!")
