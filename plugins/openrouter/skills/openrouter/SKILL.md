@@ -1,6 +1,6 @@
 ---
 name: openrouter
-description: Invoke 300+ AI models via OpenRouter API for multi-step workflows. Use when Claude Code needs to call external models (GPT-4, Gemini, Llama, Mistral, etc.) for text completion, image generation, or model discovery. Triggers on requests like "use OpenRouter to...", "call GPT-4 to...", "generate an image with Gemini", or when delegating tasks to other AI models.
+description: Invoke 300+ AI models via OpenRouter API for multi-step workflows. Use when Claude Code needs to call external models (GPT-5.2, Gemini 3, Llama, Mistral, etc.) for text completion, image generation, or model discovery. Triggers on requests like "use OpenRouter to...", "call GPT-5 to...", "generate an image with Gemini", or when delegating tasks to other AI models.
 ---
 
 # OpenRouter
@@ -35,11 +35,11 @@ python scripts/openrouter_client.py find "search term"
 
 | Use Case | Model ID | Notes |
 |----------|----------|-------|
-| General | `anthropic/claude-3.5-sonnet` | Fast, capable |
-| Reasoning | `openai/gpt-4o` | Strong reasoning |
-| Code | `deepseek/deepseek-coder` | Code specialist |
-| Long docs | `google/gemini-1.5-pro` | 1M context |
-| Image gen | `google/gemini-2.5-flash-image` | Fast, cheap |
+| General | `openai/gpt-5.2` | Fast, capable |
+| Reasoning | `anthropic/claude-opus-4.5` | SOTA reasoning |
+| Code | `anthropic/claude-sonnet-4.5` | Simple code |
+| Long docs | `google/gemini-3-flash-preview` | Long context, cheap |
+| Image gen | `google/gemini-3-pro-image-preview` | Fast, cheap |
 | Image gen | `black-forest-labs/flux.2-pro` | High quality |
 
 ## Multi-Step Workflow Patterns
@@ -49,10 +49,10 @@ Call multiple models in sequence, passing outputs forward:
 
 ```python
 # Step 1: Generate outline with one model
-outline = client.chat_simple("openai/gpt-4o", "Create outline for: {topic}")
+outline = client.chat_simple("openai/gpt-5.2", "Create outline for: {topic}")
 
 # Step 2: Expand with another model
-content = client.chat_simple("anthropic/claude-3.5-sonnet", f"Expand this outline:\n{outline}")
+content = client.chat_simple("anthropic/claude-sonnet-4.5", f"Expand this outline:\n{outline}")
 ```
 
 ### Pattern 2: Parallel Model Comparison
@@ -60,8 +60,8 @@ Get responses from multiple models for comparison:
 
 ```bash
 # Run these in parallel
-python scripts/openrouter_client.py chat openai/gpt-4o "Explain X" > gpt4_response.txt &
-python scripts/openrouter_client.py chat anthropic/claude-3.5-sonnet "Explain X" > claude_response.txt &
+python scripts/openrouter_client.py chat openai/gpt-5.2 "Explain X" > gpt4_response.txt &
+python scripts/openrouter_client.py chat anthropic/claude-sonnet-4.5 "Explain X" > claude_response.txt &
 wait
 ```
 
@@ -70,13 +70,13 @@ Route specific tasks to specialized models:
 
 ```bash
 # Use code model for code tasks
-python scripts/openrouter_client.py chat deepseek/deepseek-coder "Write a function to..."
+python scripts/openrouter_client.py chat anthropic/claude-sonnet-4.5 "Write a function to..."
 
 # Use vision model for image analysis
-python scripts/openrouter_client.py chat google/gemini-1.5-pro "Analyze this image: [base64]"
+python scripts/openrouter_client.py chat google/gemini-3-flash-preview "Analyze this image: [base64]"
 
 # Use image model for generation
-python scripts/openrouter_client.py image google/gemini-2.5-flash-image "A cyberpunk city" -o city.png
+python scripts/openrouter_client.py image google/gemini-3-pro-image-preview "A cyberpunk city" -o city.png
 ```
 
 ### Pattern 4: Structured Output Pipeline
@@ -84,7 +84,7 @@ Request JSON for programmatic processing:
 
 ```bash
 # Get structured data
-python scripts/openrouter_client.py chat openai/gpt-4o "Extract entities from: {text}" --json > entities.json
+python scripts/openrouter_client.py chat openai/gpt-5.2 "Extract entities from: {text}" --json > entities.json
 
 # Process the JSON in next step
 ```
@@ -98,7 +98,7 @@ python scripts/openrouter_client.py chat openai/gpt-4o "Extract entities from: {
 
 ```bash
 # Generate landscape image
-python scripts/openrouter_client.py image google/gemini-2.5-flash-image \
+python scripts/openrouter_client.py image google/gemini-3-pro-image-preview \
   "Mountain sunset with dramatic clouds" \
   --output mountain.png --aspect 16:9 --size 2K
 ```
@@ -125,10 +125,10 @@ import os
 client = OpenRouterClient(os.environ["SKILL_OPENROUTER_API_KEY"])
 
 # Simple chat
-response = client.chat_simple("anthropic/claude-3.5-sonnet", "Hello!")
+response = client.chat_simple("anthropic/claude-sonnet-4.5", "Hello!")
 
 # Full chat with history
-result = client.chat("openai/gpt-4o", [
+result = client.chat("openai/gpt-5.2", [
     {"role": "system", "content": "You are a helpful assistant"},
     {"role": "user", "content": "Explain recursion"},
     {"role": "assistant", "content": "Recursion is..."},
@@ -138,7 +138,7 @@ content = result["choices"][0]["message"]["content"]
 
 # Generate image
 images = client.generate_image(
-    "google/gemini-2.5-flash-image",
+    "google/gemini-3-pro-image-preview",
     "A serene forest path",
     output_path="forest.png",
     aspect_ratio="16:9"

@@ -12,9 +12,9 @@ Environment:
     SKILL_OPENROUTER_API_KEY - Required API key from https://openrouter.ai/keys
 
 Examples:
-    python openrouter_client.py chat anthropic/claude-3.5-sonnet "Explain recursion"
-    python openrouter_client.py chat openai/gpt-4o "Write a haiku" --max-tokens 100
-    python openrouter_client.py image google/gemini-2.5-flash-image "A sunset" --output sunset.png
+    python openrouter_client.py chat anthropic/claude-sonnet-4.5 "Explain recursion"
+    python openrouter_client.py chat openai/gpt-5.2 "Write a haiku" --max-tokens 100
+    python openrouter_client.py image google/gemini-3-pro-image-preview "A sunset" --output sunset.png
     python openrouter_client.py models vision
     python openrouter_client.py find "claude"
 """
@@ -165,7 +165,7 @@ def main():
 
     # Chat command
     chat_parser = subparsers.add_parser("chat", help="Send chat completion")
-    chat_parser.add_argument("model", help="Model ID (e.g., anthropic/claude-3.5-sonnet)")
+    chat_parser.add_argument("model", help="Model ID (e.g., anthropic/claude-sonnet-4.5)")
     chat_parser.add_argument("prompt", help="User prompt")
     chat_parser.add_argument("--system", "-s", help="System prompt")
     chat_parser.add_argument("--max-tokens", "-m", type=int, help="Max tokens")
@@ -174,7 +174,7 @@ def main():
 
     # Image command
     image_parser = subparsers.add_parser("image", help="Generate image")
-    image_parser.add_argument("model", help="Image model (e.g., google/gemini-2.5-flash-image)")
+    image_parser.add_argument("model", help="Image model (e.g., google/gemini-3-pro-image-preview)")
     image_parser.add_argument("prompt", help="Image description")
     image_parser.add_argument("--output", "-o", default="output.png", help="Output filename")
     image_parser.add_argument("--aspect", "-a", default="1:1", help="Aspect ratio (1:1, 16:9, etc)")
