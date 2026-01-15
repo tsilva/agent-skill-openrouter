@@ -121,10 +121,15 @@ class OpenRouterClient:
         images = result["choices"][0]["message"].get("images", [])
 
         if output_path and images:
+            output = Path(output_path).resolve()
+            output.parent.mkdir(parents=True, exist_ok=True)
             for idx, img in enumerate(images):
                 data_url = img["image_url"]["url"]
                 base64_data = data_url.split(",")[1]
-                path = output_path if len(images) == 1 else f"{Path(output_path).stem}_{idx}{Path(output_path).suffix}"
+                if len(images) == 1:
+                    path = output
+                else:
+                    path = output.parent / f"{output.stem}_{idx}{output.suffix}"
                 with open(path, "wb") as f:
                     f.write(base64.b64decode(base64_data))
                 print(f"Saved: {path}", file=sys.stderr)

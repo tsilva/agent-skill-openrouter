@@ -1,11 +1,25 @@
 ---
 name: openrouter
 description: Invoke 300+ AI models via OpenRouter API for multi-step workflows. Use when Claude Code needs to call external models (GPT-5.2, Gemini 3, Llama, Mistral, etc.) for text completion, image generation, or model discovery. Triggers on requests like "use OpenRouter to...", "call GPT-5 to...", "generate an image with Gemini", or when delegating tasks to other AI models.
+arguments:
+  - name: output_path
+    description: Absolute path for saving generated images (e.g., /path/to/image.png)
+    required: false
 ---
 
 # OpenRouter
 
 Gateway to 300+ AI models through a unified API. Requires `SKILL_OPENROUTER_API_KEY` environment variable.
+
+## Skill Arguments
+
+When invoking this skill, you can pass an `output_path` argument to specify where generated images should be saved:
+
+```
+/openrouter --output_path /absolute/path/to/output.png
+```
+
+**Important:** Always use absolute paths for image output to ensure files are saved to the intended location.
 
 ## Setup
 
@@ -22,7 +36,7 @@ python scripts/openrouter_client.py chat MODEL "prompt" [--system "sys"] [--max-
 
 **Image generation:**
 ```bash
-python scripts/openrouter_client.py image MODEL "description" [--output file.png] [--aspect 16:9] [--size 2K]
+python scripts/openrouter_client.py image MODEL "description" [--output /absolute/path/file.png] [--aspect 16:9] [--size 2K]
 ```
 
 **Model discovery:**
@@ -97,11 +111,13 @@ python scripts/openrouter_client.py chat openai/gpt-5.2 "Extract entities from: 
 **Sizes:** `1K`, `2K`, `4K`
 
 ```bash
-# Generate landscape image
+# Generate landscape image (use absolute path for --output)
 python scripts/openrouter_client.py image google/gemini-3-pro-image-preview \
   "Mountain sunset with dramatic clouds" \
-  --output mountain.png --aspect 16:9 --size 2K
+  --output /absolute/path/to/mountain.png --aspect 16:9 --size 2K
 ```
+
+**Note:** Always use absolute paths for `--output` to ensure images are saved to the correct location. The script creates parent directories automatically if they don't exist.
 
 ## Error Handling
 
@@ -136,11 +152,11 @@ result = client.chat("openai/gpt-5.2", [
 ])
 content = result["choices"][0]["message"]["content"]
 
-# Generate image
+# Generate image (use absolute path)
 images = client.generate_image(
     "google/gemini-3-pro-image-preview",
     "A serene forest path",
-    output_path="forest.png",
+    output_path="/absolute/path/to/forest.png",
     aspect_ratio="16:9"
 )
 

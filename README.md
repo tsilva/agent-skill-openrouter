@@ -17,7 +17,7 @@
 
 <p align="center">
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white" alt="Python"></a>
-  <img src="https://img.shields.io/badge/Version-1.0.1-green" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.0.3-green" alt="Version">
   <img src="https://img.shields.io/badge/Models-300%2B-purple" alt="300+ Models">
 </p>
 
@@ -82,7 +82,7 @@ python scripts/openrouter_client.py chat MODEL "prompt" [--system "sys"] [--max-
 ### Image Generation
 
 ```bash
-python scripts/openrouter_client.py image MODEL "description" [--output file.png] [--aspect 16:9] [--size 2K]
+python scripts/openrouter_client.py image MODEL "description" [--output /absolute/path/file.png] [--aspect 16:9] [--size 2K]
 ```
 
 ### Model Discovery
@@ -170,11 +170,11 @@ result = client.chat("openai/gpt-5.2", [
 ])
 content = result["choices"][0]["message"]["content"]
 
-# Generate image
+# Generate image (use absolute path)
 images = client.generate_image(
     "google/gemini-3-pro-image-preview",
     "A serene forest path",
-    output_path="forest.png",
+    output_path="/absolute/path/to/forest.png",
     aspect_ratio="16:9"
 )
 
