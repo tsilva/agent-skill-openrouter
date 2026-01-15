@@ -47,7 +47,8 @@ class OpenRouterClient:
 
     def _request(self, method: str, endpoint: str, payload: dict = None, max_retries: int = 3):
         """Make API request with retry logic."""
-        url = f"{self.BASE_URL}/{endpoint}"
+        # Support both relative endpoints and full URLs
+        url = endpoint if endpoint.startswith("http") else f"{self.BASE_URL}/{endpoint}"
 
         for attempt in range(max_retries):
             try:
@@ -131,15 +132,19 @@ class OpenRouterClient:
         return images
 
     def list_models(self, capability: str = None) -> list:
-        """List available models, optionally filtered by capability."""
-        result = self._request("GET", "models")
+        """List available models, optionally filtered by capability.
+
+        Uses the frontend/models endpoint which includes all models (600+)
+        including image generation models like Flux that are not in /api/v1/models.
+        """
+        result = self._request("GET", "https://openrouter.ai/api/frontend/models")
         models = result.get("data", [])
 
         if capability:
             if capability == "vision":
-                models = [m for m in models if "image" in m.get("architecture", {}).get("input_modalities", [])]
+                models = [m for m in models if "image" in m.get("input_modalities", [])]
             elif capability == "image_gen":
-                models = [m for m in models if "image" in m.get("architecture", {}).get("output_modalities", [])]
+                models = [m for m in models if "image" in m.get("output_modalities", [])]
             elif capability == "tools":
                 models = [m for m in models if "tools" in m.get("supported_parameters", [])]
             elif capability == "long_context":
@@ -151,7 +156,7 @@ class OpenRouterClient:
         """Find models matching search term."""
         models = self.list_models()
         search_lower = search_term.lower()
-        return [m for m in models if search_lower in m["id"].lower() or search_lower in m["name"].lower()]
+        return [m for m in models if search_lower in m["slug"].lower() or search_lower in m["name"].lower()]
 
 
 def main():
@@ -222,14 +227,14 @@ def main():
                 pricing = m.get("pricing", {})
                 ctx = m.get("context_length", "?")
                 prompt_price = float(pricing.get("prompt", 0)) * 1_000_000
-                print(f"{m['id']:50} ctx:{ctx:>7}  ${prompt_price:.2f}/M")
+                print(f"{m['slug']:50} ctx:{ctx:>7}  ${prompt_price:.2f}/M")
 
         elif args.command == "find":
             matches = client.find_model(args.search)
             if matches:
                 for m in matches[:10]:
                     ctx = m.get("context_length", "?")
-                    print(f"{m['id']:50} ctx:{ctx:>7}")
+                    print(f"{m['slug']:50} ctx:{ctx:>7}")
             else:
                 print(f"No models found matching '{args.search}'", file=sys.stderr)
                 sys.exit(1)
