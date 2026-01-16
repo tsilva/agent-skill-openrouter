@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.png" alt="Claude Skills Logo" width="200" height="200">
+  <img src="logo.png" alt="Claude Skills Logo" width="200" height="200">
 </p>
 
 <h1 align="center">Claude Skills</h1>
@@ -220,8 +220,7 @@ claude-skills/
 │   └── install-hooks.sh               # Hook installer
 ├── .claude-plugin/
 │   └── marketplace.json               # Lists all available plugins
-├── assets/
-│   └── logo.png                       # Repository logo
+├── logo.png                           # Repository logo
 ├── CLAUDE.md                          # Developer guidance
 └── README.md                          # This file
 ```
