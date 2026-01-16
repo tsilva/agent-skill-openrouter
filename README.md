@@ -48,6 +48,9 @@ Each skill is packaged as an independent plugin with its own versioning, making 
 ```bash
 git clone https://github.com/tsilva/claude-skills.git
 cd claude-skills
+
+# Install git hooks (auto-bumps versions on SKILL.md changes)
+./scripts/install-hooks.sh
 ```
 
 ---
@@ -210,6 +213,11 @@ claude-skills/
 │       └── skills/
 │           └── readme-generator/
 │               └── SKILL.md           # Skill documentation
+├── hooks/
+│   └── pre-commit                     # Auto-version bump hook
+├── scripts/
+│   ├── bump-version.py                # Version bumping logic
+│   └── install-hooks.sh               # Hook installer
 ├── .claude-plugin/
 │   └── marketplace.json               # Lists all available plugins
 ├── assets/

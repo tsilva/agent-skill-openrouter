@@ -22,6 +22,11 @@ claude-skills/
 │               ├── scripts/     # Executable code (optional)
 │               ├── references/  # Documentation loaded on-demand (optional)
 │               └── assets/      # Static resources like templates, icons (optional)
+├── hooks/
+│   └── pre-commit               # Git pre-commit hook (auto-version bump)
+├── scripts/
+│   ├── bump-version.py          # Version bumping logic
+│   └── install-hooks.sh         # Hook installer
 ├── CLAUDE.md                    # This file
 └── README.md                    # Repository documentation
 ```
@@ -248,17 +253,39 @@ Test skills with all models you plan to use:
 
 ## Version Management
 
-**Every time a SKILL.md file is modified, you MUST bump the version in ALL three locations:**
+Version numbers are **automatically bumped** by a git pre-commit hook when you modify a SKILL.md file.
+
+### Automatic Version Bumping
+
+When you commit changes to any `SKILL.md` file:
+1. Pre-commit hook detects the staged SKILL.md
+2. Extracts current version from frontmatter
+3. Bumps the patch version (e.g., 1.0.4 → 1.0.5)
+4. Updates all 3 version locations automatically
+5. Stages the modified files
+6. Commit proceeds with version bump included
+
+**Setup (required after cloning):**
+```bash
+./scripts/install-hooks.sh
+```
+
+**To skip auto-bump (if needed):**
+```bash
+git commit --no-verify
+```
+
+### Version Locations
+
+All three locations are kept in sync automatically:
 
 1. `plugins/{plugin-name}/skills/{skill-name}/SKILL.md` - `metadata.version` in frontmatter
 2. `plugins/{plugin-name}/.claude-plugin/plugin.json` - `version` field
 3. `.claude-plugin/marketplace.json` - `version` field for that plugin
 
-**Why:** The version number is how skill updates are detected. If you don't bump the version, changes won't be picked up.
+**Why versions matter:** The version number is how skill updates are detected. If the version doesn't change, updates won't be picked up.
 
-Also review and update `README.md` if needed (version in skills table, feature descriptions, usage examples).
-
-**Critical:** All three version numbers MUST be identical. Before committing, verify synchronization.
+**Note:** Also review and update `README.md` if needed (version in skills table, feature descriptions, usage examples). This is not automated.
 
 ## Conventions
 
