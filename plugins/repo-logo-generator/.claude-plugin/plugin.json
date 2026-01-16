@@ -1,7 +1,7 @@
 {
   "name": "repo-logo-generator",
-  "description": "Generate contextual logos for GitHub repositories by analyzing README content and project metadata.",
-  "version": "1.0.1",
+  "description": "Generate minimalist logos via OpenRouter with logo-optimized prompts.",
+  "version": "2.0.1",
   "author": {
     "name": "tsilva"
   }

@@ -4,7 +4,7 @@ description: Creates or updates README.md files following GitHub best practices 
 license: MIT
 metadata:
   author: tsilva
-  version: "1.0.3"
+  version: "1.0.4"
 ---
 
 # README Generator
@@ -211,10 +211,11 @@ Creates a new Thing instance.
 
 ## Best Practices Enforced
 
-1. **Scannable content** - users should find what they need in seconds
-2. **Copy-paste ready** - all code examples should work as-is
-3. **Progressive disclosure** - basic info first, details in expandable sections
-4. **Visual hierarchy** - clear headings, consistent formatting
-5. **Mobile-friendly** - readable on GitHub mobile app
-6. **Accessible** - alt text for images, semantic markup
-7. **Up-to-date** - version numbers and links should be current
+1. **Exact repo name as title** - the README title must match the repository name exactly, preserving case and formatting (e.g., if repo is `my-awesome-tool`, title is `my-awesome-tool`, not "My Awesome Tool")
+2. **Scannable content** - users should find what they need in seconds
+3. **Copy-paste ready** - all code examples should work as-is
+4. **Progressive disclosure** - basic info first, details in expandable sections
+5. **Visual hierarchy** - clear headings, consistent formatting
+6. **Mobile-friendly** - readable on GitHub mobile app
+7. **Accessible** - alt text for images, semantic markup
+8. **Up-to-date** - version numbers and links should be current
