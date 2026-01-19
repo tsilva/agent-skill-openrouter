@@ -94,6 +94,24 @@ python plugins/openrouter/skills/openrouter/scripts/openrouter_client.py image \
   --output /absolute/path/assets/logo.png
 ```
 
+**Logo configuration:** Logo appearance is customizable via JSON config files. The system checks in order (first found wins):
+1. `./.claude/readme-generator.json` (project level)
+2. `~/.claude/readme-generator.json` (user level)
+
+Example config:
+```json
+{
+  "logo": {
+    "background": "#1a1b26",
+    "iconColors": ["#7aa2f7", "#bb9af7", "#7dcfff"],
+    "style": "geometric",
+    "model": "google/gemini-3-pro-image-preview"
+  }
+}
+```
+
+See `repo-logo-generator` SKILL.md for all configurable parameters.
+
 ## Adding a New Skill
 
 ### Step 1: Create Plugin Structure

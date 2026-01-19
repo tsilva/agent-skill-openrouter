@@ -2,7 +2,7 @@
 name: readme-generator
 description: Creates or updates README.md files following GitHub best practices with badges, visual hierarchy, and comprehensive documentation. Use when asked to "create a README", "generate documentation", "write a README for this project", or when starting a new project that needs documentation.
 metadata:
-  version: "1.0.7"
+  version: "1.0.8"
 ---
 
 # README Generator
@@ -31,6 +31,14 @@ Every README must have a logo. Follow this process:
 ### Step 1: Check for Existing Logo
 
 Look for `logo.png` at the repo root. If found, use it and skip to README generation.
+
+### Step 1.5: Load Configuration (Optional)
+
+Check for logo configuration in order of precedence:
+1. `./.claude/readme-generator.json` (project level - highest priority)
+2. `~/.claude/readme-generator.json` (user level)
+
+These files customize logo appearance (background color, icon colors, style, model). See **repo-logo-generator** skill for full configuration options.
 
 ### Step 2: Generate Logo (if missing)
 
