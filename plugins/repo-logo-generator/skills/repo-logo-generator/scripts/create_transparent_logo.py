@@ -35,7 +35,7 @@ except ImportError as e:
     sys.exit(1)
 
 
-def create_transparent_logo(black_path, white_path, output_path, alpha_threshold=0.01):
+def create_transparent_logo(black_path, white_path, output_path, alpha_threshold=0.01, alpha_floor=None):
     """
     Create transparent logo from black and white background versions.
 
@@ -44,6 +44,7 @@ def create_transparent_logo(black_path, white_path, output_path, alpha_threshold
         white_path: Path to logo with white background
         output_path: Path to save transparent PNG
         alpha_threshold: Minimum alpha value to avoid division by zero (default: 0.01)
+        alpha_floor: Pixels with alpha above this threshold become fully opaque (default: None, disabled)
 
     Returns:
         PIL.Image: RGBA image with transparency
@@ -74,6 +75,11 @@ def create_transparent_logo(black_path, white_path, output_path, alpha_threshold
     # Use max of RGB channels for alpha (most conservative estimate)
     diff = np.abs(white_arr - black_arr)
     alpha = 1.0 - (np.max(diff, axis=2) / 255.0)
+
+    # Apply alpha floor to prevent semi-transparent artifacts in foreground
+    # Pixels with alpha above threshold become fully opaque
+    if alpha_floor is not None:
+        alpha = np.where(alpha >= alpha_floor, 1.0, alpha)
 
     # Extract foreground color from black background image
     # foreground = black / alpha (avoid division by very small alpha)
@@ -215,6 +221,12 @@ Examples:
         help='Minimum alpha value to avoid division by zero (default: 0.01)'
     )
     parser.add_argument(
+        '--alpha-floor',
+        type=float,
+        default=None,
+        help='Pixels with alpha above this threshold become fully opaque to prevent semi-transparency (default: None, disabled). Recommended: 0.7'
+    )
+    parser.add_argument(
         '--min-transparent-pct',
         type=float,
         default=5.0,
@@ -280,7 +292,8 @@ Examples:
             black_path,
             white_path,
             args.output,
-            alpha_threshold=args.alpha_threshold
+            alpha_threshold=args.alpha_threshold,
+            alpha_floor=args.alpha_floor
         )
     except Exception as e:
         print(f"Error creating transparent logo: {e}", file=sys.stderr)

@@ -2,7 +2,7 @@
 name: repo-logo-generator
 description: Generate minimalist logos for GitHub repositories via OpenRouter. A thin proxy skill with logo-optimized prompts. Supports transparent backgrounds via difference matting. Use when asked to "generate a logo", "create repo logo", or "make a project logo".
 metadata:
-  version: "2.1.1"
+  version: "2.1.3"
 ---
 
 # Repo Logo Generator
@@ -19,18 +19,20 @@ Follow these steps exactly. Do not skip steps or improvise.
   3. Read `assets/default-config.json` from this skill's directory (default)
 
   **IMPORTANT**: Actually READ each file path, don't just search for JSON files.
-- [ ] **Step 2**: Read project files (README, package.json, etc.) to determine project type
-- [ ] **Step 3**: Select visual metaphor from the table below (MUST use table, do NOT invent custom metaphors)
-- [ ] **Step 4**: Fill the prompt template using the EXACT format below (do not paraphrase)
+- [ ] **Step 2**: Check if config has `style` parameter:
+  - **If YES** (user has custom settings): Skip to Step 5. Use the `config.style` value AS-IS for the entire prompt. DO NOT use the template below. DO NOT enforce "no text" or "vector style" rules. The user's style setting completely overrides all defaults.
+  - **If NO** (using defaults): Continue to Step 3.
+- [ ] **Step 3**: Read project files (README, package.json, etc.) to determine project type
+- [ ] **Step 4**: Select visual metaphor from the table below and fill the prompt template
 - [ ] **Step 5**: Check if `config.transparentBackground` is `true`:
   - **If TRUE** (transparency mode):
-    1. Generate FIRST logo with BLACK background (#000000) → save to `/tmp/claude/logo_black.png`
-    2. Generate SECOND logo with WHITE background (#FFFFFF) → save to `/tmp/claude/logo_white.png`
-    3. Run difference matting script:
+    1. Generate FIRST logo with BLACK background → save to `/tmp/claude/logo_black.png`
+    2. Generate SECOND logo with WHITE background → save to `/tmp/claude/logo_white.png`
+    3. Run difference matting script with foreground preservation:
        ```bash
        uv run --with pillow --with numpy scripts/create_transparent_logo.py \
          /tmp/claude/logo_black.png /tmp/claude/logo_white.png logo.png \
-         --min-transparent-pct 5.0 --min-corners 3
+         --min-transparent-pct 5.0 --min-corners 3 --alpha-floor 0.7
        ```
     4. If script succeeds (exit code 0), transparency is complete
     5. If script fails (exit code 1), retry generation with adjusted prompt (max 2 retries)
@@ -148,6 +150,7 @@ Read JSON if exists, extract `logo` object. Project overrides user overrides def
 | `transparencyValidation.requireCornerTransparency` | `true` | Require corners to be transparent (centered logo check) |
 | `transparencyValidation.minTransparentCorners` | `3` | Minimum number of transparent corners (out of 4) |
 | `transparencyValidation.alphaThreshold` | `0.01` | Alpha threshold for transparency calculations |
+| `transparencyValidation.alphaFloor` | `0.7` | Pixels with calculated alpha above this become fully opaque (prevents semi-transparency artifacts) |
 
 ### Example Configuration
 
@@ -189,10 +192,18 @@ AI image models don't reliably generate transparent backgrounds when prompted. I
 5. Combine into RGBA PNG with transparency
 
 **Critical requirements:**
-- Both logos MUST have **identical composition** (same icon, position, size)
+- Both logos MUST have **identical composition** (same icon, position, size, colors)
 - Use pure black (#000000) and pure white (#FFFFFF) for best results
-- Custom matting colors can be used but may reduce accuracy
+- Works best with **simple, monochromatic styles** (single-color icons)
 - Script validates transparency quality automatically
+
+**IMPORTANT LIMITATION - Complex/Pixel Art Styles:**
+Difference matting does NOT work reliably with:
+- Multi-colored pixel art (character sprites, detailed scenes)
+- Complex LucasArts/adventure game styles
+- Styles with text labels or detailed shading
+
+For these styles, AI generates different colors/compositions each time, breaking the algorithm. **Recommendation:** Use `transparentBackground: false` for complex pixel art styles.
 
 **When transparency fails:**
 The system will retry generation up to 2 times with adjusted prompts. If all attempts fail, it falls back to generating a solid background logo using `config.fallbackBackground`.
