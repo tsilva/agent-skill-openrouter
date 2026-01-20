@@ -1,24 +1,9 @@
 {
   "logo": {
-    "background": "#12161D",
     "iconColors": ["#ffffff", "#58a6ff", "#3fb950", "#d29922", "#a371f7"],
-    "style": "minimalist, clean vector style. CRITICAL: Background MUST be a flat solid color (no gradients, no starfields, no patterns, no textures) - exactly RGB(18,22,29) / #12161D hex.",
+    "style": "minimalist",
     "size": "64x64",
     "aspectRatio": "1:1",
-    "model": "google/gemini-3-pro-image-preview",
-    "darkModeSupport": false,
-    "displayWidth": "auto",
-    "transparentBackground": true,
-    "mattingBackgrounds": {
-      "black": "#000000",
-      "white": "#FFFFFF"
-    },
-    "fallbackBackground": "#12161D",
-    "transparencyValidation": {
-      "minTransparentPercentage": 5.0,
-      "requireCornerTransparency": true,
-      "minTransparentCorners": 3,
-      "alphaThreshold": 0.01
-    }
+    "model": "openai/gpt-5-image"
   }
 }

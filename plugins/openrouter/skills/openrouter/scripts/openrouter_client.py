@@ -15,6 +15,7 @@ Examples:
     uv run --with requests openrouter_client.py chat anthropic/claude-sonnet-4.5 "Explain recursion"
     uv run --with requests openrouter_client.py chat openai/gpt-5.2 "Write a haiku" --max-tokens 100
     uv run --with requests openrouter_client.py image google/gemini-3-pro-image-preview "A sunset" --output sunset.png
+    uv run --with requests openrouter_client.py image openai/gpt-5-image "A star icon" --output star.png --background transparent
     uv run --with requests openrouter_client.py models vision
     uv run --with requests openrouter_client.py find "claude"
 """
@@ -108,13 +109,22 @@ class OpenRouterClient:
         return result["choices"][0]["message"]["content"]
 
     def generate_image(self, model: str, prompt: str, output_path: str = None,
-                       aspect_ratio: str = "1:1", size: str = "1K") -> list:
-        """Generate image using chat completions endpoint."""
+                       aspect_ratio: str = "1:1", size: str = "1K", background: str = None) -> list:
+        """Generate image using chat completions endpoint.
+
+        Args:
+            background: Optional background setting (e.g., "transparent").
+                       Support depends on model capabilities.
+        """
+        image_config = {"aspect_ratio": aspect_ratio, "image_size": size}
+        if background:
+            image_config["background"] = background
+
         payload = {
             "model": model,
             "messages": [{"role": "user", "content": prompt}],
             "modalities": ["image", "text"],
-            "image_config": {"aspect_ratio": aspect_ratio, "image_size": size},
+            "image_config": image_config,
             "n": 1
         }
 
@@ -185,6 +195,7 @@ def main():
     image_parser.add_argument("--output", "-o", default="output.png", help="Output filename")
     image_parser.add_argument("--aspect", "-a", default="1:1", help="Aspect ratio (1:1, 16:9, etc)")
     image_parser.add_argument("--size", "-z", default="1K", help="Size (1K, 2K, 4K)")
+    image_parser.add_argument("--background", "-b", help="Background setting (e.g., 'transparent')")
 
     # Models command
     models_parser = subparsers.add_parser("models", help="List available models")
@@ -220,7 +231,10 @@ def main():
             print(response)
 
         elif args.command == "image":
-            images = client.generate_image(args.model, args.prompt, args.output, args.aspect, args.size)
+            images = client.generate_image(
+                args.model, args.prompt, args.output, args.aspect, args.size,
+                background=args.background
+            )
             if images:
                 print(f"Generated {len(images)} image(s)")
             else:
