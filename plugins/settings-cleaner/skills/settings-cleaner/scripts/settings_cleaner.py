@@ -148,8 +148,13 @@ class SettingsCleaner:
         """
         Check if 'specific' pattern is covered by 'general' pattern.
         Returns True if specific is a subset of general.
+
+        Examples:
+        - WebFetch covers WebFetch(domain:example.com)
+        - Bash(python:*) covers Bash(python test.py)
+        - Read(./**) covers Read(./foo/bar.txt)
         """
-        # Extract tool type (e.g., "Bash", "Read", "Write")
+        # Extract tool type (e.g., "Bash", "Read", "Write", "WebFetch")
         spec_tool = specific.split('(')[0] if '(' in specific else specific
         gen_tool = general.split('(')[0] if '(' in general else general
 
@@ -157,7 +162,8 @@ class SettingsCleaner:
         if spec_tool != gen_tool:
             return False
 
-        # If general tool has no args (e.g., "WebFetch"), it covers all variants
+        # If general tool has no restrictions (e.g., "WebFetch", "WebSearch"),
+        # it covers ALL variants of that tool
         if '(' not in general:
             return True
 
@@ -165,12 +171,20 @@ class SettingsCleaner:
         if '(' not in specific:
             return False
 
-        # Extract arguments
+        # Extract arguments from parentheses
         spec_args = specific[specific.index('(')+1:-1] if specific.endswith(')') else ""
         gen_args = general[general.index('(')+1:-1] if general.endswith(')') else ""
 
-        # Wildcard matching
+        # Exact match - if they're identical, specific is covered by general
+        if spec_args == gen_args:
+            return True
+
+        # Wildcard matching - *:* covers everything for that tool
         if gen_args == "*:*":
+            return True
+
+        # Domain wildcard (e.g., "domain:*") - covers all domains
+        if gen_args == "domain:*" and spec_args.startswith("domain:"):
             return True
 
         # Command wildcard (e.g., "python:*")
@@ -187,7 +201,7 @@ class SettingsCleaner:
             # If general is /* it covers everything
             if gen_args == "/*":
                 return True
-            # Check if specific path starts with general path
+            # Check if specific path starts with general path pattern
             if gen_args.endswith("*") and spec_args.startswith(gen_args[:-1]):
                 return True
 
