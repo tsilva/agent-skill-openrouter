@@ -5,7 +5,7 @@ license: MIT
 compatibility: python 3.8+
 metadata:
   author: tsilva
-  version: "1.0.1"
+  version: "1.0.3"
 ---
 
 # Settings Cleaner
@@ -14,16 +14,25 @@ Audit and optimize Claude Code permission whitelists for security and efficiency
 
 ## Quick Start
 
+**IMPORTANT**: Always run from the user's current working directory and pass the project settings path explicitly.
+
 ```bash
 # Analyze permissions (read-only)
-uv run --with colorama scripts/settings_cleaner.py analyze
+uv run --with colorama {SKILL_BASE}/scripts/settings_cleaner.py analyze \
+  --project-settings {USER_CWD}/.claude/settings.local.json
 
 # Interactive cleanup with confirmation prompts
-uv run --with colorama scripts/settings_cleaner.py clean
+uv run --with colorama {SKILL_BASE}/scripts/settings_cleaner.py clean \
+  --project-settings {USER_CWD}/.claude/settings.local.json
 
 # Auto-fix redundant permissions only (safest, no prompts)
-uv run --with colorama scripts/settings_cleaner.py auto-fix
+uv run --with colorama {SKILL_BASE}/scripts/settings_cleaner.py auto-fix \
+  --project-settings {USER_CWD}/.claude/settings.local.json
 ```
+
+Where:
+- `{SKILL_BASE}` = Absolute path to the skill directory (from Base directory message)
+- `{USER_CWD}` = User's current working directory (use `pwd` or equivalent to get absolute path)
 
 ## What It Checks
 
@@ -131,8 +140,24 @@ Trigger the skill by asking:
 - "Optimize my allowlist"
 - "Check for redundant permissions"
 
-Claude will automatically:
-1. Run the analyze command
-2. Show you the findings
-3. Ask if you want to proceed with cleanup
-4. Execute the appropriate command (clean or auto-fix)
+### Execution Instructions for Claude
+
+When this skill is invoked, you MUST:
+
+1. **Get the skill base directory** from the "Base directory for this skill" message
+2. **Get the user's current working directory** (they're already in the right place)
+3. **Run the script with absolute paths** - DO NOT cd into the skill directory
+
+Example invocation:
+```bash
+uv run --with colorama /absolute/path/to/skill/scripts/settings_cleaner.py analyze \
+  --project-settings /absolute/path/to/user/cwd/.claude/settings.local.json
+```
+
+**Why this matters**: The script needs to find the project's `.claude/settings.local.json` file in the user's working directory, not in the skill's directory. Running from the wrong location will cause it to miss project-specific permissions and fail to detect redundancies.
+
+Workflow:
+1. Run the analyze command with proper paths
+2. Show the findings to the user
+3. Ask if they want to proceed with cleanup
+4. Execute the appropriate command (clean or auto-fix) with the same path arguments
