@@ -1,43 +1,114 @@
 ---
 name: repo-logo-generator
 description: Generate logos for GitHub repositories via OpenRouter with native transparent backgrounds using GPT-5 Image. Works with pixel art, vector designs, and complex multi-colored styles. Use when asked to "generate a logo", "create repo logo", or "make a project logo".
+license: MIT
+compatibility: python 3.8+, requires requests library, uses OpenRouter skill
 metadata:
-  version: "3.0.2"
+  version: "3.0.3"
 ---
 
 # Repo Logo Generator
 
 Generate professional logos with native transparent backgrounds using GPT-5 Image via OpenRouter.
 
+## Path Resolution
+
+The OpenRouter client must be resolved from the plugin cache using an absolute path. Never use relative paths when invoking scripts from other plugins.
+
+**Dynamic resolution (recommended):**
+```bash
+# Find latest OpenRouter version
+LATEST_VERSION=$(ls -1 ~/.claude/plugins/cache/claude-skills/openrouter 2>/dev/null | sort -V | tail -n 1)
+OPENROUTER_CLIENT="$HOME/.claude/plugins/cache/claude-skills/openrouter/$LATEST_VERSION/skills/openrouter/scripts/openrouter_client.py"
+
+# Verify it exists
+if [ ! -f "$OPENROUTER_CLIENT" ]; then
+  echo "Error: OpenRouter plugin not found. Install via: /skills-discovery openrouter" >&2
+  exit 1
+fi
+
+# Use in command
+UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests "$OPENROUTER_CLIENT" image \
+  "model-name" \
+  "Your prompt here" \
+  --output logo.png
+```
+
+**Important:** Always validate that the OpenRouter client exists before attempting to execute it. If not found, inform the user immediately and do not proceed.
+
 ## REQUIRED: Execution Checklist (MUST complete in order)
 
 Follow these steps exactly. Do not skip steps or improvise.
 
-- [ ] **Step 1**: Load config by reading each path in order (stop at first that exists):
+- [ ] **Step 0**: Create Todo List
+  - Use TodoWrite to create a todo list with these items:
+    1. Validate dependencies (find OpenRouter client, check API key)
+    2. Load configuration files (project → user → default)
+    3. Read project documentation to determine type
+    4. Generate logo using OpenRouter
+    5. Verify logo file and properties
+
+  This is a multi-step task requiring todo list tracking per TodoWrite guidelines.
+
+- [ ] **Step 1**: Validate Dependencies
+  - Locate latest OpenRouter client using path resolution logic above
+  - Verify `SKILL_OPENROUTER_API_KEY` environment variable is set
+  - If either check fails, report to user immediately and do not proceed
+  - Mark "Validate dependencies" todo as completed
+
+- [ ] **Step 2**: Load config by reading each path in order (stop at first that exists):
   1. Read `./.claude/readme-generator.json` (project config)
   2. Read `~/.claude/readme-generator.json` (user config)
   3. Read `assets/default-config.json` from this skill's directory (default)
 
   **IMPORTANT**: Actually READ each file path, don't just search for JSON files.
-- [ ] **Step 2**: Check if config has `style` parameter:
+  Mark "Load configuration files" todo as completed after this step.
+
+- [ ] **Step 3**: Check if config has `style` parameter:
   - **If YES** (user has custom settings): Use the `config.style` value AS-IS for the entire prompt. DO NOT use the template below. DO NOT enforce "no text" or "vector style" rules. The user's style setting completely overrides all defaults.
-  - **If NO** (using defaults): Continue to Step 3.
-- [ ] **Step 3**: Read project files (README, package.json, etc.) to determine project type
-- [ ] **Step 4**: Select visual metaphor from the table below and fill the prompt template
-- [ ] **Step 5**: Generate logo using OpenRouter with native transparency:
+  - **If NO** (using defaults): Continue to Step 4.
+
+- [ ] **Step 4**: Read project files (README, package.json, etc.) to determine project type
+  Mark "Read project documentation" todo as completed after this step.
+
+- [ ] **Step 5**: Select visual metaphor from the table below and fill the prompt template
+
+- [ ] **Step 6**: Generate logo using OpenRouter with native transparency:
   - Use `openai/gpt-5-image` model (or configured `config.model`)
   - Add `--background transparent` flag for transparent background
   - Save directly to `logo.png`
+  - Use absolute path to OpenRouter client (resolved in Step 1)
   - Command format:
     ```bash
     UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests \
-      plugins/openrouter/skills/openrouter/scripts/openrouter_client.py image \
+      "$OPENROUTER_CLIENT" image \
       "openai/gpt-5-image" \
       "[YOUR PROMPT HERE]" \
       --background transparent \
       --output logo.png
     ```
-- [ ] **Step 6**: Verify logo exists and is valid PNG with transparency
+  Mark "Generate logo using OpenRouter" todo as completed after this step.
+
+- [ ] **Step 7**: Verify logo exists and is valid PNG with transparency
+  Mark "Verify logo file and properties" todo as completed after this step.
+
+## Sandbox Compatibility
+
+⚠️ **macOS Limitation**: On macOS, `uv run` may require `dangerouslyDisableSandbox: true` because UV accesses system configuration APIs (`SystemConfiguration.framework`) to detect proxy settings. This is a known UV limitation on macOS systems.
+
+**Behavior:**
+- On first execution, Claude may attempt with sandbox enabled
+- If it fails with system-configuration errors, Claude will retry with sandbox disabled
+- This is expected behavior and does not indicate a security issue
+
+**Alternative (for restricted environments):**
+If sandbox restrictions are problematic, you can pre-install dependencies:
+```bash
+python3 -m pip install requests
+python3 /absolute/path/to/openrouter_client.py image MODEL "prompt" --output logo.png
+```
+
+However, we recommend the standard UV approach for portability and zero-setup benefits.
 
 ## Prompt Template (MANDATORY - DO NOT MODIFY FORMAT)
 
@@ -180,12 +251,17 @@ Logos must meet these criteria:
 Use the **openrouter** skill's image generation capability with the `--background transparent` flag:
 
 ```bash
+# Resolve OpenRouter client path (see Path Resolution section above)
+LATEST_VERSION=$(ls -1 ~/.claude/plugins/cache/claude-skills/openrouter 2>/dev/null | sort -V | tail -n 1)
+OPENROUTER_CLIENT="$HOME/.claude/plugins/cache/claude-skills/openrouter/$LATEST_VERSION/skills/openrouter/scripts/openrouter_client.py"
+
+# Generate logo with transparent background
 UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests \
-  plugins/openrouter/skills/openrouter/scripts/openrouter_client.py image \
+  "$OPENROUTER_CLIENT" image \
   "openai/gpt-5-image" \
   "Your logo prompt here" \
   --background transparent \
   --output logo.png
 ```
 
-**Note on Sandbox Mode**: The `UV_CACHE_DIR=/tmp/claude/uv-cache` prefix ensures `uv` uses an allowed cache directory. When Claude runs these commands, it may still need to disable sandbox due to `uv` accessing macOS system configuration APIs. Users running commands manually won't encounter this restriction.
+**Note on Sandbox Mode**: The `UV_CACHE_DIR=/tmp/claude/uv-cache` prefix ensures `uv` uses an allowed cache directory. When Claude runs these commands, it may still need to disable sandbox due to `uv` accessing macOS system configuration APIs (see Sandbox Compatibility section above).

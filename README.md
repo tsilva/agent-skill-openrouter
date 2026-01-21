@@ -283,6 +283,31 @@ claude-skills/
 └── README.md                    # This file
 ```
 
+## Dependency Management
+
+This repository follows Agent Skills best practices using **UV for portable, zero-setup execution**:
+
+```bash
+UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests scripts/script-name.py ...
+```
+
+**Benefits:**
+- No environment setup required
+- Dependencies declared inline (PEP 723 standard)
+- Automatic caching for fast execution
+- Full portability across systems
+
+**macOS Sandbox Note:** On macOS, UV may require `dangerouslyDisableSandbox` because it accesses system configuration APIs. This is a known UV limitation and does not indicate a skill design issue.
+
+**Alternative approach (for restricted environments):**
+```bash
+# Pre-install dependencies
+python3 -m pip install requests
+
+# Run script directly
+python3 plugins/openrouter/skills/openrouter/scripts/openrouter_client.py chat MODEL "prompt"
+```
+
 ## Adding New Skills
 
 See [CLAUDE.md](CLAUDE.md#adding-a-new-skill) for step-by-step instructions on creating skills.

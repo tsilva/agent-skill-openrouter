@@ -282,6 +282,75 @@ Test skills with all models you plan to use:
 - **Sonnet**: Is the skill clear and efficient?
 - **Opus**: Does the skill avoid over-explaining?
 
+## Dependency Management Best Practices
+
+Following official Agent Skills specification and Anthropic recommendations.
+
+### Gold Standard: UV with Inline Dependencies
+
+All scripts use UV with inline dependency declarations:
+```bash
+UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests scripts/openrouter_client.py ...
+```
+
+**Why UV is preferred:**
+- Zero setup for users (no pip install needed)
+- Dependencies declared inline (PEP 723 standard)
+- Automatic caching and fast execution
+- Full portability across systems
+- Official Anthropic/Claude Code recommendation
+
+### Handling Missing Dependencies
+
+Scripts validate dependencies at import with helpful error messages:
+```python
+try:
+    import requests
+except ImportError:
+    print("Error: requests library required.", file=sys.stderr)
+    print("Run with: uv run --with requests <script>", file=sys.stderr)
+    sys.exit(1)
+```
+
+**Pattern:**
+- Print to `stderr` (not stdout)
+- Exit with code 1
+- Provide exact recovery command
+- Name the specific missing library
+
+### macOS Sandbox Limitation
+
+UV accesses `SystemConfiguration.framework` APIs for proxy detection, which requires `dangerouslyDisableSandbox: true` on macOS. This is a known UV limitation, not a skill design issue.
+
+**Expected behavior:**
+- On first execution, Claude may attempt with sandbox enabled
+- If it fails with system-configuration errors, Claude will retry with sandbox disabled
+- This is normal and does not indicate a security problem
+
+**Fallback:** For restricted environments, users can pre-install dependencies and use plain Python:
+```bash
+python3 -m pip install requests
+python3 /absolute/path/to/script.py ...
+```
+
+However, the UV approach is strongly preferred for its portability and zero-setup benefits.
+
+### Optional Dependencies
+
+For non-critical dependencies, use graceful degradation:
+```python
+try:
+    from colorama import Fore, Style
+    HAS_COLOR = True
+except ImportError:
+    # Fallback: no colors
+    class Fore:
+        RED = GREEN = ""
+    HAS_COLOR = False
+```
+
+This allows the script to function even when optional packages are unavailable.
+
 ## Version Management
 
 **CRITICAL: DO NOT manually bump version numbers.** Version numbers are **automatically bumped** by a git pre-commit hook when you modify a SKILL.md file. If you manually bump versions, they will be bumped again by the hook, causing incorrect version numbers.
