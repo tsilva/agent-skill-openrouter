@@ -1,5 +1,7 @@
 <div align="center">
-  <img src="logo.png" alt="Claude Skills" width="280"/>
+  <img src="logo.png" alt="claude-skills" width="512"/>
+
+  # claude-skills
 
   [![Claude Code](https://img.shields.io/badge/Claude_Code-Compatible-DA7856?style=flat&logo=anthropic)](https://claude.ai/code)
   [![Python 3.8+](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
@@ -7,7 +9,7 @@
   [![GitHub Stars](https://img.shields.io/github/stars/tsilva/claude-skills?style=flat)](https://github.com/tsilva/claude-skills/stargazers)
   [![OpenRouter](https://img.shields.io/badge/OpenRouter-Powered-6366f1?style=flat)](https://openrouter.ai)
 
-  **Modular skills that extend Claude Code with specialized capabilities**
+  **Extend Claude Code with 300+ AI models, auto-generated READMEs, custom logos, and security auditing**
 
   [Documentation](CLAUDE.md) · [Skills Marketplace](#installation)
 </div>
@@ -27,9 +29,9 @@
 | Skill | Description | Version | Slash Command |
 |-------|-------------|---------|---------------|
 | [OpenRouter](#openrouter) | Access 300+ AI models for text completion and image generation | 1.1.1 | `/openrouter` |
-| [README Generator](#readme-generator) | Create cutting-edge README files with badges and visual hierarchy | 1.0.9 | `/readme-generator` |
-| [Repo Logo Generator](#repo-logo-generator) | Generate minimalist logos optimized for GitHub | 3.0.4 | `/repo-logo-generator` |
-| [Settings Cleaner](#settings-cleaner) | Audit and optimize Claude Code permission whitelists | 1.0.5 | `/settings-cleaner` |
+| [README Generator](#readme-generator) | Create cutting-edge README files with badges and visual hierarchy | 1.0.11 | `/readme-generator` |
+| [Repo Logo Generator](#repo-logo-generator) | Generate logos with transparent backgrounds via chromakey | 3.2.0 | `/repo-logo-generator` |
+| [Settings Cleaner](#settings-cleaner) | Audit and optimize Claude Code permission whitelists | 1.0.7 | `/settings-cleaner` |
 
 ## Installation
 
@@ -37,13 +39,13 @@
 
 ```bash
 # Add the skills marketplace
-/plugin marketplace add tsilva/claude-skills
+/skills-discovery tsilva/claude-skills
 
-# Install individual skills
-/plugin install openrouter
-/plugin install readme-generator
-/plugin install repo-logo-generator
-/plugin install settings-cleaner
+# Or install individual skills directly
+/skills-discovery openrouter
+/skills-discovery readme-generator
+/skills-discovery repo-logo-generator
+/skills-discovery settings-cleaner
 ```
 
 ### Manual Installation
@@ -51,7 +53,6 @@
 ```bash
 git clone https://github.com/tsilva/claude-skills.git
 cd claude-skills
-./scripts/install-hooks.sh  # Optional: auto-bump versions on changes
 ```
 
 ## Quick Start
@@ -99,10 +100,11 @@ UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests plugins/openrouter/skil
 ### Logo Generation
 
 ```bash
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests plugins/openrouter/skills/openrouter/scripts/openrouter_client.py image \
-  "google/gemini-3-pro-image-preview" \
-  "A minimalist logo for MyProject: geometric terminal icon. Clean vector style on solid #0d1117 background. White icon, no text." \
-  --output /path/to/logo.png
+# Generate logo with transparent background (chromakey)
+uv run --with requests --with pillow \
+  ~/.claude/plugins/cache/claude-skills/repo-logo-generator/latest/skills/repo-logo-generator/scripts/generate_logo.py \
+  "A minimalist logo for MyProject: geometric terminal icon" \
+  --output logo.png
 ```
 
 ---
@@ -113,7 +115,7 @@ UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests plugins/openrouter/skil
 
 <p>
   <a href="https://openrouter.ai"><img src="https://img.shields.io/badge/OpenRouter-Powered-6366f1?style=flat" alt="OpenRouter"></a>
-  <img src="https://img.shields.io/badge/Version-1.1.0-green?style=flat" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.1.1-green?style=flat" alt="Version">
   <img src="https://img.shields.io/badge/Models-300+-purple?style=flat" alt="300+ Models">
 </p>
 
@@ -163,7 +165,7 @@ response = client.chat_simple("anthropic/claude-sonnet-4.5", "Hello!")
 ### README Generator
 
 <p>
-  <img src="https://img.shields.io/badge/Version-1.0.5-green?style=flat" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.0.11-green?style=flat" alt="Version">
   <img src="https://img.shields.io/badge/OpenRouter-Integration-6366f1?style=flat" alt="OpenRouter Integration">
 </p>
 
@@ -192,20 +194,17 @@ Create READMEs that hook readers in 5 seconds, prove value in 30 seconds, and en
 ### Repo Logo Generator
 
 <p>
-  <img src="https://img.shields.io/badge/Version-2.0.3-green?style=flat" alt="Version">
+  <img src="https://img.shields.io/badge/Version-3.2.0-green?style=flat" alt="Version">
   <img src="https://img.shields.io/badge/OpenRouter-Integration-6366f1?style=flat" alt="OpenRouter Integration">
 </p>
 
-Generate professional minimalist logos optimized for GitHub's dark theme.
+Generate professional logos with transparent backgrounds using chromakey technology. Gemini generates the logo with a green (#00FF00) background, then PIL applies professional chromakey for smooth transparency.
 
-#### Prompt Template
+#### Features
 
-```
-A minimalist logo for {PROJECT_NAME}: {VISUAL_METAPHOR}.
-Clean vector style on solid #0d1117 background.
-Bright, light-colored icon. No text, no letters.
-Single centered icon, geometric shapes, works at 64x64px.
-```
+- **Chromakey transparency** - Industry-standard green screen technique eliminates halo artifacts
+- **Multiple styles** - Supports minimalist, pixel art, vector, and complex designs
+- **Configurable** - Customize colors, style, and model via JSON config files
 
 #### Visual Metaphors
 
@@ -220,10 +219,11 @@ Single centered icon, geometric shapes, works at 64x64px.
 #### Example
 
 ```bash
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests plugins/openrouter/skills/openrouter/scripts/openrouter_client.py image \
-  "google/gemini-3-pro-image-preview" \
-  "A minimalist logo for fastgrep: magnifying glass with speed lines. Clean vector on #0d1117 background. White icon, no text." \
-  --output /path/to/logo.png
+# Generate logo with transparent background
+uv run --with requests --with pillow \
+  ~/.claude/plugins/cache/claude-skills/repo-logo-generator/latest/skills/repo-logo-generator/scripts/generate_logo.py \
+  "A minimalist logo for fastgrep: magnifying glass with speed lines" \
+  --output logo.png
 ```
 
 [Full documentation](plugins/repo-logo-generator/skills/repo-logo-generator/SKILL.md)
@@ -233,7 +233,7 @@ UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests plugins/openrouter/skil
 ### Settings Cleaner
 
 <p>
-  <img src="https://img.shields.io/badge/Version-1.0.0-green?style=flat" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.0.7-green?style=flat" alt="Version">
   <img src="https://img.shields.io/badge/Security-Audit-red?style=flat" alt="Security">
 </p>
 
@@ -286,15 +286,13 @@ Simply ask:
 ```
 claude-skills/
 ├── plugins/
-│   ├── openrouter/              # OpenRouter skill (v1.1.0)
-│   ├── readme-generator/        # README Generator skill (v1.0.5)
-│   ├── repo-logo-generator/     # Logo Generator skill (v2.0.3)
-│   └── settings-cleaner/        # Settings Cleaner skill (v1.1.0)
-├── hooks/
-│   └── pre-commit               # Auto-version bump hook
+│   ├── openrouter/              # OpenRouter skill (v1.1.1)
+│   ├── readme-generator/        # README Generator skill (v1.0.11)
+│   ├── repo-logo-generator/     # Logo Generator skill (v3.2.0)
+│   └── settings-cleaner/        # Settings Cleaner skill (v1.0.7)
 ├── scripts/
-│   ├── bump-version.py          # Version management
-│   └── install-hooks.sh         # Hook installer
+│   ├── bump-version.py          # Version management CLI
+│   └── validate_skills.py       # Skill validation against spec
 ├── .claude-plugin/
 │   └── marketplace.json         # Plugin registry
 ├── logo.png                     # Repository logo
