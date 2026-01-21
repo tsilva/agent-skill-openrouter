@@ -191,6 +191,8 @@ python scripts/validate_skills.py
 
 This validates against the [Agent Skills specification](https://agentskills.io/specification) and repository rules. Fix any errors before committing.
 
+**Important:** When modifying skills, DO NOT manually update version numbers. The git pre-commit hook automatically bumps versions when you commit changes to SKILL.md files. See the **Version Management** section below for details.
+
 ## SKILL.md Specification
 
 Based on the official [Agent Skills Specification](https://agentskills.io/specification).
@@ -282,7 +284,7 @@ Test skills with all models you plan to use:
 
 ## Version Management
 
-Version numbers are **automatically bumped** by a git pre-commit hook when you modify a SKILL.md file.
+**CRITICAL: DO NOT manually bump version numbers.** Version numbers are **automatically bumped** by a git pre-commit hook when you modify a SKILL.md file. If you manually bump versions, they will be bumped again by the hook, causing incorrect version numbers.
 
 ### Automatic Version Bumping
 

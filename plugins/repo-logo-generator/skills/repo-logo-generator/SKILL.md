@@ -2,7 +2,7 @@
 name: repo-logo-generator
 description: Generate logos for GitHub repositories via OpenRouter with native transparent backgrounds using GPT-5 Image. Works with pixel art, vector designs, and complex multi-colored styles. Use when asked to "generate a logo", "create repo logo", or "make a project logo".
 metadata:
-  version: "3.0.1"
+  version: "3.0.2"
 ---
 
 # Repo Logo Generator
@@ -46,7 +46,7 @@ You MUST construct the prompt using this EXACT template. Do not paraphrase, do n
 ```
 A {config.style} logo for {PROJECT_NAME}: {VISUAL_METAPHOR_FROM_TABLE}.
 Clean vector style. Icon colors from: {config.iconColors}.
-No text, no letters, no words. Single centered icon, geometric shapes, works at {config.size}.
+Transparent background. No text, no letters, no words. Single centered icon, geometric shapes, works at {config.size}.
 ```
 
 **Default values** (when no config exists):
@@ -62,7 +62,7 @@ For a CLI tool called "fastgrep":
 ```
 A minimalist logo for fastgrep: A magnifying glass with speed lines forming a geometric pattern.
 Clean vector style. Icon colors from: #ffffff, #58a6ff, #3fb950, #d29922, #a371f7.
-No text, no letters, no words. Single centered icon, geometric shapes, works at 64x64.
+Transparent background. No text, no letters, no words. Single centered icon, geometric shapes, works at 64x64.
 ```
 
 ## Visual Metaphors by Project Type (MUST use this table)
@@ -144,7 +144,11 @@ Read JSON if exists, extract `logo` object. Project overrides user overrides def
 ## Native Transparent Backgrounds
 
 **How it works:**
-GPT-5 Image supports native transparent background generation via the `background: "transparent"` parameter. The OpenRouter client passes this through using the `--background transparent` flag.
+GPT-5 Image supports native transparent background generation. To generate transparent backgrounds, you must specify transparency in BOTH:
+1. **API parameter**: Use `--background transparent` flag in the command
+2. **Prompt text**: Include "Transparent background" in the prompt itself
+
+Both are required - the API parameter alone is not sufficient.
 
 **Benefits:**
 - ✅ **Single generation** - no post-processing required

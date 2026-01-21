@@ -109,16 +109,19 @@ class OpenRouterClient:
         return result["choices"][0]["message"]["content"]
 
     def generate_image(self, model: str, prompt: str, output_path: str = None,
-                       aspect_ratio: str = "1:1", size: str = "1K", background: str = None) -> list:
+                       aspect_ratio: str = "1:1", size: str = "1K", background: str = None,
+                       quality: str = None, output_format: str = None) -> list:
         """Generate image using chat completions endpoint.
 
         Args:
             background: Optional background setting (e.g., "transparent").
                        Support depends on model capabilities.
+            quality: Optional quality setting (e.g., "high", "medium", "low").
+                    Required for best transparency results.
+            output_format: Optional output format (e.g., "png", "webp", "jpeg").
+                          Required for transparency (use "png" or "webp").
         """
         image_config = {"aspect_ratio": aspect_ratio, "image_size": size}
-        if background:
-            image_config["background"] = background
 
         payload = {
             "model": model,
@@ -127,6 +130,14 @@ class OpenRouterClient:
             "image_config": image_config,
             "n": 1
         }
+
+        # Add top-level parameters (for OpenAI GPT Image models)
+        if background:
+            payload["background"] = background
+        if quality:
+            payload["quality"] = quality
+        if output_format:
+            payload["output_format"] = output_format
 
         result = self._request("POST", "chat/completions", payload)
         images = result["choices"][0]["message"].get("images", [])
@@ -196,6 +207,8 @@ def main():
     image_parser.add_argument("--aspect", "-a", default="1:1", help="Aspect ratio (1:1, 16:9, etc)")
     image_parser.add_argument("--size", "-z", default="1K", help="Size (1K, 2K, 4K)")
     image_parser.add_argument("--background", "-b", help="Background setting (e.g., 'transparent')")
+    image_parser.add_argument("--quality", "-q", help="Quality setting (e.g., 'high', 'medium', 'low')")
+    image_parser.add_argument("--output-format", "-f", help="Output format (e.g., 'png', 'webp', 'jpeg')")
 
     # Models command
     models_parser = subparsers.add_parser("models", help="List available models")
@@ -233,7 +246,7 @@ def main():
         elif args.command == "image":
             images = client.generate_image(
                 args.model, args.prompt, args.output, args.aspect, args.size,
-                background=args.background
+                background=args.background, quality=args.quality, output_format=args.output_format
             )
             if images:
                 print(f"Generated {len(images)} image(s)")
