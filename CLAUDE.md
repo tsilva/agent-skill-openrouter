@@ -291,10 +291,12 @@ Test skills with all models you plan to use:
 When you commit changes to any `SKILL.md` file:
 1. Pre-commit hook detects the staged SKILL.md
 2. Extracts current version from frontmatter
-3. Bumps the patch version (e.g., 1.0.4 → 1.0.5)
-4. Updates all 3 version locations automatically
-5. Stages the modified files
-6. Commit proceeds with version bump included
+3. Checks for version-bump marker (defaults to patch if not found)
+4. Bumps the version accordingly (e.g., 1.0.4 → 1.0.5 for patch)
+5. Updates all 3 version locations automatically
+6. Removes the version-bump marker (if present)
+7. Stages the modified files
+8. Commit proceeds with version bump included
 
 **Setup (required after cloning):**
 ```bash
@@ -305,6 +307,38 @@ When you commit changes to any `SKILL.md` file:
 ```bash
 git commit --no-verify
 ```
+
+### Semantic Versioning
+
+The pre-commit hook automatically detects version bump type from SKILL.md markers.
+
+**To trigger a minor or major version bump:**
+
+Add a comment marker immediately after the frontmatter in SKILL.md:
+
+```markdown
+---
+name: my-skill
+metadata:
+  version: "1.0.7"
+---
+
+<!-- version-bump: minor -->
+
+# My Skill
+```
+
+**Bump types:**
+- `<!-- version-bump: patch -->` - Bug fixes, documentation (default if no marker)
+- `<!-- version-bump: minor -->` - New features, backward-compatible changes
+- `<!-- version-bump: major -->` - Breaking changes
+
+The marker is automatically removed after the version bump.
+
+**When to use each:**
+- **Patch** (X.Y.Z+1): Typos, clarifications, small documentation fixes
+- **Minor** (X.Y+1.0): New parameters, new features, enhanced capabilities
+- **Major** (X+1.0.0): Removing features, changing behavior, breaking API changes
 
 ### Version Locations
 

@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
 """
-Auto-bump version numbers for a skill plugin.
+Auto-bump version numbers for a skill plugin with semantic versioning support.
 
 Usage: python bump-version.py <plugin-name>
 
-Bumps the patch version (e.g., 1.0.4 -> 1.0.5) in:
+Supports major, minor, and patch version bumps via SKILL.md markers:
+- <!-- version-bump: major --> - Breaking changes (X+1.0.0)
+- <!-- version-bump: minor --> - New features (X.Y+1.0)
+- <!-- version-bump: patch --> - Bug fixes (X.Y.Z+1, default)
+
+Updates version in:
 1. plugins/<plugin>/skills/<skill>/SKILL.md (metadata.version)
 2. plugins/<plugin>/.claude-plugin/plugin.json (version)
 3. .claude-plugin/marketplace.json (version for that plugin)
+
+The version-bump marker is automatically removed after processing.
 """
 
 import json
@@ -26,10 +33,46 @@ def parse_version(version_str: str) -> tuple[int, int, int]:
     return int(parts[0]), int(parts[1]), int(parts[2])
 
 
-def bump_patch(version_str: str) -> str:
-    """Bump the patch version and return new version string."""
+def bump_version(version_str: str, bump_type: str = "patch") -> str:
+    """Bump version based on type: major, minor, or patch."""
     major, minor, patch = parse_version(version_str)
-    return f"{major}.{minor}.{patch + 1}"
+
+    if bump_type == "major":
+        return f"{major + 1}.0.0"
+    elif bump_type == "minor":
+        return f"{major}.{minor + 1}.0"
+    else:  # patch (default)
+        return f"{major}.{minor}.{patch + 1}"
+
+
+def extract_bump_type_from_skill_md(skill_md_path: Path) -> str:
+    """Extract version bump type from SKILL.md comment marker.
+
+    Looks for: <!-- version-bump: major|minor|patch -->
+    Returns: "major", "minor", or "patch" (default)
+    """
+    content = skill_md_path.read_text()
+    match = re.search(
+        r'<!--\s*version-bump:\s*(major|minor|patch)\s*-->',
+        content,
+        re.IGNORECASE
+    )
+    return match.group(1).lower() if match else "patch"
+
+
+def remove_version_marker(skill_md_path: Path) -> bool:
+    """Remove version-bump marker after processing."""
+    content = skill_md_path.read_text()
+    new_content = re.sub(
+        r'<!--\s*version-bump:\s*(?:major|minor|patch)\s*-->\s*\n?',
+        '',
+        content,
+        flags=re.IGNORECASE
+    )
+    if new_content != content:
+        skill_md_path.write_text(new_content)
+        return True
+    return False
 
 
 def find_skill_md(plugin_dir: Path) -> Path | None:
@@ -163,15 +206,22 @@ def main():
         print(f"Error: Could not extract version from {skill_md_path}")
         sys.exit(1)
 
+    # Determine bump type from SKILL.md marker
+    bump_type = extract_bump_type_from_skill_md(skill_md_path)
+
     # Bump version
-    new_version = bump_patch(current_version)
-    print(f"  Bumping version: {current_version} -> {new_version}")
+    new_version = bump_version(current_version, bump_type)
+    print(f"  Bumping version ({bump_type}): {current_version} -> {new_version}")
 
     # Update all files
     updates = []
 
     if update_skill_md(skill_md_path, new_version):
         updates.append(f"  Updated: {skill_md_path.relative_to(repo_root)}")
+
+    # Remove the version-bump marker after updating version
+    if remove_version_marker(skill_md_path):
+        updates.append(f"  Removed version marker from: {skill_md_path.relative_to(repo_root)}")
 
     if update_plugin_json(plugin_json_path, new_version):
         updates.append(f"  Updated: {plugin_json_path.relative_to(repo_root)}")
