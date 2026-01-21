@@ -7,16 +7,16 @@ argument-hint: "[style-preference]"
 disable-model-invocation: false
 user-invocable: true
 metadata:
-  version: "3.0.7"
+  version: "3.1.0"
 ---
 
 # Repo Logo Generator
 
-Generate professional logos with transparent backgrounds using a simplified workflow:
-1. **Gemini** (google/gemini-3-pro-image-preview) generates logo with #ffffff background
-2. **PIL** programmatically converts #ffffff pixels to transparent
+Generate professional logos with transparent backgrounds using chromakey technology:
+1. **Gemini** (google/gemini-3-pro-image-preview) generates logo with magenta (#FF00FF) background
+2. **PIL** applies professional chromakey algorithm for smooth transparency
 
-This approach is simpler, faster, and requires only one API call.
+The chromakey approach eliminates "halo" artifacts around edges that occur with white background conversion. This is the same technique used in film/TV green screen compositing.
 
 ## Path Resolution
 
@@ -51,7 +51,7 @@ Follow these steps exactly. Do not skip steps or improvise.
     1. Validate dependencies (find script, check API key)
     2. Load configuration files (project → user → default)
     3. Read project documentation to determine type
-    4. Generate logo using Gemini with #ffffff background
+    4. Generate logo using Gemini with chromakey background
     5. Verify logo file and properties
 
   This is a multi-step task requiring todo list tracking per TodoWrite guidelines.
@@ -80,8 +80,8 @@ Follow these steps exactly. Do not skip steps or improvise.
 - [ ] **Step 5**: Select visual metaphor from the table below and fill the prompt template
 
 - [ ] **Step 6**: Generate logo:
-  - Gemini generates image with #ffffff background
-  - PIL programmatically converts #ffffff to transparent
+  - Gemini generates image with magenta (#FF00FF) chromakey background
+  - PIL applies chromakey algorithm for smooth transparent edges
   - Use absolute path to script (resolved in Step 1)
   - Command format:
     ```bash
@@ -120,15 +120,16 @@ You MUST construct the prompt using this EXACT template. Do not paraphrase, do n
 ```
 A {config.style} logo for {PROJECT_NAME}: {VISUAL_METAPHOR_FROM_TABLE}.
 Clean vector style. Icon colors from: {config.iconColors}.
-Pure white (#ffffff) background only. Do not use white (#ffffff) anywhere else in the design.
+Pure magenta (#FF00FF) background only. Do not use magenta or pink tones anywhere in the design.
 No text, no letters, no words. Single centered icon, geometric shapes, works at {config.size}.
 ```
 
 **Default values** (when no config exists):
 - `config.style` = `minimalist`
-- `config.iconColors` = `#58a6ff, #3fb950, #d29922, #a371f7, #7aa2f7` (no white)
+- `config.iconColors` = `#58a6ff, #3fb950, #d29922, #a371f7, #7aa2f7` (avoid magenta/pink)
 - `config.size` = `64x64`
 - `config.model` = `google/gemini-3-pro-image-preview`
+- `config.keyColor` = `#FF00FF` (magenta)
 
 ### Filled Example
 
@@ -137,7 +138,7 @@ For a CLI tool called "fastgrep":
 ```
 A minimalist logo for fastgrep: A magnifying glass with speed lines forming a geometric pattern.
 Clean vector style. Icon colors from: #58a6ff, #3fb950, #d29922, #a371f7, #7aa2f7.
-Pure white (#ffffff) background only. Do not use white (#ffffff) anywhere else in the design.
+Pure magenta (#FF00FF) background only. Do not use magenta or pink tones anywhere in the design.
 No text, no letters, no words. Single centered icon, geometric shapes, works at 64x64.
 ```
 
@@ -172,7 +173,7 @@ Select the metaphor that matches the project type. Do NOT invent alternatives.
 - Skip any line of the template
 - Add "gradient", "3D", "glossy", "photorealistic" or similar non-minimalist styles
 - Include text, letters, or words in the logo description
-- Use white (#ffffff) in the icon colors - white is reserved for the background only
+- Use magenta or pink tones in the icon colors - magenta is reserved for the chromakey background
 
 ## Configuration Reference
 
@@ -188,12 +189,13 @@ Read JSON if exists, extract `logo` object. Project overrides user overrides def
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `iconColors` | `["#58a6ff", "#3fb950", "#d29922", "#a371f7", "#7aa2f7"]` | Preferred icon colors (do not include white) |
+| `iconColors` | `["#58a6ff", "#3fb950", "#d29922", "#a371f7", "#7aa2f7"]` | Preferred icon colors (avoid magenta/pink) |
 | `style` | `minimalist` | Logo style description (completely overrides default prompt if set) |
 | `size` | `64x64` | Target size for logo |
 | `aspectRatio` | `1:1` | Aspect ratio for generation |
 | `model` | `google/gemini-3-pro-image-preview` | Model for image generation |
-| `tolerance` | `10` | White pixel tolerance for transparency conversion (0-255) |
+| `keyColor` | `#FF00FF` | Chromakey background color (magenta recommended) |
+| `tolerance` | `30` | Chromakey tolerance for transparency (0-255, higher = more aggressive) |
 
 ### Example Configuration
 
@@ -204,7 +206,8 @@ Read JSON if exists, extract `logo` object. Project overrides user overrides def
     "iconColors": ["#7aa2f7", "#bb9af7", "#7dcfff"],
     "style": "minimalist",
     "model": "google/gemini-3-pro-image-preview",
-    "tolerance": 10
+    "keyColor": "#FF00FF",
+    "tolerance": 30
   }
 }
 ```
@@ -213,39 +216,49 @@ Read JSON if exists, extract `logo` object. Project overrides user overrides def
 ```json
 {
   "logo": {
-    "iconColors": "Vibrant saturated colors inspired by classic LucasArts VGA adventure games (but not white)",
+    "iconColors": "Vibrant saturated colors inspired by classic LucasArts VGA adventure games (avoid magenta/pink)",
     "style": "Pixel art in the painterly style of classic LucasArts VGA adventure games (1990s era). Create a charming character mascot with a funny expression. Surround with floating icon-only symbols relevant to the project. Use classic adventure game title banner style with ornate border. Rich dithering, vibrant saturated colors, whimsical and humorous. MUST include the project name as pixel art text in the banner.",
     "model": "google/gemini-3-pro-image-preview"
   }
 }
 ```
 
-## How It Works: Gemini + Programmatic Transparency
+## How It Works: Chromakey Transparency
 
-**Simple, efficient workflow:**
-1. **Gemini generates the logo**: Uses `google/gemini-3-pro-image-preview` with #ffffff background
-2. **PIL converts to transparent**: Programmatically replaces all #ffffff pixels with transparency
+**Professional-quality workflow:**
+1. **Gemini generates the logo**: Uses `google/gemini-3-pro-image-preview` with magenta (#FF00FF) background
+2. **PIL applies chromakey**: Professional algorithm calculates proportional alpha for smooth edges
 
-This approach is simpler, faster, and more reliable than multi-step AI conversions.
+This is the same technique used in film/TV green screen compositing, adapted for logo generation.
+
+**Why Chromakey (Not White)?**
+
+The white background approach has a fundamental problem: anti-aliased edges blend toward white, creating "halo" artifacts. For example, a blue edge pixel might become `#f0e8dd` - not pure white, so it survives the conversion.
+
+Chromakey solves this:
+- **Distinct hue detection**: Magenta has a specific hue (300°), not just lightness
+- **Proportional alpha**: Blended pixels get partial transparency, creating smooth edges
+- **Preserves light colors**: White, cream, light gray in designs are unaffected
 
 **Benefits:**
-- ✅ **High quality** - Gemini produces excellent designs
-- ✅ **Reliable transparency** - Deterministic color replacement, no AI guesswork
-- ✅ **No color constraints** - Use any colors except white in the icon
-- ✅ **Perfect alpha channel** - Clean RGBA transparency
-- ✅ **Faster** - Single API call instead of two
-- ✅ **Lower cost** - Half the API usage
-- ✅ **Consistent results** - No variation in transparency conversion
+- ✅ **Smooth edges** - No halo artifacts around anti-aliased pixels
+- ✅ **Professional quality** - Industry-standard compositing technique
+- ✅ **Any light colors** - White, cream, light gray in the design are preserved
+- ✅ **Single API call** - Fast and cost-effective
+- ✅ **Deterministic** - Consistent, reproducible results
 
 **Compatibility:**
-- ✅ Multi-colored designs (just avoid white in the icon)
+- ✅ Multi-colored designs (just avoid magenta/pink in the icon)
 - ✅ Pixel art, vector, and complex styles
 - ✅ Logos with or without text
 - ✅ Minimalist or detailed designs
-- ✅ Any style that works without white in the foreground
+- ✅ Light-colored designs (white elements preserved!)
 
-**Quality:**
-This approach produces high-quality logos with perfect transparent backgrounds. The programmatic conversion is more reliable than AI-based transparency removal.
+**Legacy Mode:**
+If you need the old white background approach, use the `--white-bg` flag:
+```bash
+uv run --with requests --with pillow "$LOGO_SCRIPT" "prompt" --output logo.png --white-bg
+```
 
 ## Technical Requirements
 
@@ -257,32 +270,46 @@ Logos must meet these criteria:
 
 ## Usage
 
-Use the generation script with Gemini + PIL for transparent logos:
+Use the generation script with Gemini + chromakey for transparent logos:
 
 ```bash
 # Resolve script path (see Path Resolution section above)
 LATEST_VERSION=$(ls -1 ~/.claude/plugins/cache/claude-skills/repo-logo-generator 2>/dev/null | sort -V | tail -n 1)
 LOGO_SCRIPT="$HOME/.claude/plugins/cache/claude-skills/repo-logo-generator/$LATEST_VERSION/skills/repo-logo-generator/scripts/generate_logo.py"
 
-# Generate logo with transparent background
+# Generate logo with chromakey transparency (default)
 uv run --with requests --with pillow \
   "$LOGO_SCRIPT" \
   "Your logo prompt here" \
   --output logo.png
 
-# Optional: Keep original image with white background for comparison
+# Keep original image before transparency conversion
 uv run --with requests --with pillow \
   "$LOGO_SCRIPT" \
   "Your logo prompt here" \
   --output logo.png \
   --keep-original
 
-# Optional: Adjust white pixel tolerance (default 10)
+# Adjust chromakey tolerance (default 30, higher = more aggressive)
 uv run --with requests --with pillow \
   "$LOGO_SCRIPT" \
   "Your logo prompt here" \
   --output logo.png \
-  --tolerance 5
+  --tolerance 40
+
+# Use custom key color (default: magenta #FF00FF)
+uv run --with requests --with pillow \
+  "$LOGO_SCRIPT" \
+  "Your logo prompt here" \
+  --output logo.png \
+  --key-color "#00FF00"
+
+# Legacy mode: Use white background instead of chromakey
+uv run --with requests --with pillow \
+  "$LOGO_SCRIPT" \
+  "Your logo prompt here" \
+  --output logo.png \
+  --white-bg
 ```
 
 **Note on Sandbox Mode**: When Claude runs these commands, it may need to disable sandbox due to `uv` accessing macOS system configuration APIs (see Sandbox Compatibility section above).

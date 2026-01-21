@@ -3,8 +3,12 @@
 Logo generation with transparent background using Gemini + PIL.
 
 This script generates high-quality logos by:
-1. Using Gemini (google/gemini-3-pro-image-preview) with #ffffff background
-2. Programmatically converting #ffffff pixels to transparent using PIL
+1. Using Gemini (google/gemini-3-pro-image-preview) with a chromakey background
+2. Programmatically converting chromakey pixels to transparent using PIL
+
+The chromakey approach uses magenta (#FF00FF) as the background color, which
+provides professional-quality edge detection without the "halo" artifacts
+that occur with white background conversion.
 
 Usage:
     uv run --with requests --with pillow generate_logo.py "Your logo prompt" --output logo.png
@@ -18,6 +22,7 @@ Dependencies: requests, pillow
 import argparse
 import base64
 import io
+import math
 import os
 import sys
 import time
@@ -36,6 +41,19 @@ except ImportError:
     print("Error: pillow library required.", file=sys.stderr)
     print("Run with: uv run --with requests --with pillow generate_logo.py ...", file=sys.stderr)
     sys.exit(1)
+
+
+def parse_hex_color(hex_color: str) -> tuple:
+    """Parse hex color string to RGB tuple.
+
+    Args:
+        hex_color: Color in format '#RRGGBB' or 'RRGGBB'
+
+    Returns:
+        Tuple of (R, G, B) values (0-255)
+    """
+    hex_color = hex_color.lstrip('#')
+    return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
 
 
 class OpenRouterClient:
@@ -144,6 +162,56 @@ def convert_white_to_transparent(image_bytes: bytes, tolerance: int = 10) -> Ima
     return img
 
 
+def chromakey_to_transparent(image_bytes: bytes, key_color: tuple = (255, 0, 255),
+                              tolerance: int = 30) -> Image.Image:
+    """Convert chromakey background to transparent with smooth edges.
+
+    Uses color distance in RGB space to calculate alpha. This is the same
+    technique used in professional film/TV green screen compositing.
+
+    The algorithm:
+    - Pure key color → fully transparent (alpha=0)
+    - Blended pixels (anti-aliased edges) → proportional alpha based on distance
+    - Non-key pixels → fully opaque (alpha=255)
+
+    Args:
+        image_bytes: Input image as bytes
+        key_color: RGB tuple of the key color (default: magenta #FF00FF)
+        tolerance: Base tolerance for key color detection (default: 30)
+                   Higher values = more aggressive transparency
+
+    Returns:
+        PIL Image with transparency applied
+    """
+    img = Image.open(io.BytesIO(image_bytes))
+
+    # Convert to RGBA if not already
+    if img.mode != 'RGBA':
+        img = img.convert('RGBA')
+
+    pixels = img.load()
+    kr, kg, kb = key_color
+
+    for y in range(img.height):
+        for x in range(img.width):
+            r, g, b, a = pixels[x, y]
+
+            # Calculate Euclidean distance from key color in RGB space
+            distance = math.sqrt((r - kr)**2 + (g - kg)**2 + (b - kb)**2)
+
+            if distance < tolerance:
+                # Pure key color or very close - fully transparent
+                pixels[x, y] = (r, g, b, 0)
+            elif distance < tolerance * 3:
+                # Blended region (anti-aliased edges) - proportional alpha
+                # This creates smooth transitions instead of hard edges
+                alpha = int(255 * (distance - tolerance) / (tolerance * 2))
+                pixels[x, y] = (r, g, b, min(255, alpha))
+            # else: keep original alpha (fully opaque)
+
+    return img
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Logo generation with Gemini + programmatic transparency"
@@ -154,10 +222,16 @@ def main():
     parser.add_argument("--size", "-z", default="1K", help="Size (1K, 2K, 4K)")
     parser.add_argument("--model", "-m", default="google/gemini-3-pro-image-preview",
                         help="Model to use for generation")
-    parser.add_argument("--tolerance", "-t", type=int, default=10,
-                        help="White pixel tolerance (0-255, default 10)")
+    parser.add_argument("--tolerance", "-t", type=int, default=30,
+                        help="Color tolerance for transparency (default 30 for chromakey, 10 for white)")
     parser.add_argument("--keep-original", action="store_true",
-                        help="Keep original image with white background")
+                        help="Keep original image before transparency conversion")
+
+    # Chromakey options (new default approach)
+    parser.add_argument("--key-color", "-k", default="#FF00FF",
+                        help="Chromakey color in hex (default: #FF00FF magenta)")
+    parser.add_argument("--white-bg", action="store_true",
+                        help="Use legacy white background approach instead of chromakey")
 
     args = parser.parse_args()
 
@@ -172,11 +246,21 @@ def main():
     output_path = Path(args.output).resolve()
 
     try:
-        # Enhance prompt to request #ffffff background
-        enhanced_prompt = f"{args.prompt}\n\nIMPORTANT: Use pure white (#ffffff) for the background only. Do not use white (#ffffff) anywhere else in the design - the logo/icon itself should use other colors."
+        # Determine background approach and enhance prompt accordingly
+        if args.white_bg:
+            # Legacy white background approach
+            bg_color = "#ffffff"
+            bg_name = "white"
+            enhanced_prompt = f"{args.prompt}\n\nIMPORTANT: Use pure white (#ffffff) for the background only. Do not use white (#ffffff) anywhere else in the design - the logo/icon itself should use other colors."
+        else:
+            # Chromakey approach (default) - uses magenta for cleaner edge detection
+            bg_color = args.key_color.upper()
+            bg_name = "magenta"
+            enhanced_prompt = f"{args.prompt}\n\nIMPORTANT: Use pure magenta ({bg_color}) for the background only. Do not use magenta or pink tones anywhere in the design itself - the logo/icon should use other colors."
 
         # Generate with Gemini
         print(f"Generating with {args.model}...", file=sys.stderr)
+        print(f"  Background: {bg_name} ({bg_color})", file=sys.stderr)
         images = client.generate_image(
             args.model,
             enhanced_prompt,
@@ -203,9 +287,19 @@ def main():
                 f.write(image_bytes)
             print(f"  Saved original: {original_path}", file=sys.stderr)
 
-        # Convert white to transparent
-        print("Converting #ffffff to transparent...", file=sys.stderr)
-        transparent_img = convert_white_to_transparent(image_bytes, tolerance=args.tolerance)
+        # Convert background to transparent
+        if args.white_bg:
+            # Legacy white background conversion
+            print("Converting #ffffff to transparent...", file=sys.stderr)
+            # Use lower tolerance for white (default was 10)
+            tolerance = args.tolerance if args.tolerance != 30 else 10
+            transparent_img = convert_white_to_transparent(image_bytes, tolerance=tolerance)
+        else:
+            # Chromakey conversion (default) - better edge handling
+            print(f"Applying chromakey transparency ({bg_color})...", file=sys.stderr)
+            key_rgb = parse_hex_color(args.key_color)
+            transparent_img = chromakey_to_transparent(image_bytes, key_color=key_rgb,
+                                                        tolerance=args.tolerance)
         print("✓ Transparency conversion complete", file=sys.stderr)
 
         # Save final output
