@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="logo.png" alt="Claude Skills" width="200"/>
+  <img src="logo.png" alt="Claude Skills" width="280"/>
 
   [![Claude Code](https://img.shields.io/badge/Claude_Code-Compatible-DA7856?style=flat&logo=anthropic)](https://claude.ai/code)
   [![Python 3.8+](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
