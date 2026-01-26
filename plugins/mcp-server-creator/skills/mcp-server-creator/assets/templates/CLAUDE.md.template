@@ -1,0 +1,54 @@
+# {SERVER_NAME}
+
+MCP server providing {API_NAME} integration for Claude Code.
+
+## Installation
+
+### Claude Code
+
+```bash
+claude mcp add {name} --scope user -- uv run --directory {ABSOLUTE_PATH} {SERVER_NAME}
+```
+
+### VS Code
+
+Add to `.vscode/settings.json` or user settings:
+
+```json
+{
+  "mcpServers": {
+    "{name}": {
+      "command": "uv",
+      "args": ["run", "--directory", "{ABSOLUTE_PATH}", "{SERVER_NAME}"]
+    }
+  }
+}
+```
+
+## Environment Variables
+
+Create `.env` in the project root or add to `~/.claude/.env`:
+
+```
+{API_KEY_VAR}=your_api_key_here
+```
+
+## Available Tools
+
+| Tool | Description |
+|------|-------------|
+| `example_tool` | Example tool description |
+| `list_items` | List available items |
+
+## Development
+
+```bash
+# Install dependencies
+uv sync
+
+# Run server
+uv run {SERVER_NAME}
+
+# Run tests
+uv run pytest tests/ -v
+```

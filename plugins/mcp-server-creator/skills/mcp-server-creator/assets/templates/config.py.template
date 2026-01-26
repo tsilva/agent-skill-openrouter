@@ -1,0 +1,23 @@
+"""Configuration for {SERVER_NAME}."""
+
+import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# Load .env from package root (not cwd)
+_package_dir = Path(__file__).parent.parent.parent
+load_dotenv(_package_dir / ".env")
+
+# Required configuration
+API_KEY = os.getenv("{API_KEY_VAR}")
+API_BASE_URL = os.getenv("{API_KEY_VAR}_BASE_URL", "{API_BASE_URL}")
+
+
+def validate_config() -> None:
+    """Validate required configuration is present."""
+    if not API_KEY:
+        raise ValueError(
+            "{API_KEY_VAR} environment variable is required. "
+            "Set it in ~/.claude/.env or the project .env file."
+        )

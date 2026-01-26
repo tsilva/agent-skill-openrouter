@@ -1,0 +1,26 @@
+[project]
+name = "{SERVER_NAME}"
+version = "0.1.0"
+description = "MCP server for {API_NAME}"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "{AUTHOR}" }]
+dependencies = [
+    "mcp[cli]>=1.2.0",
+    "httpx>=0.27.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+{SERVER_NAME} = "{PACKAGE_NAME}:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/{PACKAGE_NAME}"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

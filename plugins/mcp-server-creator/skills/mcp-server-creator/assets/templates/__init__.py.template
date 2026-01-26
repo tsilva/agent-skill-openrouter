@@ -1,0 +1,5 @@
+"""MCP server for {API_NAME}."""
+
+from .server import main, mcp
+
+__all__ = ["main", "mcp"]
