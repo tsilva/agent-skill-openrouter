@@ -34,6 +34,12 @@
       "source": "./plugins/mcp-server-creator",
       "description": "Creates MCP servers using FastMCP with production-ready patterns. Use when asked to create an MCP server, build MCP tools, or integrate external APIs with Claude Code.",
       "version": "1.0.0"
+    },
+    {
+      "name": "claude-skill-author",
+      "source": "./plugins/claude-skill-author",
+      "description": "Guide for creating Claude Code agent skills - project-level, personal, and plugin-bundled marketplace skills.",
+      "version": "1.0.0"
     }
   ]
 }

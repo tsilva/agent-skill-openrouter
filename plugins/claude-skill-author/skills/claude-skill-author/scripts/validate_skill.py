@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-Validate skills against the Agent Skills specification (agentskills.io/specification)
-and repository-specific rules from CLAUDE.md.
+Validate a single skill against the Agent Skills specification.
 
 Usage:
-    python scripts/validate_skills.py              # Validate all skills
-    python scripts/validate_skills.py --verbose    # Show all details
-    python scripts/validate_skills.py --plugin foo # Validate single plugin
+    python validate_skill.py /path/to/skill-dir           # Validate skill at path
+    python validate_skill.py /path/to/skill-dir --verbose # Show all details
+
+For plugin-bundled skills, also validates plugin.json and version sync.
+For project-level skills (.claude/skills/), skips plugin-specific checks.
 
 Exit codes: 0 = passed, 1 = failed
 """
@@ -40,11 +41,10 @@ class ValidationIssue:
 
 
 @dataclass
-class SkillValidationResult:
-    """Validation result for a single skill."""
-    plugin_name: str
+class ValidationResult:
+    """Validation result for a skill."""
+    skill_path: Path
     skill_name: str
-    skill_md_path: Path
     issues: list[ValidationIssue] = field(default_factory=list)
 
     @property
@@ -55,30 +55,9 @@ class SkillValidationResult:
     def has_warnings(self) -> bool:
         return any(i.severity == Severity.WARNING for i in self.issues)
 
-
-@dataclass
-class ValidationReport:
-    """Complete validation report."""
-    skill_results: list[SkillValidationResult] = field(default_factory=list)
-    global_issues: list[ValidationIssue] = field(default_factory=list)
-
-    @property
-    def total_errors(self) -> int:
-        count = sum(1 for i in self.global_issues if i.severity == Severity.ERROR)
-        for result in self.skill_results:
-            count += sum(1 for i in result.issues if i.severity == Severity.ERROR)
-        return count
-
-    @property
-    def total_warnings(self) -> int:
-        count = sum(1 for i in self.global_issues if i.severity == Severity.WARNING)
-        for result in self.skill_results:
-            count += sum(1 for i in result.issues if i.severity == Severity.WARNING)
-        return count
-
     @property
     def passed(self) -> bool:
-        return self.total_errors == 0
+        return not self.has_errors
 
 
 # =============================================================================
@@ -103,7 +82,6 @@ def parse_skill_md(skill_md_path: Path) -> tuple[dict[str, Any], str, int]:
     body = content[match.end():]
     body_line_count = body.count('\n') + 1 if body.strip() else 0
 
-    # Parse simple YAML (handles top-level and one-level nested keys)
     frontmatter = parse_simple_yaml(frontmatter_text)
 
     return frontmatter, body, body_line_count
@@ -120,21 +98,16 @@ def parse_simple_yaml(text: str) -> dict[str, Any]:
     result: dict[str, Any] = {}
     lines = text.split('\n')
     current_key = None
-    current_indent = 0
     nested_content: list[str] = []
 
     for line in lines:
-        # Skip empty lines and comments
         if not line.strip() or line.strip().startswith('#'):
             continue
 
-        # Calculate indentation
         indent = len(line) - len(line.lstrip())
         stripped = line.strip()
 
-        # Check if this is a new top-level key
         if indent == 0 and ':' in stripped:
-            # Process any pending nested content
             if current_key and nested_content:
                 result[current_key] = parse_nested_yaml(nested_content)
                 nested_content = []
@@ -144,18 +117,13 @@ def parse_simple_yaml(text: str) -> dict[str, Any]:
             value = value.strip()
 
             if value:
-                # Simple key: value pair
                 result[key] = parse_yaml_value(value)
                 current_key = None
             else:
-                # Key with nested content
                 current_key = key
-                current_indent = 0
         elif current_key and indent > 0:
-            # Nested content
             nested_content.append(line)
 
-    # Process any remaining nested content
     if current_key and nested_content:
         result[current_key] = parse_nested_yaml(nested_content)
 
@@ -179,7 +147,6 @@ def parse_nested_yaml(lines: list[str]) -> dict[str, Any]:
 def parse_yaml_value(value: str) -> str:
     """Parse a YAML value, handling quotes."""
     value = value.strip()
-    # Remove surrounding quotes
     if (value.startswith('"') and value.endswith('"')) or \
        (value.startswith("'") and value.endswith("'")):
         return value[1:-1]
@@ -196,7 +163,7 @@ def validate_name(
     file_path: str
 ) -> list[ValidationIssue]:
     """
-    Validate the 'name' field against Agent Skills spec and repo rules.
+    Validate the 'name' field against Agent Skills spec.
 
     Rules:
     - Required, 1-64 characters
@@ -204,7 +171,7 @@ def validate_name(
     - No leading/trailing hyphens
     - No consecutive hyphens (--)
     - Must match parent directory name
-    - Cannot contain "anthropic" or "claude" (repo rule)
+    - Cannot contain "anthropic" (repo rule)
     """
     issues = []
 
@@ -215,7 +182,6 @@ def validate_name(
         ))
         return issues
 
-    # Length check
     if len(name) > 64:
         issues.append(ValidationIssue(
             Severity.ERROR, file_path, "name",
@@ -228,35 +194,30 @@ def validate_name(
             "'name' must be at least 1 character"
         ))
 
-    # Character validation: lowercase, numbers, hyphens only
     if not re.match(r'^[a-z0-9-]+$', name):
         issues.append(ValidationIssue(
             Severity.ERROR, file_path, "name",
             f"'name' must contain only lowercase letters, numbers, and hyphens (got: '{name}')"
         ))
 
-    # No leading/trailing hyphens
     if name.startswith('-') or name.endswith('-'):
         issues.append(ValidationIssue(
             Severity.ERROR, file_path, "name",
             f"'name' cannot start or end with a hyphen (got: '{name}')"
         ))
 
-    # No consecutive hyphens
     if '--' in name:
         issues.append(ValidationIssue(
             Severity.ERROR, file_path, "name",
             f"'name' cannot contain consecutive hyphens (got: '{name}')"
         ))
 
-    # Must match directory name
     if name != skill_dir_name:
         issues.append(ValidationIssue(
             Severity.ERROR, file_path, "name",
             f"'name' must match parent directory (name='{name}', dir='{skill_dir_name}')"
         ))
 
-    # Repo-specific: no "anthropic" or "claude"
     name_lower = name.lower()
     if 'anthropic' in name_lower:
         issues.append(ValidationIssue(
@@ -301,18 +262,9 @@ def validate_description(description: str | None, file_path: str) -> list[Valida
 
 
 def validate_optional_fields(frontmatter: dict[str, Any], file_path: str) -> list[ValidationIssue]:
-    """
-    Validate optional frontmatter fields.
-
-    Fields:
-    - license: string (no constraints)
-    - compatibility: max 500 chars
-    - metadata: key-value mapping
-    - allowed-tools: space-delimited string
-    """
+    """Validate optional frontmatter fields."""
     issues = []
 
-    # Compatibility length check
     compatibility = frontmatter.get('compatibility')
     if compatibility and len(str(compatibility)) > 500:
         issues.append(ValidationIssue(
@@ -320,7 +272,6 @@ def validate_optional_fields(frontmatter: dict[str, Any], file_path: str) -> lis
             f"'compatibility' exceeds 500 characters ({len(str(compatibility))} chars)"
         ))
 
-    # Metadata type check
     metadata = frontmatter.get('metadata')
     if metadata is not None and not isinstance(metadata, dict):
         issues.append(ValidationIssue(
@@ -328,7 +279,6 @@ def validate_optional_fields(frontmatter: dict[str, Any], file_path: str) -> lis
             f"'metadata' must be a key-value mapping, got {type(metadata).__name__}"
         ))
 
-    # allowed-tools type check
     allowed_tools = frontmatter.get('allowed-tools')
     if allowed_tools is not None and not isinstance(allowed_tools, str):
         issues.append(ValidationIssue(
@@ -340,18 +290,13 @@ def validate_optional_fields(frontmatter: dict[str, Any], file_path: str) -> lis
 
 
 def validate_body(body_line_count: int, file_path: str) -> list[ValidationIssue]:
-    """
-    Validate SKILL.md body.
-
-    Rules:
-    - Warning if body exceeds 500 lines (repo guideline)
-    """
+    """Validate SKILL.md body (warning if >500 lines)."""
     issues = []
 
     if body_line_count > 500:
         issues.append(ValidationIssue(
             Severity.WARNING, file_path, "body",
-            f"Body exceeds 500 lines ({body_line_count} lines) - consider reducing for token efficiency"
+            f"Body exceeds 500 lines ({body_line_count} lines) - consider reducing"
         ))
 
     return issues
@@ -362,14 +307,7 @@ def validate_character_budget(
     file_path: str,
     char_budget: int = 15000
 ) -> list[ValidationIssue]:
-    """
-    Validate that skill file size is within Claude Code's context budget.
-
-    Rules:
-    - Error if SKILL.md exceeds char_budget characters (default: 15,000)
-    - Claude Code loads skill metadata into context; large skills will be excluded
-    - This is a hard constraint - skills must be compressed to fit
-    """
+    """Validate skill file size is within context budget."""
     issues = []
 
     try:
@@ -380,25 +318,25 @@ def validate_character_budget(
             issues.append(ValidationIssue(
                 Severity.ERROR, file_path, "character-budget",
                 f"SKILL.md exceeds context budget ({char_count:,} chars, limit: {char_budget:,}). "
-                f"Skill must be compressed to fit within budget. See CLAUDE.md for compression guidelines."
+                f"Skill must be compressed. See references/compression-guide.md."
             ))
     except Exception as e:
         issues.append(ValidationIssue(
             Severity.ERROR, file_path, "character-budget",
-            f"Could not read file to check character budget: {e}"
+            f"Could not read file: {e}"
         ))
 
     return issues
 
 
-def validate_plugin_json(plugin_json_path: Path, repo_root: Path) -> list[ValidationIssue]:
+def validate_plugin_json(plugin_json_path: Path) -> list[ValidationIssue]:
     """
     Validate plugin.json schema.
 
     Required fields: name, description, version, author.name
     """
     issues = []
-    rel_path = str(plugin_json_path.relative_to(repo_root))
+    rel_path = str(plugin_json_path)
 
     if not plugin_json_path.exists():
         issues.append(ValidationIssue(
@@ -417,7 +355,6 @@ def validate_plugin_json(plugin_json_path: Path, repo_root: Path) -> list[Valida
         ))
         return issues
 
-    # Required fields
     required = ['name', 'description', 'version']
     for field_name in required:
         if field_name not in data:
@@ -431,7 +368,6 @@ def validate_plugin_json(plugin_json_path: Path, repo_root: Path) -> list[Valida
                 f"Required field '{field_name}' is empty"
             ))
 
-    # author.name required
     author = data.get('author', {})
     if not isinstance(author, dict):
         issues.append(ValidationIssue(
@@ -450,26 +386,19 @@ def validate_plugin_json(plugin_json_path: Path, repo_root: Path) -> list[Valida
 def validate_version_sync(
     skill_md_path: Path,
     plugin_json_path: Path,
-    marketplace_path: Path,
-    plugin_name: str,
-    repo_root: Path
+    marketplace_path: Path | None,
+    plugin_name: str
 ) -> list[ValidationIssue]:
-    """
-    Validate that versions are synchronized across all files.
-
-    Checks: SKILL.md metadata.version, plugin.json version, marketplace.json version
-    """
+    """Validate versions are synchronized across files."""
     issues = []
     versions: dict[str, str | None] = {}
 
-    # Get version from SKILL.md metadata
     if skill_md_path.exists():
         frontmatter, _, _ = parse_skill_md(skill_md_path)
         metadata = frontmatter.get('metadata', {})
         if isinstance(metadata, dict):
             versions['SKILL.md'] = metadata.get('version')
 
-    # Get version from plugin.json
     if plugin_json_path.exists():
         try:
             with open(plugin_json_path) as f:
@@ -478,8 +407,7 @@ def validate_version_sync(
         except (json.JSONDecodeError, IOError):
             pass
 
-    # Get version from marketplace.json
-    if marketplace_path.exists():
+    if marketplace_path and marketplace_path.exists():
         try:
             with open(marketplace_path) as f:
                 data = json.load(f)
@@ -490,155 +418,85 @@ def validate_version_sync(
         except (json.JSONDecodeError, IOError):
             pass
 
-    # Check if all present versions match
     present_versions = {k: v for k, v in versions.items() if v is not None}
 
     if len(present_versions) > 1:
         unique_versions = set(present_versions.values())
         if len(unique_versions) > 1:
             version_details = ', '.join(f"{k}={v}" for k, v in present_versions.items())
-            rel_path = str(skill_md_path.relative_to(repo_root))
             issues.append(ValidationIssue(
-                Severity.ERROR, rel_path, "version",
-                f"Version mismatch across files: {version_details}"
+                Severity.ERROR, str(skill_md_path), "version",
+                f"Version mismatch: {version_details}"
             ))
 
     return issues
 
 
-def validate_marketplace_json(marketplace_path: Path, repo_root: Path) -> list[ValidationIssue]:
-    """
-    Validate marketplace.json global schema.
-
-    Required: name, description, owner.name, plugins[] with name, source, description, version
-    """
-    issues = []
-    rel_path = str(marketplace_path.relative_to(repo_root))
-
-    if not marketplace_path.exists():
-        issues.append(ValidationIssue(
-            Severity.ERROR, rel_path, "file",
-            "marketplace.json file is missing"
-        ))
-        return issues
-
-    try:
-        with open(marketplace_path) as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        issues.append(ValidationIssue(
-            Severity.ERROR, rel_path, "json",
-            f"Invalid JSON: {e}"
-        ))
-        return issues
-
-    # Top-level required fields
-    for field_name in ['name', 'description']:
-        if field_name not in data:
-            issues.append(ValidationIssue(
-                Severity.ERROR, rel_path, field_name,
-                f"Required field '{field_name}' is missing"
-            ))
-
-    # owner.name required
-    owner = data.get('owner', {})
-    if not isinstance(owner, dict):
-        issues.append(ValidationIssue(
-            Severity.ERROR, rel_path, "owner",
-            "'owner' must be an object"
-        ))
-    elif 'name' not in owner or not owner['name']:
-        issues.append(ValidationIssue(
-            Severity.ERROR, rel_path, "owner.name",
-            "Required field 'owner.name' is missing or empty"
-        ))
-
-    # Validate plugins array
-    plugins = data.get('plugins', [])
-    if not isinstance(plugins, list):
-        issues.append(ValidationIssue(
-            Severity.ERROR, rel_path, "plugins",
-            "'plugins' must be an array"
-        ))
-        return issues
-
-    for i, plugin in enumerate(plugins):
-        if not isinstance(plugin, dict):
-            issues.append(ValidationIssue(
-                Severity.ERROR, rel_path, f"plugins[{i}]",
-                "Each plugin must be an object"
-            ))
-            continue
-
-        plugin_name = plugin.get('name', f'plugins[{i}]')
-        for field_name in ['name', 'source', 'description', 'version']:
-            if field_name not in plugin:
-                issues.append(ValidationIssue(
-                    Severity.ERROR, rel_path, f"plugins.{plugin_name}.{field_name}",
-                    f"Required field '{field_name}' is missing in plugin '{plugin_name}'"
-                ))
-            elif not plugin[field_name]:
-                issues.append(ValidationIssue(
-                    Severity.ERROR, rel_path, f"plugins.{plugin_name}.{field_name}",
-                    f"Required field '{field_name}' is empty in plugin '{plugin_name}'"
-                ))
-
-    return issues
-
-
 # =============================================================================
-# Skill Discovery
+# Skill Type Detection
 # =============================================================================
 
-def discover_skills(plugins_dir: Path) -> list[tuple[str, str, Path]]:
+def detect_skill_type(skill_path: Path) -> tuple[str, Path | None, Path | None]:
     """
-    Discover all skills in the plugins directory.
+    Detect skill type and return related paths.
 
     Returns:
-        List of (plugin_name, skill_name, skill_md_path) tuples
+        (skill_type, plugin_json_path, marketplace_path)
+        - skill_type: "plugin" or "project" or "personal"
+        - plugin_json_path: Path to plugin.json (or None)
+        - marketplace_path: Path to marketplace.json (or None)
     """
-    skills = []
+    # Check if this is a plugin-bundled skill
+    # Pattern: plugins/{plugin-name}/skills/{skill-name}/
+    parts = skill_path.parts
 
-    if not plugins_dir.exists():
-        return skills
+    try:
+        plugins_idx = parts.index('plugins')
+        if plugins_idx + 3 < len(parts) and parts[plugins_idx + 2] == 'skills':
+            plugin_name = parts[plugins_idx + 1]
+            repo_root = Path(*parts[:plugins_idx])
+            plugin_json = repo_root / 'plugins' / plugin_name / '.claude-plugin' / 'plugin.json'
+            marketplace = repo_root / '.claude-plugin' / 'marketplace.json'
+            return "plugin", plugin_json, marketplace
+    except ValueError:
+        pass
 
-    for plugin_dir in sorted(plugins_dir.iterdir()):
-        if not plugin_dir.is_dir():
-            continue
+    # Check for project-level skill (.claude/skills/)
+    if '.claude' in parts:
+        return "project", None, None
 
-        skills_dir = plugin_dir / "skills"
-        if not skills_dir.exists():
-            continue
+    # Check for personal skill (~/.claude/skills/)
+    home = Path.home()
+    if skill_path.is_relative_to(home / '.claude' / 'skills'):
+        return "personal", None, None
 
-        for skill_dir in sorted(skills_dir.iterdir()):
-            if not skill_dir.is_dir():
-                continue
-
-            skill_md = skill_dir / "SKILL.md"
-            if skill_md.exists():
-                skills.append((plugin_dir.name, skill_dir.name, skill_md))
-
-    return skills
+    return "unknown", None, None
 
 
 # =============================================================================
 # Main Validation Logic
 # =============================================================================
 
-def validate_skill(
-    plugin_name: str,
-    skill_name: str,
-    skill_md_path: Path,
-    repo_root: Path
-) -> SkillValidationResult:
-    """Validate a single skill."""
-    result = SkillValidationResult(
-        plugin_name=plugin_name,
-        skill_name=skill_name,
-        skill_md_path=skill_md_path
+def validate_skill(skill_path: Path) -> ValidationResult:
+    """Validate a single skill at the given path."""
+    skill_path = skill_path.resolve()
+    skill_md_path = skill_path / "SKILL.md"
+    skill_name = skill_path.name
+
+    result = ValidationResult(
+        skill_path=skill_path,
+        skill_name=skill_name
     )
 
-    rel_path = str(skill_md_path.relative_to(repo_root))
+    # Check SKILL.md exists
+    if not skill_md_path.exists():
+        result.issues.append(ValidationIssue(
+            Severity.ERROR, str(skill_path), "SKILL.md",
+            "SKILL.md file not found in skill directory"
+        ))
+        return result
+
+    rel_path = f"{skill_name}/SKILL.md"
 
     # Parse SKILL.md
     try:
@@ -650,13 +508,10 @@ def validate_skill(
         ))
         return result
 
-    # Get skill directory name for validation
-    skill_dir_name = skill_md_path.parent.name
-
-    # Validate frontmatter fields
+    # Validate frontmatter
     result.issues.extend(validate_name(
         frontmatter.get('name'),
-        skill_dir_name,
+        skill_name,
         rel_path
     ))
 
@@ -670,76 +525,41 @@ def validate_skill(
     # Validate body
     result.issues.extend(validate_body(body_line_count, rel_path))
 
-    # Validate character budget (Claude Code context limit)
+    # Validate character budget
     result.issues.extend(validate_character_budget(skill_md_path, rel_path))
 
-    # Validate plugin.json
-    plugin_json_path = repo_root / "plugins" / plugin_name / ".claude-plugin" / "plugin.json"
-    result.issues.extend(validate_plugin_json(plugin_json_path, repo_root))
+    # Detect skill type and validate plugin-specific files
+    skill_type, plugin_json_path, marketplace_path = detect_skill_type(skill_path)
 
-    # Validate version sync
-    marketplace_path = repo_root / ".claude-plugin" / "marketplace.json"
-    result.issues.extend(validate_version_sync(
-        skill_md_path,
-        plugin_json_path,
-        marketplace_path,
-        plugin_name,
-        repo_root
-    ))
+    if skill_type == "plugin" and plugin_json_path:
+        result.issues.extend(validate_plugin_json(plugin_json_path))
+
+        plugin_name = plugin_json_path.parent.parent.name
+        result.issues.extend(validate_version_sync(
+            skill_md_path,
+            plugin_json_path,
+            marketplace_path,
+            plugin_name
+        ))
 
     return result
 
 
-def run_validation(repo_root: Path, plugin_filter: str | None = None) -> ValidationReport:
-    """Run full validation and return report."""
-    report = ValidationReport()
-
-    plugins_dir = repo_root / "plugins"
-    marketplace_path = repo_root / ".claude-plugin" / "marketplace.json"
-
-    # Validate marketplace.json (global)
-    report.global_issues.extend(validate_marketplace_json(marketplace_path, repo_root))
-
-    # Discover and validate skills
-    skills = discover_skills(plugins_dir)
-
-    for plugin_name, skill_name, skill_md_path in skills:
-        if plugin_filter and plugin_name != plugin_filter:
-            continue
-
-        result = validate_skill(plugin_name, skill_name, skill_md_path, repo_root)
-        report.skill_results.append(result)
-
-    return report
-
-
-def print_report(report: ValidationReport, verbose: bool = False) -> None:
-    """Print validation report to stdout."""
-    all_issues: list[ValidationIssue] = list(report.global_issues)
-    for result in report.skill_results:
-        all_issues.extend(result.issues)
-
-    # Print issues
-    for issue in all_issues:
+def print_result(result: ValidationResult, verbose: bool = False) -> None:
+    """Print validation result to stdout."""
+    for issue in result.issues:
         print(issue)
 
-    if all_issues:
+    if result.issues:
         print()
 
-    # Print summary
-    skill_count = len(report.skill_results)
-    print(f"Validated {skill_count} skill(s)")
-    print(f"  Errors: {report.total_errors}")
-    print(f"  Warnings: {report.total_warnings}")
-
-    if verbose:
-        print("\nSkills validated:")
-        for result in report.skill_results:
-            status = "FAIL" if result.has_errors else ("WARN" if result.has_warnings else "OK")
-            print(f"  [{status}] {result.plugin_name}/{result.skill_name}")
-
+    print(f"Skill: {result.skill_name}")
+    print(f"  Path: {result.skill_path}")
+    print(f"  Errors: {sum(1 for i in result.issues if i.severity == Severity.ERROR)}")
+    print(f"  Warnings: {sum(1 for i in result.issues if i.severity == Severity.WARNING)}")
     print()
-    if report.passed:
+
+    if result.passed:
         print("Validation PASSED")
     else:
         print("Validation FAILED")
@@ -751,32 +571,35 @@ def print_report(report: ValidationReport, verbose: bool = False) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Validate skills against Agent Skills specification"
+        description="Validate a single skill against Agent Skills specification"
+    )
+    parser.add_argument(
+        "skill_path",
+        type=str,
+        help="Path to skill directory (e.g., plugins/my-skill/skills/my-skill/)"
     )
     parser.add_argument(
         "--verbose", "-v",
         action="store_true",
-        help="Show detailed output including all validated skills"
-    )
-    parser.add_argument(
-        "--plugin", "-p",
-        type=str,
-        help="Validate only the specified plugin"
+        help="Show detailed output"
     )
 
     args = parser.parse_args()
 
-    # Determine repo root (script is in scripts/)
-    script_dir = Path(__file__).resolve().parent
-    repo_root = script_dir.parent
+    skill_path = Path(args.skill_path).resolve()
 
-    # Run validation
-    report = run_validation(repo_root, plugin_filter=args.plugin)
+    if not skill_path.exists():
+        print(f"ERROR: Path does not exist: {skill_path}", file=sys.stderr)
+        return 1
 
-    # Print report
-    print_report(report, verbose=args.verbose)
+    if not skill_path.is_dir():
+        print(f"ERROR: Path is not a directory: {skill_path}", file=sys.stderr)
+        return 1
 
-    return 0 if report.passed else 1
+    result = validate_skill(skill_path)
+    print_result(result, verbose=args.verbose)
+
+    return 0 if result.passed else 1
 
 
 if __name__ == "__main__":

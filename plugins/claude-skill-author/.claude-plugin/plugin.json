@@ -1,0 +1,8 @@
+{
+  "name": "claude-skill-author",
+  "description": "Guide for creating Claude Code agent skills - project-level, personal, and plugin-bundled marketplace skills.",
+  "version": "1.0.0",
+  "author": {
+    "name": "tsilva"
+  }
+}
