@@ -1,11 +1,16 @@
 {
   "logo": {
-    "iconColors": ["#58a6ff", "#3fb950", "#d29922", "#a371f7", "#7aa2f7"],
-    "style": "minimalist",
-    "size": "64x64",
-    "aspectRatio": "1:1",
     "model": "google/gemini-3-pro-image-preview",
-    "keyColor": "#FF00FF",
-    "tolerance": 30
+    "size": "1K",
+    "promptTemplate": null,
+    "style": "minimalist",
+    "visualMetaphor": null,
+    "iconColors": ["#58a6ff", "#d29922", "#a371f7", "#7aa2f7", "#f97583"],
+    "additionalInstructions": "",
+    "keyColor": "#00FF00",
+    "tolerance": 70,
+    "outputPath": "logo.png",
+    "compress": true,
+    "compressQuality": 80
   }
 }

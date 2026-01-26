@@ -7,49 +7,55 @@ argument-hint: "[style-preference]"
 disable-model-invocation: false
 user-invocable: true
 metadata:
-  version: "4.1.0"
+  version: "4.2.0"
 ---
 
 # Repo Logo Generator
 
 Generate professional logos with transparent backgrounds using:
-1. **mcp-openrouter** MCP tool generates logo with green (#00FF00) background
-2. **mcp-image-tools** MCP tool converts green to transparent with smooth edges
+1. **mcp-openrouter** - generates logo with solid chromakey background
+2. **mcp-image-tools** - converts background to transparent with smooth edges
 
-## REQUIRED: Execution Checklist
+## Execution Workflow
 
-Follow these steps exactly. Do not skip steps.
+Follow these steps exactly.
 
 ### Step 1: Load Configuration
 
-Read config files in order (first found wins):
+Read config files in order (merge: project > user > bundled):
 1. `./.claude/readme-generator.json` (project config)
 2. `~/.claude/readme-generator.json` (user config)
-3. Use defaults if no config found
+3. `assets/default-config.json` (bundled defaults)
 
-**Default values:**
-- `style` = `minimalist`
-- `iconColors` = `#58a6ff, #d29922, #a371f7, #7aa2f7, #f97583`
-- `size` = `1K`
-- `model` = `google/gemini-3-pro-image-preview`
-- `keyColor` = `#00FF00`
-- `tolerance` = `70`
+**Config Parameters:**
 
-### Step 2: Check for Custom Style
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `promptTemplate` | null | Full prompt template (null = use default) |
+| `style` | `"minimalist"` | Style descriptor |
+| `visualMetaphor` | null | Override metaphor, `"none"` to omit |
+| `iconColors` | `["#58a6ff", ...]` | Design colors |
+| `additionalInstructions` | `""` | Appended to prompt |
+| `keyColor` | `"#00FF00"` | Chromakey background |
+| `tolerance` | `70` | Chromakey edge tolerance |
+| `model` | `"google/gemini-3-pro-image-preview"` | Image model |
+| `size` | `"1K"` | Image size |
+| `outputPath` | `"logo.png"` | Output file path |
+| `compress` | `true` | Enable PNG compression |
+| `compressQuality` | `80` | Compression quality |
 
-- **If config has `style` parameter**: Use `config.style` AS-IS for the prompt. Skip to Step 4.
-- **If no custom style**: Continue to Step 3.
+### Step 2: Gather Context (Always Runs)
 
-### Step 3: Build Prompt from Template
+Gather these values for template variable substitution:
 
-Read project files (README, package.json, etc.) to determine project type, then use this template:
-
-```
-A {config.style} logo for {PROJECT_NAME}: {VISUAL_METAPHOR}.
-Clean vector style. Icon colors from: {config.iconColors}.
-Pure bright green (#00FF00) background only. Do not use green tones anywhere in the design.
-No text, no letters, no words. Single centered icon, geometric shapes, works at 64x64.
-```
+| Variable | Source |
+|----------|--------|
+| `{PROJECT_NAME}` | Current directory name |
+| `{PROJECT_TYPE}` | Auto-detected from package files |
+| `{VISUAL_METAPHOR}` | config.visualMetaphor OR auto-select from table |
+| `{STYLE}` | config.style |
+| `{ICON_COLORS}` | config.iconColors joined with ", " |
+| `{KEY_COLOR}` | config.keyColor |
 
 **Visual Metaphors by Project Type:**
 
@@ -60,75 +66,104 @@ No text, no letters, no words. Single centered icon, geometric shapes, works at 
 | Web app | Modern interface window |
 | API | Messenger bird carrying data packet |
 | Framework | Architectural scaffold |
-| Converter | Metamorphosis symbol (butterfly) |
+| Converter | Metamorphosis symbol |
 | Database | Stacked cylinders, data nodes |
 | Security | Shield, lock, key |
 | Default | Abstract geometric shape |
 
-### Step 4: Generate Image with MCP Tool
+Set `visualMetaphor: "none"` in config to omit the metaphor entirely.
 
-Use the `mcp__openrouter__generate_image` tool:
+### Step 3: Build Prompt
 
+**If `config.promptTemplate` is set:** Use it as the prompt template.
+
+**Otherwise, use default template:**
 ```
-model: "google/gemini-3-pro-image-preview" (or config.model)
-prompt: [your constructed prompt]
-output_path: /tmp/claude/logo_raw.png
-aspect_ratio: "1:1"
-size: "1K"
+A {STYLE} logo for {PROJECT_NAME}: {VISUAL_METAPHOR}.
+Clean vector style. Icon colors from: {ICON_COLORS}.
+Pure {KEY_COLOR} background only. Do not use similar tones in the design.
+No text, no letters, no words. Single centered icon, geometric shapes, works at 64x64.
 ```
+
+**Then:**
+1. Substitute ALL template variables in the prompt
+2. Append `config.additionalInstructions` if non-empty
+
+### Step 4: Generate Image
+
+Use `mcp__openrouter__generate_image`:
+- `model`: config.model
+- `prompt`: constructed prompt from Step 3
+- `output_path`: `/tmp/claude/logo_raw.png`
+- `aspect_ratio`: `"1:1"`
+- `size`: config.size
 
 ### Step 5: Apply Chromakey Transparency
 
-Use the `mcp__image-tools__chromakey_to_transparent` tool:
+Use `mcp__image-tools__chromakey_to_transparent`:
+- `input_path`: `/tmp/claude/logo_raw.png`
+- `output_path`: config.outputPath (with variable substitution)
+- `key_color`: config.keyColor
+- `tolerance`: config.tolerance
 
+### Step 6: Compress (if enabled)
+
+If `config.compress` is true, use `mcp__image-tools__compress_png`:
+- `input_path`: config.outputPath
+- `quality`: config.compressQuality
+
+### Step 7: Verify Output
+
+Confirm the output file exists and is a valid PNG with transparency.
+
+## Configuration Examples
+
+**Default behavior (no config needed):**
+```json
+{}
 ```
-input_path: /tmp/claude/logo_raw.png
-output_path: logo.png
-key_color: "#00FF00" (or config.keyColor)
-tolerance: 70 (or config.tolerance)
-```
 
-Optional: Compress the output with `mcp__image-tools__compress_png`:
-
-```
-input_path: logo.png
-quality: 80
-```
-
-### Step 6: Verify Output
-
-Confirm logo.png exists and is a valid PNG with transparency.
-
-## Configuration Reference
-
-Config files use this structure:
+**Use project name in custom style:**
 ```json
 {
   "logo": {
-    "iconColors": ["#7aa2f7", "#bb9af7", "#7dcfff"],
-    "style": "minimalist",
-    "model": "google/gemini-3-pro-image-preview",
-    "keyColor": "#00FF00",
-    "tolerance": 70
+    "style": "SNES pixel art for {PROJECT_NAME}. Charming mascot. Pure {KEY_COLOR} background."
   }
 }
 ```
 
-**Pixel art example:**
+**Full custom prompt:**
 ```json
 {
   "logo": {
-    "style": "SNES 16-bit pixel art. Charming mascot. VISIBLE CHUNKY PIXELS with dithering. Bright saturated colors. Pure green (#00FF00) background only.",
-    "keyColor": "#00FF00",
-    "tolerance": 70
+    "promptTemplate": "A {STYLE} icon for {PROJECT_NAME}. Colors: {ICON_COLORS}. Solid {KEY_COLOR} bg."
   }
 }
 ```
 
-## DO NOT
+**Magenta chromakey (for green-heavy designs):**
+```json
+{
+  "logo": {
+    "keyColor": "#FF00FF",
+    "style": "nature-themed with greens and blues"
+  }
+}
+```
 
-- Invent custom visual metaphors (use the table)
-- Add "gradient", "3D", "glossy" styles
-- Include text in logos
-- Use green tones in the icon (reserved for chromakey)
-- Skip the chromakey conversion step
+**Pixel art with custom output path:**
+```json
+{
+  "logo": {
+    "style": "16-bit pixel art. Visible chunky pixels with dithering. Bright saturated colors. Pure {KEY_COLOR} background.",
+    "outputPath": "assets/{PROJECT_NAME}-logo.png"
+  }
+}
+```
+
+## Guidelines
+
+- Avoid green tones in icons when using default `#00FF00` keyColor (reserved for chromakey)
+- Avoid magenta tones when using `#FF00FF` keyColor
+- No text in logos - icons should work at small sizes
+- Always complete the chromakey step for transparency
