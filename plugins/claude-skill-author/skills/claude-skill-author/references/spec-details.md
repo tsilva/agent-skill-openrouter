@@ -15,8 +15,12 @@ Full reference for the [Agent Skills Specification](https://agentskills.io/speci
   - No leading or trailing hyphens
   - No consecutive hyphens (--)
   - Must exactly match parent directory name
-  - Cannot contain "anthropic" or "claude" (repository rule)
+  - Cannot contain "anthropic" (reserved, ERROR)
+  - Should avoid "claude" unless for Claude Code tooling (WARNING)
+  - Cannot contain XML characters (`<`, `>`)
+  - Should avoid vague terms: "helper", "utils", "tools", "documents", "data", "files", "misc", "common", "general" (warning)
 - **Purpose:** Becomes the slash command (`/name`)
+- **Best Practice:** Prefer gerund-form naming (e.g., "processing-pdfs" vs "pdf-processor")
 
 #### `description`
 
@@ -24,11 +28,13 @@ Full reference for the [Agent Skills Specification](https://agentskills.io/speci
 - **Constraints:**
   - 1-1024 characters
   - Non-empty (cannot be whitespace only)
+  - Cannot contain XML characters (`<`, `>`) - use plain text
 - **Best Practices:**
   - Write in third person ("Generates..." not "Generate...")
   - Include trigger phrases ("Use when...", "Triggers on...")
   - Include keywords Claude can match against
   - Describe both WHAT and WHEN
+  - Avoid time-sensitive language ("currently", "as of version X")
 
 ### Optional Fields
 
@@ -127,6 +133,43 @@ Skills use 3-tier loading to minimize context usage:
 | `compatibility` | 500 chars | Error |
 | SKILL.md total | 15,000 chars | Error |
 | Body lines | 500 lines | Warning |
+
+## Validation Rules Summary
+
+### Errors (Must Fix)
+
+| Rule | Field | Description |
+|------|-------|-------------|
+| Required fields | name, description | Both are mandatory |
+| Name format | name | Lowercase, hyphens, 1-64 chars |
+| Directory match | name | Must match parent directory name |
+| Reserved "anthropic" | name | Cannot contain "anthropic" |
+| No XML in name | name | Cannot contain `<` or `>` |
+| No XML in description | description | Cannot contain `<` or `>` |
+| Character budget | SKILL.md | Max 15,000 characters |
+| Version sync | version | Must match across SKILL.md, plugin.json, marketplace.json |
+
+### Warnings (Should Fix)
+
+| Rule | Field | Description |
+|------|-------|-------------|
+| Body length | body | Warning if >500 lines |
+| Contains "claude" | name | Ensure it's for Claude Code tooling, not impersonation |
+| Windows paths | body | Use forward slashes `/` not backslashes `\` |
+| Vague names | name | Avoid "helper", "utils", "tools", etc. |
+| Missing files | body | Referenced markdown links should exist |
+
+### Suggestions (--suggest flag)
+
+| Rule | Field | Description |
+|------|-------|-------------|
+| Gerund naming | name | Prefer "processing-pdfs" over "pdf-processor" |
+| Trigger phrases | description | Include "Use when..." for better activation |
+| Third-person | description | Start with verbs like "Generates..." |
+| Time-sensitive | body | Avoid "currently", "as of version X" |
+| TOC for references | references/ | Files >100 lines should have table of contents |
+| MCP qualified names | body | Use `mcp__server__tool` format |
+| Nested references | references/ | Avoid references linking to other references |
 
 ## File Structure
 

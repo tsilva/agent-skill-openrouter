@@ -222,10 +222,20 @@ def validate_name(
         ))
 
     name_lower = name.lower()
+
+    # "anthropic" is always prohibited (ERROR)
     if 'anthropic' in name_lower:
         issues.append(ValidationIssue(
             Severity.ERROR, file_path, "name",
-            "'name' cannot contain 'anthropic'"
+            "'name' cannot contain reserved word 'anthropic'"
+        ))
+
+    # "claude" is discouraged but allowed for Claude-related tooling (WARNING)
+    # e.g., "claude-skill-author" is valid, "my-claude-assistant" is suspicious
+    if 'claude' in name_lower:
+        issues.append(ValidationIssue(
+            Severity.WARNING, file_path, "name",
+            "'name' contains 'claude' - ensure this is for Claude Code tooling, not impersonation"
         ))
 
     return issues
@@ -332,6 +342,156 @@ def validate_character_budget(
     return issues
 
 
+def validate_no_xml_tags(
+    name: str | None,
+    description: str | None,
+    file_path: str
+) -> list[ValidationIssue]:
+    """
+    Validate that name and description don't contain XML characters.
+
+    Rules (from Anthropic best practices):
+    - name cannot contain < or >
+    - description cannot contain < or >
+    """
+    issues = []
+
+    if name and ('<' in name or '>' in name):
+        issues.append(ValidationIssue(
+            Severity.ERROR, file_path, "name",
+            "'name' cannot contain XML characters '<' or '>'"
+        ))
+
+    if description and ('<' in description or '>' in description):
+        issues.append(ValidationIssue(
+            Severity.ERROR, file_path, "description",
+            "'description' cannot contain XML characters - use plain text"
+        ))
+
+    return issues
+
+
+def validate_no_windows_paths(body: str, file_path: str) -> list[ValidationIssue]:
+    """
+    Detect Windows-style paths in the body.
+
+    Rules:
+    - Flag backslashes that look like paths (C:\, \word patterns)
+    - Cross-platform skills should use forward slashes
+    """
+    issues = []
+
+    if not body.strip():
+        return issues
+
+    # Pattern for Windows drive paths (C:\, D:\, etc.)
+    drive_pattern = r'[A-Za-z]:\\'
+
+    # Pattern for path-like backslash usage (e.g., \Users, \path\to)
+    path_pattern = r'\\[A-Za-z][A-Za-z0-9_-]*(?:\\|$)'
+
+    if re.search(drive_pattern, body) or re.search(path_pattern, body):
+        issues.append(ValidationIssue(
+            Severity.WARNING, file_path, "body",
+            "Windows-style path detected. Use forward slashes '/' for cross-platform compatibility."
+        ))
+
+    return issues
+
+
+def validate_vague_names(name: str | None, file_path: str) -> list[ValidationIssue]:
+    """
+    Flag vague/generic skill names.
+
+    Rules:
+    - Names like "helper", "utils", "tools" are too generic
+    - Prefer descriptive, specific names
+    """
+    issues = []
+
+    if not name:
+        return issues
+
+    vague_terms = [
+        'helper', 'helpers',
+        'util', 'utils', 'utility', 'utilities',
+        'tool', 'tools',
+        'document', 'documents',
+        'data',
+        'file', 'files',
+        'misc', 'miscellaneous',
+        'common',
+        'general',
+        'stuff',
+        'thing', 'things',
+    ]
+
+    name_parts = name.lower().split('-')
+    for term in vague_terms:
+        if term in name_parts:
+            issues.append(ValidationIssue(
+                Severity.WARNING, file_path, "name",
+                f"Name contains vague term '{term}'. Prefer descriptive names that indicate specific functionality."
+            ))
+            break
+
+    return issues
+
+
+def validate_referenced_files_exist(
+    skill_path: Path,
+    body: str,
+    file_path: str
+) -> list[ValidationIssue]:
+    """
+    Validate that files referenced in SKILL.md actually exist.
+
+    Rules:
+    - Markdown links to local files should point to existing files
+    - Includes: scripts/, references/, assets/ paths
+    - Skips placeholder text and non-file links
+    """
+    issues = []
+
+    if not body.strip():
+        return issues
+
+    # Pattern for markdown links: [text](path) where path is relative
+    # Excludes http/https URLs and anchors (#)
+    link_pattern = r'\[([^\]]*)\]\(([^)]+)\)'
+
+    for match in re.finditer(link_pattern, body):
+        link_text, link_path = match.groups()
+
+        # Skip URLs and anchors
+        if link_path.startswith(('http://', 'https://', '#', 'mailto:')):
+            continue
+
+        # Skip absolute paths (not relative to skill)
+        if link_path.startswith('/'):
+            continue
+
+        # Skip placeholder-like text (single words without extensions or paths)
+        # Real file paths typically have: extensions, slashes, or dots
+        if not ('/' in link_path or '.' in link_path):
+            continue
+
+        # Skip common placeholder patterns
+        if link_path.lower() in ('url', 'link', 'path', 'file', 'image', 'badge'):
+            continue
+
+        # Resolve relative path from skill directory
+        referenced_path = skill_path / link_path
+
+        if not referenced_path.exists():
+            issues.append(ValidationIssue(
+                Severity.WARNING, file_path, "body",
+                f"Referenced file does not exist: '{link_path}'"
+            ))
+
+    return issues
+
+
 # =============================================================================
 # Optimization Suggestions
 # =============================================================================
@@ -422,6 +582,233 @@ def suggest_instruction_optimization(
                 Severity.SUGGESTION, file_path, "body",
                 f"Large body ({body_line_count} lines) without reference files. Consider extracting detailed content to references/"
             ))
+
+    return issues
+
+
+def suggest_gerund_naming(name: str | None, file_path: str) -> list[ValidationIssue]:
+    """
+    Suggest gerund-form naming for better readability.
+
+    Rules:
+    - "processing-pdfs" is more natural than "pdf-processor"
+    - Noun suffixes like -processor, -generator, -handler may indicate this
+    """
+    issues = []
+
+    if not name:
+        return issues
+
+    noun_suffixes = [
+        '-processor', '-generator', '-handler', '-manager',
+        '-builder', '-parser', '-converter', '-formatter',
+        '-validator', '-executor', '-runner', '-loader',
+    ]
+
+    name_lower = name.lower()
+    for suffix in noun_suffixes:
+        if name_lower.endswith(suffix):
+            # Suggest gerund alternative
+            base = name_lower[:-len(suffix)]
+            gerund_map = {
+                '-processor': 'processing',
+                '-generator': 'generating',
+                '-handler': 'handling',
+                '-manager': 'managing',
+                '-builder': 'building',
+                '-parser': 'parsing',
+                '-converter': 'converting',
+                '-formatter': 'formatting',
+                '-validator': 'validating',
+                '-executor': 'executing',
+                '-runner': 'running',
+                '-loader': 'loading',
+            }
+            gerund = gerund_map.get(suffix, '')
+            if gerund:
+                issues.append(ValidationIssue(
+                    Severity.SUGGESTION, file_path, "name",
+                    f"Consider gerund-form naming: '{gerund}-{base}s' instead of '{name}' (e.g., 'processing-pdfs' vs 'pdf-processor')"
+                ))
+            break
+
+    return issues
+
+
+def suggest_time_sensitive_language(body: str, file_path: str) -> list[ValidationIssue]:
+    """
+    Flag time-sensitive language that may become outdated.
+
+    Rules:
+    - Avoid "currently", "as of version X", "before August 2025", etc.
+    - Skills should be timeless where possible
+    """
+    issues = []
+
+    if not body.strip():
+        return issues
+
+    # Patterns for time-sensitive language
+    patterns = [
+        (r'\bcurrently\b', "currently"),
+        (r'\brecently\b', "recently"),
+        (r'\bnow\b(?!\s+(?:you|we|it))', "now"),  # Avoid "now you can" false positives
+        (r'\bas of (?:version |v)?\d', "as of version X"),
+        (r'\bbefore \w+ \d{4}\b', "before [month] [year]"),
+        (r'\bafter \w+ \d{4}\b', "after [month] [year]"),
+        (r'\bin \d{4}\b', "in [year]"),
+        (r'\bsince \d{4}\b', "since [year]"),
+        (r'\bupcoming\b', "upcoming"),
+        (r'\bsoon\b', "soon"),
+        (r'\blatest\b', "latest"),
+        (r'\bnew(?:ly)?\b', "new/newly"),
+    ]
+
+    body_lower = body.lower()
+    found_patterns = []
+
+    for pattern, description in patterns:
+        if re.search(pattern, body_lower):
+            found_patterns.append(description)
+
+    if found_patterns:
+        examples = ', '.join(found_patterns[:3])
+        issues.append(ValidationIssue(
+            Severity.SUGGESTION, file_path, "body",
+            f"Time-sensitive language detected ({examples}). Consider using timeless phrasing to avoid outdated instructions."
+        ))
+
+    return issues
+
+
+def suggest_toc_for_long_references(
+    skill_path: Path,
+    file_path: str
+) -> list[ValidationIssue]:
+    """
+    Suggest table of contents for long reference files.
+
+    Rules:
+    - Reference files > 100 lines should have a TOC
+    - Makes navigation easier for large documentation
+    """
+    issues = []
+
+    references_dir = skill_path / "references"
+    if not references_dir.exists():
+        return issues
+
+    for ref_file in references_dir.glob("*.md"):
+        try:
+            content = ref_file.read_text()
+            line_count = content.count('\n') + 1
+
+            if line_count > 100:
+                # Check for common TOC indicators
+                content_lower = content.lower()
+                has_toc = any(indicator in content_lower for indicator in [
+                    '## table of contents',
+                    '## contents',
+                    '## toc',
+                    '- [',  # Markdown link list (common TOC format)
+                ])
+
+                if not has_toc:
+                    rel_path = ref_file.relative_to(skill_path)
+                    issues.append(ValidationIssue(
+                        Severity.SUGGESTION, file_path, "references",
+                        f"Reference file '{rel_path}' has {line_count} lines. Consider adding a table of contents."
+                    ))
+        except Exception:
+            pass
+
+    return issues
+
+
+def suggest_mcp_qualified_names(body: str, file_path: str) -> list[ValidationIssue]:
+    """
+    Suggest using qualified names for MCP tools.
+
+    Rules:
+    - MCP tools should use server:tool format (e.g., "mcp__openrouter__chat")
+    - Helps avoid ambiguity with multiple MCP servers
+    """
+    issues = []
+
+    if not body.strip():
+        return issues
+
+    # Common MCP tool patterns that might be unqualified
+    # Look for tool-like references without mcp__ prefix
+    unqualified_patterns = [
+        r'\bchat\s*\(\s*prompt',  # chat(prompt...) without mcp__ prefix
+        r'`chat`\s*tool',
+        r'the\s+chat\s+tool',
+        r'generate_image\s*\(',
+        r'`generate_image`',
+    ]
+
+    body_lower = body.lower()
+
+    # Check if file mentions MCP but uses unqualified tool names
+    mentions_mcp = 'mcp' in body_lower or 'openrouter' in body_lower
+
+    if mentions_mcp:
+        for pattern in unqualified_patterns:
+            if re.search(pattern, body_lower):
+                issues.append(ValidationIssue(
+                    Severity.SUGGESTION, file_path, "body",
+                    "When referencing MCP tools, use qualified names (e.g., 'mcp__openrouter__chat') to avoid ambiguity."
+                ))
+                break
+
+    return issues
+
+
+def suggest_no_deeply_nested_references(
+    skill_path: Path,
+    file_path: str
+) -> list[ValidationIssue]:
+    """
+    Warn about references that link to other references.
+
+    Rules:
+    - References should be standalone documentation
+    - Deeply nested links make navigation confusing
+    """
+    issues = []
+
+    references_dir = skill_path / "references"
+    if not references_dir.exists():
+        return issues
+
+    link_pattern = r'\[([^\]]*)\]\(([^)]+\.md)\)'
+
+    for ref_file in references_dir.glob("*.md"):
+        try:
+            content = ref_file.read_text()
+
+            for match in re.finditer(link_pattern, content):
+                link_text, link_path = match.groups()
+
+                # Skip external URLs
+                if link_path.startswith(('http://', 'https://')):
+                    continue
+
+                # Check if linking to another reference file
+                if 'references/' in link_path or link_path.endswith('.md'):
+                    # Resolve to check if it's in references/
+                    if not link_path.startswith('/'):
+                        resolved = (ref_file.parent / link_path).resolve()
+                        if references_dir in resolved.parents or resolved.parent == references_dir:
+                            rel_path = ref_file.relative_to(skill_path)
+                            issues.append(ValidationIssue(
+                                Severity.SUGGESTION, file_path, "references",
+                                f"Reference '{rel_path}' links to another reference file. Consider flattening documentation structure."
+                            ))
+                            break
+        except Exception:
+            pass
 
     return issues
 
@@ -698,8 +1085,27 @@ def validate_skill(skill_path: Path, suggest: bool = False) -> ValidationResult:
 
     result.issues.extend(validate_optional_fields(frontmatter, rel_path))
 
+    # Validate no XML tags in name/description
+    result.issues.extend(validate_no_xml_tags(
+        frontmatter.get('name'),
+        frontmatter.get('description'),
+        rel_path
+    ))
+
+    # Validate vague names (WARNING level)
+    result.issues.extend(validate_vague_names(
+        frontmatter.get('name'),
+        rel_path
+    ))
+
     # Validate body
     result.issues.extend(validate_body(body_line_count, rel_path))
+
+    # Validate no Windows-style paths (WARNING level)
+    result.issues.extend(validate_no_windows_paths(body, rel_path))
+
+    # Validate referenced files exist (WARNING level)
+    result.issues.extend(validate_referenced_files_exist(skill_path, body, rel_path))
 
     # Validate character budget
     result.issues.extend(validate_character_budget(skill_md_path, rel_path))
@@ -730,6 +1136,26 @@ def validate_skill(skill_path: Path, suggest: bool = False) -> ValidationResult:
         result.issues.extend(suggest_instruction_optimization(
             body,
             body_line_count,
+            rel_path
+        ))
+        result.issues.extend(suggest_gerund_naming(
+            frontmatter.get('name'),
+            rel_path
+        ))
+        result.issues.extend(suggest_time_sensitive_language(
+            body,
+            rel_path
+        ))
+        result.issues.extend(suggest_toc_for_long_references(
+            skill_path,
+            rel_path
+        ))
+        result.issues.extend(suggest_mcp_qualified_names(
+            body,
+            rel_path
+        ))
+        result.issues.extend(suggest_no_deeply_nested_references(
+            skill_path,
             rel_path
         ))
 

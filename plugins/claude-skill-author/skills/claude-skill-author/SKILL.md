@@ -5,7 +5,7 @@ license: MIT
 argument-hint: "[project|plugin] [skill-name]"
 metadata:
   author: tsilva
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # Skill Author Guide
@@ -251,12 +251,30 @@ python plugins/claude-skill-author/skills/claude-skill-author/scripts/validate_s
 
 ### Validation Checks
 
+**Errors (must fix):**
 - Required fields: name, description
 - Name format: lowercase, hyphens, 1-64 chars, matches directory
+- Name cannot contain "anthropic" (reserved)
+- Name/description cannot contain XML characters (`<`, `>`)
 - Description: 1-1024 chars, non-empty
 - Character budget: max 15,000 chars
-- Body lines: warning if >500
 - Version sync (plugin skills): SKILL.md, plugin.json, marketplace.json
+
+**Warnings (should fix):**
+- Body lines: warning if >500
+- Name contains "claude" - ensure it's for Claude Code tooling, not impersonation
+- Windows-style paths (backslashes) - use forward slashes
+- Vague names: "helper", "utils", "tools", "documents", "data", "files"
+- Referenced files in SKILL.md that don't exist
+
+**Suggestions (--suggest flag):**
+- Gerund-form naming (e.g., "processing-pdfs" vs "pdf-processor")
+- Trigger phrases in description
+- Third-person verb form
+- Time-sensitive language ("currently", "as of version X")
+- TOC for reference files >100 lines
+- MCP tool qualified names (server:tool format)
+- Deeply nested references (references linking to other references)
 
 ### Exit Codes
 
