@@ -5,7 +5,7 @@ license: MIT
 argument-hint: "[project|plugin] [skill-name]"
 metadata:
   author: tsilva
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Skill Author Guide
@@ -283,6 +283,60 @@ Skills use 3-tier loading:
 - Document "magic numbers" with comments
 - Helpful error messages that guide resolution
 - Use UV with inline dependencies (PEP 723)
+
+## Skill Optimization
+
+Optimize skills for better instruction following, token efficiency, and trigger accuracy.
+
+### Description Optimization
+
+The description is Claude's primary signal for skill selection:
+
+| Pattern | Example |
+|---------|---------|
+| Action + Domain | "Generate API documentation" |
+| Triggers | "Use when asked to document APIs" |
+| Keywords | Include words users naturally say |
+
+**Bad:** "Helps with documents"
+**Good:** "Generate and update README files with badges and usage sections. Use when creating docs."
+
+### Instruction Clarity
+
+Use the WIRE framework:
+
+1. **W**orkflow: Number steps explicitly (1, 2, 3...)
+2. **I**nputs: Define with types and constraints
+3. **R**ules: State as explicit rules, not suggestions
+4. **E**xamples: One canonical example per concept
+
+### Token Efficiency
+
+```
+Needed for EVERY invocation? → Keep in SKILL.md
+Needed for MOST invocations? → Keep in SKILL.md, compress
+Otherwise → Move to references/ or scripts/
+```
+
+### Anti-Patterns
+
+| Anti-Pattern | Problem | Fix |
+|--------------|---------|-----|
+| Explaining obvious operations | Wastes tokens | Omit entirely |
+| Multiple equivalent examples | Clutters | One canonical example |
+| Verbose error handling | Claude handles naturally | Remove |
+| Hardcoded paths | Breaks portability | Use relative/detect |
+| Missing workflow order | Execution ambiguity | Number steps |
+
+### Validation with Suggestions
+
+```bash
+python plugins/claude-skill-author/skills/claude-skill-author/scripts/validate_skill.py /path/to/skill --suggest
+```
+
+The `--suggest` flag adds optimization hints beyond errors and warnings.
+
+For detailed optimization techniques, see `references/optimization-guide.md`.
 
 ## Quick Reference
 

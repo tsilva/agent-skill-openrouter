@@ -5,6 +5,7 @@ Validate a single skill against the Agent Skills specification.
 Usage:
     python validate_skill.py /path/to/skill-dir           # Validate skill at path
     python validate_skill.py /path/to/skill-dir --verbose # Show all details
+    python validate_skill.py /path/to/skill-dir --suggest # Include optimization hints
 
 For plugin-bundled skills, also validates plugin.json and version sync.
 For project-level skills (.claude/skills/), skips plugin-specific checks.
@@ -26,6 +27,7 @@ class Severity(Enum):
     """Validation issue severity level."""
     ERROR = "ERROR"
     WARNING = "WARNING"
+    SUGGESTION = "SUGGESTION"
 
 
 @dataclass
@@ -329,6 +331,100 @@ def validate_character_budget(
     return issues
 
 
+# =============================================================================
+# Optimization Suggestions
+# =============================================================================
+
+def suggest_description_optimization(
+    description: str | None,
+    file_path: str
+) -> list[ValidationIssue]:
+    """Suggest improvements for the description field."""
+    issues = []
+
+    if not description:
+        return issues
+
+    desc_lower = description.lower()
+
+    # Check for trigger phrases
+    trigger_phrases = ['use when', 'triggers on', 'use for', 'invoke when']
+    has_trigger = any(phrase in desc_lower for phrase in trigger_phrases)
+    if not has_trigger:
+        issues.append(ValidationIssue(
+            Severity.SUGGESTION, file_path, "description",
+            "Consider adding trigger phrases (e.g., 'Use when...') to improve skill activation"
+        ))
+
+    # Check for verb-first pattern (third person)
+    first_word = description.split()[0] if description.split() else ""
+    verb_endings = ('s', 'es', 'ates', 'izes', 'ifies')
+    if first_word and not first_word.lower().endswith(verb_endings):
+        issues.append(ValidationIssue(
+            Severity.SUGGESTION, file_path, "description",
+            f"Consider starting with a verb in third person (e.g., 'Generates...' not '{first_word}')"
+        ))
+
+    # Check description length
+    if len(description) < 50:
+        issues.append(ValidationIssue(
+            Severity.SUGGESTION, file_path, "description",
+            f"Description is short ({len(description)} chars). Consider adding keywords and triggers (50-200 chars recommended)"
+        ))
+
+    return issues
+
+
+def suggest_instruction_optimization(
+    body: str,
+    body_line_count: int,
+    file_path: str
+) -> list[ValidationIssue]:
+    """Suggest improvements for the instruction body."""
+    issues = []
+
+    if not body.strip():
+        return issues
+
+    body_lower = body.lower()
+
+    # Check for numbered workflow steps
+    has_numbered_steps = bool(re.search(r'^\s*[1-9]\.\s+', body, re.MULTILINE))
+    has_workflow_section = '## workflow' in body_lower or '# workflow' in body_lower
+    if has_workflow_section and not has_numbered_steps:
+        issues.append(ValidationIssue(
+            Severity.SUGGESTION, file_path, "body",
+            "Workflow section found but no numbered steps. Number steps explicitly (1. 2. 3.) for clarity"
+        ))
+
+    # Check for obvious operation explanations
+    obvious_patterns = [
+        r'use the read tool',
+        r'use the write tool',
+        r'use the edit tool',
+        r'make sure the (?:file|path) exists',
+        r'check if the file exists',
+    ]
+    for pattern in obvious_patterns:
+        if re.search(pattern, body_lower):
+            issues.append(ValidationIssue(
+                Severity.SUGGESTION, file_path, "body",
+                f"Consider removing obvious operation explanations (found: '{pattern}'). Claude knows standard operations."
+            ))
+            break
+
+    # Check for large body without references
+    if body_line_count > 200:
+        has_reference = 'references/' in body
+        if not has_reference:
+            issues.append(ValidationIssue(
+                Severity.SUGGESTION, file_path, "body",
+                f"Large body ({body_line_count} lines) without reference files. Consider extracting detailed content to references/"
+            ))
+
+    return issues
+
+
 def validate_plugin_json(plugin_json_path: Path) -> list[ValidationIssue]:
     """
     Validate plugin.json schema.
@@ -477,7 +573,7 @@ def detect_skill_type(skill_path: Path) -> tuple[str, Path | None, Path | None]:
 # Main Validation Logic
 # =============================================================================
 
-def validate_skill(skill_path: Path) -> ValidationResult:
+def validate_skill(skill_path: Path, suggest: bool = False) -> ValidationResult:
     """Validate a single skill at the given path."""
     skill_path = skill_path.resolve()
     skill_md_path = skill_path / "SKILL.md"
@@ -542,10 +638,22 @@ def validate_skill(skill_path: Path) -> ValidationResult:
             plugin_name
         ))
 
+    # Add optimization suggestions if requested
+    if suggest:
+        result.issues.extend(suggest_description_optimization(
+            frontmatter.get('description'),
+            rel_path
+        ))
+        result.issues.extend(suggest_instruction_optimization(
+            body,
+            body_line_count,
+            rel_path
+        ))
+
     return result
 
 
-def print_result(result: ValidationResult, verbose: bool = False) -> None:
+def print_result(result: ValidationResult, verbose: bool = False, suggest: bool = False) -> None:
     """Print validation result to stdout."""
     for issue in result.issues:
         print(issue)
@@ -553,10 +661,16 @@ def print_result(result: ValidationResult, verbose: bool = False) -> None:
     if result.issues:
         print()
 
+    error_count = sum(1 for i in result.issues if i.severity == Severity.ERROR)
+    warning_count = sum(1 for i in result.issues if i.severity == Severity.WARNING)
+    suggestion_count = sum(1 for i in result.issues if i.severity == Severity.SUGGESTION)
+
     print(f"Skill: {result.skill_name}")
     print(f"  Path: {result.skill_path}")
-    print(f"  Errors: {sum(1 for i in result.issues if i.severity == Severity.ERROR)}")
-    print(f"  Warnings: {sum(1 for i in result.issues if i.severity == Severity.WARNING)}")
+    print(f"  Errors: {error_count}")
+    print(f"  Warnings: {warning_count}")
+    if suggest:
+        print(f"  Suggestions: {suggestion_count}")
     print()
 
     if result.passed:
@@ -583,6 +697,11 @@ def main() -> int:
         action="store_true",
         help="Show detailed output"
     )
+    parser.add_argument(
+        "--suggest", "-s",
+        action="store_true",
+        help="Include optimization suggestions beyond errors and warnings"
+    )
 
     args = parser.parse_args()
 
@@ -596,8 +715,8 @@ def main() -> int:
         print(f"ERROR: Path is not a directory: {skill_path}", file=sys.stderr)
         return 1
 
-    result = validate_skill(skill_path)
-    print_result(result, verbose=args.verbose)
+    result = validate_skill(skill_path, suggest=args.suggest)
+    print_result(result, verbose=args.verbose, suggest=args.suggest)
 
     return 0 if result.passed else 1
 
