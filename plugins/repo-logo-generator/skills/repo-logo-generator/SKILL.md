@@ -2,19 +2,19 @@
 name: repo-logo-generator
 description: Generate logos for GitHub repositories using mcp-openrouter with programmatic transparency conversion. Works with pixel art, vector designs, and complex multi-colored styles. Use when asked to "generate a logo", "create repo logo", or "make a project logo".
 license: MIT
-compatibility: python 3.8+, requires pillow library, requires mcp-openrouter MCP server
+compatibility: requires mcp-openrouter and mcp-image-tools MCP servers
 argument-hint: "[style-preference]"
 disable-model-invocation: false
 user-invocable: true
 metadata:
-  version: "4.0.0"
+  version: "4.1.0"
 ---
 
 # Repo Logo Generator
 
 Generate professional logos with transparent backgrounds using:
 1. **mcp-openrouter** MCP tool generates logo with green (#00FF00) background
-2. **PIL chromakey script** converts green to transparent with smooth edges
+2. **mcp-image-tools** MCP tool converts green to transparent with smooth edges
 
 ## REQUIRED: Execution Checklist
 
@@ -79,18 +79,20 @@ size: "1K"
 
 ### Step 5: Apply Chromakey Transparency
 
-Locate the chromakey script and run it:
+Use the `mcp__image-tools__chromakey_to_transparent` tool:
 
-```bash
-# Find script in plugin cache
-LATEST_VERSION=$(ls -1 ~/.claude/plugins/cache/claude-skills/repo-logo-generator 2>/dev/null | sort -V | tail -n 1)
-SCRIPT="$HOME/.claude/plugins/cache/claude-skills/repo-logo-generator/$LATEST_VERSION/skills/repo-logo-generator/scripts/generate_logo.py"
+```
+input_path: /tmp/claude/logo_raw.png
+output_path: logo.png
+key_color: "#00FF00" (or config.keyColor)
+tolerance: 70 (or config.tolerance)
+```
 
-# Apply transparency
-uv run --with pillow "$SCRIPT" /tmp/claude/logo_raw.png \
-  --output logo.png \
-  --key-color "#00FF00" \
-  --tolerance 70
+Optional: Compress the output with `mcp__image-tools__compress_png`:
+
+```
+input_path: logo.png
+quality: 80
 ```
 
 ### Step 6: Verify Output
@@ -121,17 +123,6 @@ Config files use this structure:
     "tolerance": 70
   }
 }
-```
-
-## Chromakey Script Options
-
-```bash
-uv run --with pillow generate_logo.py INPUT --output OUTPUT [options]
-
-Options:
-  --key-color "#00FF00"    Chromakey color (default: green)
-  --tolerance 70           Color tolerance (default: 70)
-  --no-compress            Skip PNG compression
 ```
 
 ## DO NOT
