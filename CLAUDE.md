@@ -34,40 +34,9 @@ claude-skills/
 1. **One plugin per skill**: Each skill is a self-contained plugin with independent versioning
 2. **Minimal dependencies**: Scripts should be standalone with minimal external dependencies
 3. **Absolute paths**: All file operations should use absolute paths
-4. **Environment variables**: API keys use `SKILL_{SKILLNAME}_API_KEY` convention
+4. **MCP integration**: Skills can leverage MCP servers for external APIs (e.g., mcp-openrouter for AI models)
 
 ## Available Skills
-
-### OpenRouter
-
-Provides access to 300+ AI models via the OpenRouter API.
-
-**Key files:**
-- `plugins/openrouter/skills/openrouter/SKILL.md` - Skill definition
-- `plugins/openrouter/skills/openrouter/scripts/openrouter_client.py` - Python client (single-file, uses only `requests`)
-- `plugins/openrouter/.claude-plugin/plugin.json` - Plugin metadata
-
-**Environment variable:** `SKILL_OPENROUTER_API_KEY`
-
-**Usage:**
-```bash
-# Text completion
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests plugins/openrouter/skills/openrouter/scripts/openrouter_client.py chat MODEL "prompt"
-
-# Image generation (use absolute paths)
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests plugins/openrouter/skills/openrouter/scripts/openrouter_client.py image MODEL "description" --output /absolute/path/output.png
-
-# List models by capability
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests plugins/openrouter/skills/openrouter/scripts/openrouter_client.py models [vision|image_gen|tools|long_context]
-
-# Search models
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests plugins/openrouter/skills/openrouter/scripts/openrouter_client.py find "search term"
-```
-
-**Key implementation details:**
-- Uses OpenRouter's frontend API (`/api/frontend/models`) to access all 600+ models including image generation models
-- Automatic retry logic handles transient errors (429, 502, 503) with exponential backoff
-- Image generation uses the chat completions endpoint with `modalities: ["image", "text"]`
 
 ### README Generator
 
@@ -80,35 +49,15 @@ Creates cutting-edge README files with modern design patterns and optional AI-ge
 **Features:**
 - Smart project analysis (auto-detects language, framework, package manager)
 - Modern README structure with centered hero, badges, and visual hierarchy
-- Logo generation integration with OpenRouter image models
+- Logo generation integration with repo-logo-generator skill
 - Best practices for GitHub READMEs (accessibility, mobile-friendly, scannable)
-
-**Logo generation with OpenRouter:**
-```bash
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests plugins/openrouter/skills/openrouter/scripts/openrouter_client.py image \
-  "google/gemini-3-pro-image-preview" \
-  "A minimalist logo for [PROJECT]: [concept]. Clean vector style, no text." \
-  --output /absolute/path/assets/logo.png
-```
 
 **Logo configuration:** Logo appearance is customizable via JSON config files. The system checks in order (first found wins):
 1. `./.claude/readme-generator.json` (project level)
 2. `~/.claude/readme-generator.json` (user level)
 3. `assets/default-config.json` (bundled with repo-logo-generator skill)
 
-Example config:
-```json
-{
-  "logo": {
-    "background": "#1a1b26",
-    "iconColors": ["#7aa2f7", "#bb9af7", "#7dcfff"],
-    "style": "geometric",
-    "model": "google/gemini-3-pro-image-preview"
-  }
-}
-```
-
-See `repo-logo-generator` SKILL.md for all configurable parameters.
+See `repo-logo-generator` SKILL.md for all configurable parameters and usage.
 
 ## Adding a New Skill
 
@@ -384,7 +333,7 @@ Following official Agent Skills specification and Anthropic recommendations.
 
 All scripts use UV with inline dependency declarations:
 ```bash
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests scripts/openrouter_client.py ...
+UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with pillow scripts/chromakey.py ...
 ```
 
 **Why UV is preferred:**
@@ -399,10 +348,10 @@ UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests scripts/openrouter_clie
 Scripts validate dependencies at import with helpful error messages:
 ```python
 try:
-    import requests
+    from PIL import Image
 except ImportError:
-    print("Error: requests library required.", file=sys.stderr)
-    print("Run with: uv run --with requests <script>", file=sys.stderr)
+    print("Error: pillow library required.", file=sys.stderr)
+    print("Run with: uv run --with pillow <script>", file=sys.stderr)
     sys.exit(1)
 ```
 
@@ -423,7 +372,7 @@ UV accesses `SystemConfiguration.framework` APIs for proxy detection, which requ
 
 **Fallback:** For restricted environments, users can pre-install dependencies and use plain Python:
 ```bash
-python3 -m pip install requests
+python3 -m pip install pillow
 python3 /absolute/path/to/script.py ...
 ```
 
@@ -518,9 +467,8 @@ The bump script updates all three locations:
 
 ## Conventions
 
-- **Skill names**: lowercase, hyphenated (e.g., `openrouter`, `code-review`). Max 64 chars.
+- **Skill names**: lowercase, hyphenated (e.g., `readme-generator`, `code-review`). Max 64 chars.
 - **Plugin names**: typically match skill name for single-skill plugins
-- **API keys**: `SKILL_{SKILLNAME_UPPERCASE}_API_KEY`
 - **Scripts**: Place in `scripts/` subdirectory
   - Prefer single-file with minimal dependencies
   - Use `#!/usr/bin/env python3` shebang for portability

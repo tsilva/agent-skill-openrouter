@@ -184,13 +184,13 @@ def main():
         epilog="""
 Examples:
   # Check if version already bumped in uncommitted changes
-  python scripts/bump-version.py openrouter --check-uncommitted
+  python scripts/bump-version.py readme-generator --check-uncommitted
 
   # Preview what would be bumped
-  python scripts/bump-version.py openrouter --type minor --dry-run
+  python scripts/bump-version.py readme-generator --type minor --dry-run
 
   # Apply version bump
-  python scripts/bump-version.py openrouter --type patch
+  python scripts/bump-version.py readme-generator --type patch
 """
     )
     parser.add_argument("plugin_name", help="Name of the plugin to bump version for")

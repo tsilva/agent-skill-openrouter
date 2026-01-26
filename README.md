@@ -7,9 +7,8 @@
   [![Python 3.8+](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat)](LICENSE)
   [![GitHub Stars](https://img.shields.io/github/stars/tsilva/claude-skills?style=flat)](https://github.com/tsilva/claude-skills/stargazers)
-  [![OpenRouter](https://img.shields.io/badge/OpenRouter-Powered-6366f1?style=flat)](https://openrouter.ai)
 
-  **🔌 Supercharge Claude Code with 300+ AI models, auto-generated READMEs, custom logos, and security auditing**
+  **🔌 Supercharge Claude Code with auto-generated READMEs, custom logos, and security auditing**
 
   [Documentation](CLAUDE.md) · [Skills Marketplace](#installation)
 </div>
@@ -18,19 +17,19 @@
 
 ## Why Claude Skills?
 
-- **🤖 300+ AI models at your fingertips** - Call GPT-5, Gemini, Llama, or any OpenRouter model directly from Claude Code
 - **📝 Professional READMEs in seconds** - Auto-generate documentation following GitHub best practices
 - **🎨 Custom logos on demand** - Create minimalist repo logos with AI image generation
 - **🔐 Security auditing built-in** - Automatically identify and clean up dangerous or redundant permissions
 - **⚡ Plug and play** - Install only what you need, each skill works independently
 
+> **Note:** For access to 300+ AI models (GPT-5, Gemini, Llama, Mistral, etc.), use the [mcp-openrouter](https://github.com/tsilva/mcp-openrouter) MCP server.
+
 ## Available Skills
 
 | Skill | Description | Version | Slash Command |
 |-------|-------------|---------|---------------|
-| [OpenRouter](#openrouter) | Access 300+ AI models for text completion and image generation | 1.1.1 | `/openrouter` |
 | [README Generator](#readme-generator) | Create cutting-edge README files with badges and visual hierarchy | 1.1.1 | `/readme-generator` |
-| [Repo Logo Generator](#repo-logo-generator) | Generate logos with native transparent backgrounds | 3.3.0 | `/repo-logo-generator` |
+| [Repo Logo Generator](#repo-logo-generator) | Generate logos with native transparent backgrounds (requires mcp-openrouter) | 4.0.0 | `/repo-logo-generator` |
 | [Settings Optimizer](#claude-settings-optimizer) | Audit and optimize Claude Code permission whitelists | 1.0.0 | `/claude-settings-optimizer` |
 | [Repo Name Generator](#repo-name-generator) | Generate creative, memorable repository names | 1.0.0 | `/repo-name-generator` |
 
@@ -43,10 +42,9 @@
 /skills-discovery tsilva/claude-skills
 
 # Or install individual skills directly
-/skills-discovery openrouter
 /skills-discovery readme-generator
 /skills-discovery repo-logo-generator
-/skills-discovery settings-cleaner
+/skills-discovery claude-settings-optimizer
 ```
 
 ### Manual Installation
@@ -57,12 +55,6 @@ cd claude-skills
 ```
 
 ## Quick Start
-
-### Environment Setup
-
-```bash
-export SKILL_OPENROUTER_API_KEY="sk-or-..."  # Get key at https://openrouter.ai/keys
-```
 
 ### Using Slash Commands
 
@@ -83,91 +75,23 @@ You can also ask Claude to use these skills naturally:
 - "Generate a logo for my repo" → triggers `/repo-logo-generator`
 - "Clean up my settings" → triggers `/settings-cleaner`
 
-### Text Completion
-
-```bash
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests plugins/openrouter/skills/openrouter/scripts/openrouter_client.py chat \
-  "openai/gpt-5.2" "Explain quantum computing in one paragraph"
-```
-
-### Image Generation
-
-```bash
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests plugins/openrouter/skills/openrouter/scripts/openrouter_client.py image \
-  "google/gemini-3-pro-image-preview" "A futuristic city at sunset" \
-  --output /path/to/output.png
-```
-
 ### Logo Generation
 
-```bash
-# Generate logo with transparent background (chromakey)
-uv run --with requests --with pillow \
-  ~/.claude/plugins/cache/claude-skills/repo-logo-generator/latest/skills/repo-logo-generator/scripts/generate_logo.py \
-  "A minimalist logo for MyProject: geometric terminal icon" \
-  --output logo.png
-```
+Logo generation uses the [mcp-openrouter](https://github.com/tsilva/mcp-openrouter) MCP server:
+
+1. **Generate image** via `mcp__openrouter__generate_image` with green background
+2. **Apply chromakey** via the bundled script to convert green to transparent
+
+Simply use `/repo-logo-generator` and Claude handles the workflow automatically.
 
 ---
 
 ## Skills
 
-### OpenRouter
-
-<p>
-  <a href="https://openrouter.ai"><img src="https://img.shields.io/badge/OpenRouter-Powered-6366f1?style=flat" alt="OpenRouter"></a>
-  <img src="https://img.shields.io/badge/Version-1.1.1-green?style=flat" alt="Version">
-  <img src="https://img.shields.io/badge/Models-300+-purple?style=flat" alt="300+ Models">
-</p>
-
-Gateway to 300+ AI models through a unified API. Call any model from OpenAI, Anthropic, Google, Meta, Mistral, and more.
-
-#### Commands
-
-```bash
-# Text completion
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests plugins/openrouter/skills/openrouter/scripts/openrouter_client.py chat MODEL "prompt"
-
-# Image generation (use absolute paths)
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests plugins/openrouter/skills/openrouter/scripts/openrouter_client.py image MODEL "description" --output /path/output.png
-
-# Model discovery
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests plugins/openrouter/skills/openrouter/scripts/openrouter_client.py models [vision|image_gen|tools|long_context]
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests plugins/openrouter/skills/openrouter/scripts/openrouter_client.py find "search term"
-```
-
-#### Popular Models
-
-| Use Case | Model ID | Notes |
-|----------|----------|-------|
-| General | `openai/gpt-5.2` | Fast, capable |
-| Reasoning | `anthropic/claude-opus-4.5` | SOTA reasoning |
-| Code | `anthropic/claude-sonnet-4.5` | Great for code |
-| Long context | `google/gemini-3-flash-preview` | 1M+ tokens, cheap |
-| Image gen | `google/gemini-3-pro-image-preview` | Fast, affordable |
-| Image gen | `black-forest-labs/flux.2-pro` | High quality |
-
-#### Python Usage
-
-```python
-import sys
-sys.path.insert(0, "plugins/openrouter/skills/openrouter/scripts")
-from openrouter_client import OpenRouterClient
-import os
-
-client = OpenRouterClient(os.environ["SKILL_OPENROUTER_API_KEY"])
-response = client.chat_simple("anthropic/claude-sonnet-4.5", "Hello!")
-```
-
-[Full documentation](plugins/openrouter/skills/openrouter/SKILL.md)
-
----
-
 ### README Generator
 
 <p>
-  <img src="https://img.shields.io/badge/Version-1.0.11-green?style=flat" alt="Version">
-  <img src="https://img.shields.io/badge/OpenRouter-Integration-6366f1?style=flat" alt="OpenRouter Integration">
+  <img src="https://img.shields.io/badge/Version-1.1.1-green?style=flat" alt="Version">
 </p>
 
 Create READMEs that hook readers in 5 seconds, prove value in 30 seconds, and enable success in under 10 minutes.
@@ -195,17 +119,18 @@ Create READMEs that hook readers in 5 seconds, prove value in 30 seconds, and en
 ### Repo Logo Generator
 
 <p>
-  <img src="https://img.shields.io/badge/Version-3.2.0-green?style=flat" alt="Version">
-  <img src="https://img.shields.io/badge/OpenRouter-Integration-6366f1?style=flat" alt="OpenRouter Integration">
+  <img src="https://img.shields.io/badge/Version-4.0.0-green?style=flat" alt="Version">
+  <a href="https://github.com/tsilva/mcp-openrouter"><img src="https://img.shields.io/badge/Requires-mcp--openrouter-6366f1?style=flat" alt="Requires mcp-openrouter"></a>
 </p>
 
-Generate professional logos with transparent backgrounds using chromakey technology. Gemini generates the logo with a green (#00FF00) background, then PIL applies professional chromakey for smooth transparency.
+Generate professional logos with transparent backgrounds using chromakey technology. Uses [mcp-openrouter](https://github.com/tsilva/mcp-openrouter) MCP server to generate logos with Gemini, then applies professional chromakey for smooth transparency.
 
 #### Features
 
 - **Chromakey transparency** - Industry-standard green screen technique eliminates halo artifacts
 - **Multiple styles** - Supports minimalist, pixel art, vector, and complex designs
 - **Configurable** - Customize colors, style, and model via JSON config files
+- **MCP integration** - Uses mcp-openrouter for AI image generation
 
 #### Visual Metaphors
 
@@ -217,15 +142,9 @@ Generate professional logos with transparent backgrounds using chromakey technol
 | API | Messenger bird with data |
 | Framework | Architectural scaffold |
 
-#### Example
+#### Prerequisites
 
-```bash
-# Generate logo with transparent background
-uv run --with requests --with pillow \
-  ~/.claude/plugins/cache/claude-skills/repo-logo-generator/latest/skills/repo-logo-generator/scripts/generate_logo.py \
-  "A minimalist logo for fastgrep: magnifying glass with speed lines" \
-  --output logo.png
-```
+Requires the [mcp-openrouter](https://github.com/tsilva/mcp-openrouter) MCP server to be configured.
 
 [Full documentation](plugins/repo-logo-generator/skills/repo-logo-generator/SKILL.md)
 
@@ -287,10 +206,10 @@ Simply ask:
 ```
 claude-skills/
 ├── plugins/
-│   ├── openrouter/              # OpenRouter skill (v1.1.1)
-│   ├── readme-generator/        # README Generator skill (v1.0.11)
-│   ├── repo-logo-generator/     # Logo Generator skill (v3.2.0)
-│   └── settings-cleaner/        # Settings Cleaner skill (v1.0.7)
+│   ├── readme-generator/        # README Generator skill (v1.1.1)
+│   ├── repo-logo-generator/     # Logo Generator skill (v4.0.0)
+│   ├── claude-settings-optimizer/ # Settings Optimizer skill (v1.0.0)
+│   └── repo-name-generator/     # Repo Name Generator skill (v1.0.0)
 ├── scripts/
 │   ├── bump-version.py          # Version management CLI
 │   └── validate_skills.py       # Skill validation against spec
@@ -306,7 +225,7 @@ claude-skills/
 This repository follows Agent Skills best practices using **UV for portable, zero-setup execution**:
 
 ```bash
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests scripts/script-name.py ...
+UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with pillow scripts/chromakey.py ...
 ```
 
 **Benefits:**
@@ -315,16 +234,7 @@ UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with requests scripts/script-name.py 
 - Automatic caching for fast execution
 - Full portability across systems
 
-**macOS Sandbox Note:** On macOS, UV may require `dangerouslyDisableSandbox` because it accesses system configuration APIs. This is a known UV limitation and does not indicate a skill design issue.
-
-**Alternative approach (for restricted environments):**
-```bash
-# Pre-install dependencies
-python3 -m pip install requests
-
-# Run script directly
-python3 plugins/openrouter/skills/openrouter/scripts/openrouter_client.py chat MODEL "prompt"
-```
+**macOS Sandbox Note:** On macOS, UV may require `dangerouslyDisableSandbox` because it accesses system configuration APIs. This is a known UV limitation.
 
 ## Adding New Skills
 
@@ -344,7 +254,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 ## Acknowledgements
 
 - **[Claude Code](https://claude.ai/code)** - AI-powered development by Anthropic
-- **[OpenRouter](https://openrouter.ai)** - Unified API for 300+ AI models
 - **[shields.io](https://shields.io)** - Badge generation service
 
 ---

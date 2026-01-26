@@ -6,22 +6,16 @@
   },
   "plugins": [
     {
-      "name": "openrouter",
-      "source": "./plugins/openrouter",
-      "description": "Invoke 300+ AI models via OpenRouter API. Use when Claude Code needs to call external models (GPT-5.2, Gemini 3, Llama, Mistral, etc.) for text completion, image generation, or model discovery.",
-      "version": "1.1.1"
-    },
-    {
       "name": "readme-generator",
       "source": "./plugins/readme-generator",
-      "description": "Create cutting-edge README files with modern design, badges, and optional AI-generated logos via OpenRouter integration.",
+      "description": "Create cutting-edge README files with modern design, badges, and optional AI-generated logos.",
       "version": "1.1.1"
     },
     {
       "name": "repo-logo-generator",
       "source": "./plugins/repo-logo-generator",
-      "description": "Generate professional logos via OpenRouter with native transparent backgrounds using GPT-5 Image. Supports pixel art, vector designs, and complex styles. Use when asked to 'generate a logo' or 'create repo logo'.",
-      "version": "3.3.0"
+      "description": "Generate professional logos with native transparent backgrounds. Requires mcp-openrouter MCP server. Use when asked to 'generate a logo' or 'create repo logo'.",
+      "version": "4.0.0"
     },
     {
       "name": "claude-settings-optimizer",
