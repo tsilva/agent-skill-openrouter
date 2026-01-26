@@ -204,7 +204,7 @@ After modifying a SKILL.md file:
 ### 1. Check if Already Bumped
 
 ```bash
-python scripts/bump-version.py {plugin} --check-uncommitted
+python plugins/claude-skill-author/skills/claude-skill-author/scripts/bump-version.py {plugin} --check-uncommitted
 ```
 - Exit 0 = already bumped, skip to validation
 - Exit 1 = needs bump
@@ -220,7 +220,7 @@ python scripts/bump-version.py {plugin} --check-uncommitted
 ### 3. Apply Bump
 
 ```bash
-python scripts/bump-version.py {plugin} --type {patch|minor|major}
+python plugins/claude-skill-author/skills/claude-skill-author/scripts/bump-version.py {plugin} --type {patch|minor|major}
 ```
 
 ### 4. Validate
@@ -364,7 +364,7 @@ python plugins/claude-skill-author/skills/claude-skill-author/scripts/validate_s
 ### Version Bump
 
 ```bash
-python scripts/bump-version.py {plugin} --type {patch|minor|major}
+python plugins/claude-skill-author/skills/claude-skill-author/scripts/bump-version.py {plugin} --type {patch|minor|major}
 ```
 
 For detailed templates, see `references/templates.md`.

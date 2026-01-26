@@ -7,15 +7,15 @@ based on the changes made.
 
 Usage:
   # Check if version already bumped in uncommitted changes
-  python scripts/bump-version.py <plugin-name> --check-uncommitted
+  python plugins/claude-skill-author/skills/claude-skill-author/scripts/bump-version.py <plugin-name> --check-uncommitted
   # Exit 0 = version already changed (skip bump)
   # Exit 1 = version not changed (needs bump)
 
   # Preview bump without applying
-  python scripts/bump-version.py <plugin-name> --type minor --dry-run
+  python plugins/claude-skill-author/skills/claude-skill-author/scripts/bump-version.py <plugin-name> --type minor --dry-run
 
   # Apply bump
-  python scripts/bump-version.py <plugin-name> --type patch
+  python plugins/claude-skill-author/skills/claude-skill-author/scripts/bump-version.py <plugin-name> --type patch
 
 Updates version in:
 1. plugins/<plugin>/skills/<skill>/SKILL.md (metadata.version)
@@ -29,6 +29,16 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+
+
+def find_repo_root(start_path: Path) -> Path | None:
+    """Find repository root by traversing upward to find .git or .claude-plugin/marketplace.json."""
+    current = start_path.resolve()
+    while current != current.parent:
+        if (current / ".git").exists() or (current / ".claude-plugin" / "marketplace.json").exists():
+            return current
+        current = current.parent
+    return None
 
 
 def parse_version(version_str: str) -> tuple[int, int, int]:
@@ -184,13 +194,13 @@ def main():
         epilog="""
 Examples:
   # Check if version already bumped in uncommitted changes
-  python scripts/bump-version.py readme-generator --check-uncommitted
+  python plugins/claude-skill-author/skills/claude-skill-author/scripts/bump-version.py readme-generator --check-uncommitted
 
   # Preview what would be bumped
-  python scripts/bump-version.py readme-generator --type minor --dry-run
+  python plugins/claude-skill-author/skills/claude-skill-author/scripts/bump-version.py readme-generator --type minor --dry-run
 
   # Apply version bump
-  python scripts/bump-version.py readme-generator --type patch
+  python plugins/claude-skill-author/skills/claude-skill-author/scripts/bump-version.py readme-generator --type patch
 """
     )
     parser.add_argument("plugin_name", help="Name of the plugin to bump version for")
@@ -212,9 +222,12 @@ Examples:
 
     args = parser.parse_args()
 
-    # Determine repo root (script is in scripts/)
+    # Find repo root by traversing upward
     script_dir = Path(__file__).resolve().parent
-    repo_root = script_dir.parent
+    repo_root = find_repo_root(script_dir)
+    if not repo_root:
+        print("Error: Could not find repository root (no .git or .claude-plugin/marketplace.json found)", file=sys.stderr)
+        sys.exit(1)
 
     # Locate plugin directory
     plugin_dir = repo_root / "plugins" / args.plugin_name

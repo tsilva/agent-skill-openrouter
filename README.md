@@ -209,10 +209,8 @@ claude-skills/
 │   ├── readme-generator/        # README Generator skill (v1.1.1)
 │   ├── repo-logo-generator/     # Logo Generator skill (v4.0.0)
 │   ├── claude-settings-optimizer/ # Settings Optimizer skill (v1.0.0)
-│   └── repo-name-generator/     # Repo Name Generator skill (v1.0.0)
-├── scripts/
-│   ├── bump-version.py          # Version management CLI
-│   └── validate_skills.py       # Skill validation against spec
+│   ├── repo-name-generator/     # Repo Name Generator skill (v1.0.0)
+│   └── claude-skill-author/     # Skill authoring tools (validation, version bump)
 ├── .claude-plugin/
 │   └── marketplace.json         # Plugin registry
 ├── logo.png                     # Repository logo

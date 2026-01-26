@@ -22,8 +22,6 @@ claude-skills/
 │               ├── scripts/     # Executable code (optional)
 │               ├── references/  # Documentation loaded on-demand (optional)
 │               └── assets/      # Static resources like templates, icons (optional)
-├── scripts/
-│   └── bump-version.py          # Version bumping CLI tool
 ├── CLAUDE.md                    # This file
 └── README.md                    # Repository documentation
 ```
@@ -53,16 +51,7 @@ Creates cutting-edge README files with modern design patterns and optional AI-ge
 
 ## Skill Authoring
 
-For creating or modifying skills, use `/claude-skill-author` which contains the authoritative specification, best practices, validation, and workflows.
-
-**Quick reference:**
-```bash
-# Validate a skill
-python plugins/claude-skill-author/skills/claude-skill-author/scripts/validate_skill.py /path/to/skill
-
-# Version bump (plugin skills only)
-python scripts/bump-version.py {plugin} --type {patch|minor|major}
-```
+For creating or modifying skills, use `/claude-skill-author` which contains the authoritative specification, best practices, validation, version management, and workflows.
 
 ## Dependency Management Best Practices
 
