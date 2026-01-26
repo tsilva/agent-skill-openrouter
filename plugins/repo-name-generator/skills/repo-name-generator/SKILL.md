@@ -5,8 +5,10 @@ license: MIT
 compatibility: Any environment
 metadata:
   author: tsilva
-  version: "1.0.0"
+  version: "1.0.1"
 argument-hint: "[project-path]"
+disable-model-invocation: false
+user-invocable: true
 ---
 
 # Repo Name Generator

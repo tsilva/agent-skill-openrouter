@@ -5,7 +5,7 @@ license: MIT
 argument-hint: "[project|plugin] [skill-name]"
 metadata:
   author: tsilva
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # Skill Author Guide
@@ -116,6 +116,8 @@ Add to `.claude-plugin/marketplace.json` plugins array:
 python plugins/claude-skill-author/skills/claude-skill-author/scripts/validate_skill.py plugins/{name}/skills/{name}
 ```
 
+**Note:** For any future changes to this skill, you MUST bump the version. See "Version Management" section.
+
 ## SKILL.md Structure
 
 ### Required Frontmatter
@@ -199,7 +201,15 @@ Never:
 
 ## Version Management (Plugin Skills Only)
 
-After modifying a SKILL.md file:
+**MANDATORY: Any change to any file in a plugin skill requires a version bump.** This includes:
+- SKILL.md content or frontmatter changes
+- Script modifications
+- Reference documentation updates
+- Asset changes
+
+No exceptions. The only question is bump type (patch/minor/major), not whether to bump.
+
+After modifying any file in a plugin skill:
 
 ### 1. Check if Already Bumped
 
@@ -361,11 +371,13 @@ python plugins/claude-skill-author/skills/claude-skill-author/scripts/validate_s
 python plugins/claude-skill-author/skills/claude-skill-author/scripts/validate_skill.py /path/to/skill
 ```
 
-### Version Bump
+### Version Bump (Required for ANY Change)
 
 ```bash
 python plugins/claude-skill-author/skills/claude-skill-author/scripts/bump-version.py {plugin} --type {patch|minor|major}
 ```
+
+**Always bump versions.** Any change = version bump. No exceptions.
 
 For detailed templates, see `references/templates.md`.
 For compression techniques, see `references/compression-guide.md`.
