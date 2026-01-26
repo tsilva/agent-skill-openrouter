@@ -16,6 +16,7 @@ Exit codes: 0 = passed, 1 = failed
 import argparse
 import json
 import re
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from enum import Enum
@@ -529,6 +530,85 @@ def validate_version_sync(
 
 
 # =============================================================================
+# Internal Validation Hooks
+# =============================================================================
+
+def run_validation_hook(
+    skill_path: Path,
+    suggest: bool = False,
+    timeout: int = 30
+) -> list[ValidationIssue]:
+    """
+    Execute skill's internal validation hook if present.
+
+    Hooks are optional scripts at scripts/validate_hook.py that allow skills
+    to define their own validation logic (e.g., config schema validation).
+
+    Args:
+        skill_path: Path to the skill directory
+        suggest: Whether to include optimization suggestions
+        timeout: Maximum execution time in seconds
+
+    Returns:
+        List of ValidationIssues from the hook (empty if no hook exists)
+    """
+    hook_path = skill_path / "scripts" / "validate_hook.py"
+
+    if not hook_path.exists():
+        return []
+
+    # Build command
+    cmd = [sys.executable, str(hook_path), str(skill_path)]
+    if suggest:
+        cmd.append("--suggest")
+
+    # Execute with timeout
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=timeout
+        )
+    except subprocess.TimeoutExpired:
+        return [ValidationIssue(
+            Severity.WARNING,
+            str(hook_path.relative_to(skill_path)),
+            "hook",
+            f"Validation hook timed out after {timeout}s"
+        )]
+
+    if result.returncode != 0:
+        stderr_msg = result.stderr.strip() if result.stderr else "no error message"
+        return [ValidationIssue(
+            Severity.ERROR,
+            str(hook_path.relative_to(skill_path)),
+            "hook",
+            f"Hook failed (exit {result.returncode}): {stderr_msg}"
+        )]
+
+    # Parse JSON output
+    try:
+        data = json.loads(result.stdout)
+        return [
+            ValidationIssue(
+                Severity[issue["severity"]],
+                issue["file_path"],
+                issue["field"],
+                issue["message"]
+            )
+            for issue in data.get("issues", [])
+        ]
+    except (json.JSONDecodeError, KeyError, ValueError) as e:
+        return [ValidationIssue(
+            Severity.ERROR,
+            str(hook_path.relative_to(skill_path)),
+            "hook",
+            f"Invalid hook output: {e}"
+        )]
+
+
+# =============================================================================
 # Skill Type Detection
 # =============================================================================
 
@@ -637,6 +717,9 @@ def validate_skill(skill_path: Path, suggest: bool = False) -> ValidationResult:
             marketplace_path,
             plugin_name
         ))
+
+    # Run internal validation hook if present
+    result.issues.extend(run_validation_hook(skill_path, suggest))
 
     # Add optimization suggestions if requested
     if suggest:

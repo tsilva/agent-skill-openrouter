@@ -144,3 +144,48 @@ skill-name/
 - **scripts/**: Token-efficient - code runs without loading into context
 - **references/**: Loaded only when Claude needs detailed information
 - **assets/**: Output files, never loaded into context
+
+## Internal Validation Hooks
+
+Skills can provide optional internal validation via `scripts/validate_hook.py`. This allows skills to define their own validation logic that runs automatically when `validate_skill.py` is executed.
+
+### Protocol
+
+The hook receives:
+- First argument: absolute path to skill directory
+- Optional `--suggest` flag for optimization hints
+
+Must output JSON to stdout:
+```json
+{
+  "issues": [
+    {
+      "severity": "ERROR|WARNING|SUGGESTION",
+      "file_path": "relative/path/to/file",
+      "field": "field_name",
+      "message": "Description of the issue"
+    }
+  ]
+}
+```
+
+Exit codes:
+- `0` = hook ran successfully (issues may exist in JSON output)
+- Non-zero = hook execution failed
+
+### Error Handling
+
+| Scenario | Behavior |
+|----------|----------|
+| Hook not found | Skip silently |
+| Hook returns valid JSON with issues | Merge into main validation result |
+| Hook returns non-zero exit | Report as ERROR |
+| Hook returns invalid JSON | Report as ERROR |
+| Hook times out (30s) | Report as WARNING, continue |
+
+### Use Cases
+
+- Validate bundled config schemas (e.g., default-config.json)
+- Cross-reference SKILL.md documentation with actual files
+- Check internal consistency between multiple config files
+- Verify required assets exist
