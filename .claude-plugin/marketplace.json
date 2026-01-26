@@ -9,7 +9,7 @@
       "name": "readme-generator",
       "source": "./plugins/readme-generator",
       "description": "Create cutting-edge README files with modern design, badges, and optional AI-generated logos.",
-      "version": "1.1.2"
+      "version": "1.1.3"
     },
     {
       "name": "repo-logo-generator",

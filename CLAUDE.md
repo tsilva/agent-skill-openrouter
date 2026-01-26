@@ -52,13 +52,6 @@ Creates cutting-edge README files with modern design patterns and optional AI-ge
 - Logo generation integration with repo-logo-generator skill
 - Best practices for GitHub READMEs (accessibility, mobile-friendly, scannable)
 
-**Logo configuration:** Logo appearance is customizable via JSON config files. The system checks in order (first found wins):
-1. `./.claude/repo-logo-generator.json` (project level)
-2. `~/.claude/repo-logo-generator.json` (user level)
-3. `assets/default-config.json` (bundled with repo-logo-generator skill)
-
-See `repo-logo-generator` SKILL.md for all configurable parameters and usage.
-
 ## Adding a New Skill
 
 ### Step 1: Create Plugin Structure
