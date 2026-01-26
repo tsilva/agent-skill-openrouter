@@ -7,7 +7,7 @@ argument-hint: "[style-preference]"
 disable-model-invocation: false
 user-invocable: true
 metadata:
-  version: "4.3.0"
+  version: "4.4.0"
 ---
 
 # Repo Logo Generator
@@ -23,8 +23,8 @@ Follow these steps exactly.
 ### Step 1: Load Configuration
 
 Read config files in order (merge: project > user > bundled):
-1. `./.claude/readme-generator.json` (project config)
-2. `~/.claude/readme-generator.json` (user config)
+1. `./.claude/repo-logo-generator.json` (project config)
+2. `~/.claude/repo-logo-generator.json` (user config)
 3. `assets/default-config.json` (bundled defaults)
 
 **Config Parameters:**

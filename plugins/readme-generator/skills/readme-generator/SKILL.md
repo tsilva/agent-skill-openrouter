@@ -5,7 +5,7 @@ argument-hint: "[project-path]"
 disable-model-invocation: false
 user-invocable: true
 metadata:
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # README Generator
@@ -38,8 +38,8 @@ Look for `logo.png` at the repo root. If found, use it and skip to README genera
 ### Step 1.5: Load Configuration (Optional)
 
 Check for logo configuration in order of precedence:
-1. `./.claude/readme-generator.json` (project level - highest priority)
-2. `~/.claude/readme-generator.json` (user level)
+1. `./.claude/repo-logo-generator.json` (project level - highest priority)
+2. `~/.claude/repo-logo-generator.json` (user level)
 
 These files customize logo appearance (background color, icon colors, style, model). See **repo-logo-generator** skill for full configuration options.
 

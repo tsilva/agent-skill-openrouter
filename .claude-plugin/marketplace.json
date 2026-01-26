@@ -9,13 +9,13 @@
       "name": "readme-generator",
       "source": "./plugins/readme-generator",
       "description": "Create cutting-edge README files with modern design, badges, and optional AI-generated logos.",
-      "version": "1.1.1"
+      "version": "1.1.2"
     },
     {
       "name": "repo-logo-generator",
       "source": "./plugins/repo-logo-generator",
       "description": "Generate professional logos with native transparent backgrounds. Requires mcp-openrouter MCP server. Use when asked to 'generate a logo' or 'create repo logo'.",
-      "version": "4.3.0"
+      "version": "4.4.0"
     },
     {
       "name": "claude-settings-optimizer",
