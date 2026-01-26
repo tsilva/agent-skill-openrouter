@@ -5,6 +5,7 @@
     "promptTemplate": null,
     "style": "minimalist",
     "visualMetaphor": null,
+    "includeRepoName": false,
     "iconColors": ["#58a6ff", "#d29922", "#a371f7", "#7aa2f7", "#f97583"],
     "additionalInstructions": "",
     "keyColor": "#00FF00",

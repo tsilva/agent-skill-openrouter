@@ -7,7 +7,7 @@ argument-hint: "[style-preference]"
 disable-model-invocation: false
 user-invocable: true
 metadata:
-  version: "4.2.0"
+  version: "4.3.0"
 ---
 
 # Repo Logo Generator
@@ -34,6 +34,7 @@ Read config files in order (merge: project > user > bundled):
 | `promptTemplate` | null | Full prompt template (null = use default) |
 | `style` | `"minimalist"` | Style descriptor |
 | `visualMetaphor` | null | Override metaphor, `"none"` to omit |
+| `includeRepoName` | `false` | Include project name as stylized text |
 | `iconColors` | `["#58a6ff", ...]` | Design colors |
 | `additionalInstructions` | `""` | Appended to prompt |
 | `keyColor` | `"#00FF00"` | Chromakey background |
@@ -56,6 +57,7 @@ Gather these values for template variable substitution:
 | `{STYLE}` | config.style |
 | `{ICON_COLORS}` | config.iconColors joined with ", " |
 | `{KEY_COLOR}` | config.keyColor |
+| `{TEXT_INSTRUCTIONS}` | If `includeRepoName`: `Include "{PROJECT_NAME}" as stylized text.` else `No text, no letters, no words.` |
 
 **Visual Metaphors by Project Type:**
 
@@ -82,7 +84,7 @@ Set `visualMetaphor: "none"` in config to omit the metaphor entirely.
 A {STYLE} logo for {PROJECT_NAME}: {VISUAL_METAPHOR}.
 Clean vector style. Icon colors from: {ICON_COLORS}.
 Pure {KEY_COLOR} background only. Do not use similar tones in the design.
-No text, no letters, no words. Single centered icon, geometric shapes, works at 64x64.
+{TEXT_INSTRUCTIONS} Single centered icon, geometric shapes, works at 64x64.
 ```
 
 **Then:**
@@ -161,9 +163,19 @@ Confirm the output file exists and is a valid PNG with transparency.
 }
 ```
 
+**Include project name as text:**
+```json
+{
+  "logo": {
+    "includeRepoName": true,
+    "style": "SNES pixel art with banner"
+  }
+}
+```
+
 ## Guidelines
 
 - Avoid green tones in icons when using default `#00FF00` keyColor (reserved for chromakey)
 - Avoid magenta tones when using `#FF00FF` keyColor
-- No text in logos - icons should work at small sizes
+- When `includeRepoName: false` (default), logos have no text for small-size clarity
 - Always complete the chromakey step for transparency
