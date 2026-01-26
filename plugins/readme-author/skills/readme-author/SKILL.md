@@ -1,19 +1,178 @@
 ---
-name: readme-generator
-description: Creates or updates README.md files following GitHub best practices with badges, visual hierarchy, and comprehensive documentation. Use when asked to "create a README", "generate documentation", "write a README for this project", or when starting a new project that needs documentation.
+name: readme-author
+description: Create, modify, validate, and optimize README.md files following GitHub best practices.
 license: MIT
 compatibility: Any environment
-argument-hint: "[project-path]"
+argument-hint: "[create|modify|validate|optimize] [path]"
 disable-model-invocation: false
 user-invocable: true
 metadata:
   author: tsilva
-  version: "1.2.0"
+  version: "2.0.0"
 ---
 
-# README Generator
+# README Author
 
 Create READMEs that hook readers in 5 seconds, prove value in 30 seconds, and enable success in under 10 minutes.
+
+## Operations
+
+| Operation | Triggers | Purpose |
+|-----------|----------|---------|
+| **create** | No README exists, "create/generate README" | Build from scratch |
+| **modify** | README exists, "update/change README" | Preserve structure, update sections |
+| **validate** | "check/review/audit README" | Score against best practices |
+| **optimize** | "improve/enhance README" | Fix issues, enhance quality |
+
+### Operation Detection
+
+1. **Check `$ARGUMENTS`** for explicit operation (e.g., `/readme-author validate`)
+2. **Check if README.md exists** at the target path
+3. **Analyze user intent** from keywords in their request
+4. **Default behavior**: `create` if no README exists, `modify` if README exists
+
+---
+
+## Create Operation
+
+Use when building a README from scratch. Follow the Core Framework and Workflow sections below.
+
+## Modify Operation
+
+Use when updating an existing README while preserving its structure.
+
+### Preservation Rules
+
+1. **Keep custom prose** - User-written descriptions, explanations, and context
+2. **Update dynamic content** - Versions, badge URLs, install commands
+3. **Respect markers** - Content within `<!-- custom -->...<!-- /custom -->` is never touched
+4. **Preserve section order** - Don't reorder sections unless explicitly requested
+
+### Merge Strategy
+
+| Content Type | Action |
+|--------------|--------|
+| User-written prose | Preserve exactly |
+| Version numbers | Update to current |
+| Badge URLs | Refresh if broken |
+| Code examples | Update if outdated |
+| New sections | Add at appropriate location |
+| Deprecated sections | Flag for user review |
+
+### Detection of Manual Edits
+
+Look for these signals that content is hand-crafted:
+- `<!-- custom -->` markers
+- Non-standard section names
+- Prose that doesn't match generated patterns
+- Comments like `<!-- keep this -->`
+
+When in doubt, preserve existing content and ask the user.
+
+## Validate Operation
+
+Score an existing README against best practices checklists.
+
+### Scoring Output Format
+
+```
+README Validation Report
+========================
+
+Overall Score: 72/100 (Professional)
+
+ESSENTIAL (Required) - 6/7 passed
+  ✅ Project logo present
+  ✅ Badges (5 found)
+  ✅ One-liner description
+  ❌ GIF/screenshot missing
+  ✅ Installation command
+  ✅ Code example
+  ✅ License info
+
+PROFESSIONAL - 4/6 passed
+  ✅ Table of contents
+  ✅ Feature highlights
+  ❌ Multiple install methods
+  ✅ Documentation links
+  ✅ Contributing section
+  ❌ "Used by" logos
+
+ELITE - 1/6 passed
+  ❌ Dark/light mode images
+  ❌ Architecture diagram
+  ❌ Benchmark comparisons
+  ❌ FAQ section
+  ✅ Star history graph
+  ❌ Contributor avatars
+
+Recommendations:
+1. Add a GIF demo showing core functionality
+2. Include installation options for npm, yarn, and pnpm
+3. Add "Used by" section with company logos
+```
+
+### Scoring Tiers
+
+| Tier | Score Range | Meaning |
+|------|-------------|---------|
+| Essential | 0-50 | Missing critical elements |
+| Professional | 51-80 | Solid README, room for improvement |
+| Elite | 81-100 | Exceptional, comprehensive README |
+
+### Project-Type Specific Checks
+
+For CLI tools, also check:
+- [ ] Terminal GIF demo
+- [ ] Cross-platform installation matrix
+- [ ] Shell integration instructions
+
+For AI/ML projects, also check:
+- [ ] Model card with YAML metadata
+- [ ] Hardware requirements table
+- [ ] Citation in BibTeX format
+
+## Optimize Operation
+
+Automatically improve README quality with quick wins and suggested enhancements.
+
+### Quick Wins (Auto-Apply)
+
+These improvements are safe to apply automatically:
+- Center hero section if not centered
+- Add alt text to images missing it
+- Fix broken badge URLs (shields.io format)
+- Add table of contents if >500 words
+- Standardize badge style (all flat, all flat-square, etc.)
+- Fix heading hierarchy (no skipped levels)
+
+### Requires Approval
+
+These changes need user confirmation:
+- Add new sections (Features, FAQ, etc.)
+- Rewrite tagline
+- Change badge selection
+- Add/remove emojis
+- Restructure content order
+
+### Optimization Output
+
+```
+README Optimization
+===================
+
+Auto-Applied (3 changes):
+  ✓ Centered hero section
+  ✓ Added alt text to logo
+  ✓ Fixed badge URL (codecov)
+
+Suggested Changes (requires approval):
+  ? Add table of contents [y/n]
+  ? Add "Used by" section placeholder [y/n]
+  ? Update tagline to include emoji [y/n]
+```
+
+---
 
 ## Core Framework: Hook → Prove → Enable → Extend
 
@@ -298,6 +457,8 @@ Avoid these mistakes:
 
 ## Workflow
 
+### Create Workflow
+
 1. **Analyze project** - scan for package.json, Cargo.toml, pyproject.toml, go.mod, etc.
 2. **Detect project type** - CLI, library, AI/ML, web app, API
 3. **Extract metadata** - name, description, version, author, license
@@ -305,6 +466,33 @@ Avoid these mistakes:
 5. **Generate logo if missing** - use repo-logo-generator skill
 6. **Calculate display width** - use half the actual image pixel width (for retina displays)
 7. **Generate README.md** - following Hook → Prove → Enable → Extend structure
+
+### Modify Workflow
+
+1. **Read existing README** - parse structure and content
+2. **Identify sections** - map to standard structure
+3. **Detect custom content** - look for markers and non-standard prose
+4. **Apply requested changes** - update only what was asked
+5. **Preserve custom content** - keep user-written sections intact
+6. **Validate result** - ensure no broken links or formatting
+
+### Validate Workflow
+
+1. **Read existing README** - parse all content
+2. **Run Essential checklist** - mandatory items
+3. **Run Professional checklist** - recommended items
+4. **Run Elite checklist** - advanced items
+5. **Check project-type specifics** - CLI, AI/ML, etc.
+6. **Calculate score** - weighted by tier
+7. **Generate report** - with actionable recommendations
+
+### Optimize Workflow
+
+1. **Run validation first** - identify issues
+2. **Apply quick wins** - safe auto-fixes
+3. **Present suggestions** - changes requiring approval
+4. **Apply approved changes** - with user confirmation
+5. **Re-validate** - show improvement
 
 ## Quick Reference Checklist
 

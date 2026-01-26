@@ -35,13 +35,19 @@ claude-skills/
 
 ## Available Skills
 
-### README Generator
+### README Author
 
-Creates cutting-edge README files with modern design patterns and optional AI-generated logos.
+Create, modify, validate, and optimize README.md files following GitHub best practices.
 
 **Key files:**
-- `plugins/readme-generator/skills/readme-generator/SKILL.md` - Skill definition
-- `plugins/readme-generator/.claude-plugin/plugin.json` - Plugin metadata
+- `plugins/readme-author/skills/readme-author/SKILL.md` - Skill definition
+- `plugins/readme-author/.claude-plugin/plugin.json` - Plugin metadata
+
+**Operations:**
+- **create** - Build README from scratch for new projects
+- **modify** - Update specific sections while preserving structure
+- **validate** - Score against best practices checklist
+- **optimize** - Auto-fix issues and enhance quality
 
 **Features:**
 - Smart project analysis (auto-detects language, framework, package manager)

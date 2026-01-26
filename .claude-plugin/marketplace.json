@@ -6,10 +6,10 @@
   },
   "plugins": [
     {
-      "name": "readme-generator",
-      "source": "./plugins/readme-generator",
-      "description": "Creates cutting-edge README files with modern design, badges, and optional AI-generated logos.",
-      "version": "1.2.0"
+      "name": "readme-author",
+      "source": "./plugins/readme-author",
+      "description": "Create, modify, validate, and optimize README.md files following GitHub best practices.",
+      "version": "2.0.0"
     },
     {
       "name": "repo-logo-generator",
