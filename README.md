@@ -15,6 +15,25 @@
 
 ---
 
+## Table of Contents
+
+- [Why Claude Skills?](#why-claude-skills)
+- [Available Skills](#available-skills)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Skills](#skills)
+  - [README Generator](#readme-generator)
+  - [Repo Logo Generator](#repo-logo-generator)
+  - [Repo Name Generator](#repo-name-generator)
+  - [Settings Author](#settings-author)
+- [Repository Structure](#repository-structure)
+- [Dependency Management](#dependency-management)
+- [Adding New Skills](#adding-new-skills)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
+
 ## Why Claude Skills?
 
 - **📝 Professional READMEs in seconds** - Auto-generate documentation following GitHub best practices
@@ -28,10 +47,10 @@
 
 | Skill | Description | Version | Slash Command |
 |-------|-------------|---------|---------------|
-| [README Generator](#readme-generator) | Create cutting-edge README files with badges and visual hierarchy | 1.1.1 | `/project-readme-author` |
-| [Repo Logo Generator](#logo-generator) | Generate logos with native transparent backgrounds (requires mcp-openrouter) | 4.0.0 | `/project-logo-author` |
-| [Settings Optimizer](#claude-settings-optimizer) | Audit and optimize Claude Code permission whitelists | 1.0.0 | `/claude-settings-author` |
-| [Repo Name Generator](#name-generator) | Generate creative, memorable repository names | 1.0.0 | `/project-name-author` |
+| [README Generator](#readme-generator) | Create cutting-edge README files with badges and visual hierarchy | 2.0.2 | `/project-readme-author` |
+| [Repo Logo Generator](#repo-logo-generator) | Generate logos with native transparent backgrounds (requires mcp-openrouter) | 5.0.0 | `/project-logo-author` |
+| [Repo Name Generator](#repo-name-generator) | Generate creative, memorable repository names | 2.0.0 | `/project-name-author` |
+| [Settings Author](#settings-author) | Audit and optimize Claude Code permission whitelists | 1.1.1 | `/claude-settings-author` |
 
 ## Installation
 
@@ -92,7 +111,7 @@ Simply use `/project-logo-author` and Claude handles the workflow automatically.
 ### README Generator
 
 <p>
-  <img src="https://img.shields.io/badge/Version-1.1.1-green?style=flat" alt="Version">
+  <img src="https://img.shields.io/badge/Version-2.0.2-green?style=flat" alt="Version">
 </p>
 
 Create READMEs that hook readers in 5 seconds, prove value in 30 seconds, and enable success in under 10 minutes.
@@ -120,7 +139,7 @@ Create READMEs that hook readers in 5 seconds, prove value in 30 seconds, and en
 ### Repo Logo Generator
 
 <p>
-  <img src="https://img.shields.io/badge/Version-4.0.0-green?style=flat" alt="Version">
+  <img src="https://img.shields.io/badge/Version-5.0.0-green?style=flat" alt="Version">
   <a href="https://github.com/tsilva/mcp-openrouter"><img src="https://img.shields.io/badge/Requires-mcp--openrouter-6366f1?style=flat" alt="Requires mcp-openrouter"></a>
 </p>
 
@@ -151,10 +170,38 @@ Requires the [mcp-openrouter](https://github.com/tsilva/mcp-openrouter) MCP serv
 
 ---
 
+### Repo Name Generator
+
+<p>
+  <img src="https://img.shields.io/badge/Version-2.0.0-green?style=flat" alt="Version">
+</p>
+
+Generate creative, memorable repository names optimized for virality. Analyzes your project to suggest names that are catchy, searchable, and shareable.
+
+#### Virality Criteria
+
+| Factor | Description | Examples |
+|--------|-------------|----------|
+| **Memorable** | Short, easy to spell/say | `vite`, `bun`, `deno` |
+| **Searchable** | Unique, SEO-friendly | `fastapi`, `prisma` |
+| **Shareable** | Fun to mention | `husky`, `panda` |
+| **Descriptive** | Hints at purpose | `typescript`, `autoprefixer` |
+| **Clever** | Wordplay, metaphors | `yarn`, `brew`, `nest` |
+
+#### Features
+
+- **Smart analysis** - Examines README, package files, and source code
+- **Diverse styles** - Creative, professional, playful, technical, and punny options
+- **6 suggestions** - Always provides exactly 6 name options with taglines
+
+[Full documentation](plugins/project-name-author/skills/project-name-author/SKILL.md)
+
+---
+
 ### Settings Author
 
 <p>
-  <img src="https://img.shields.io/badge/Version-1.0.7-green?style=flat" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.1.1-green?style=flat" alt="Version">
   <img src="https://img.shields.io/badge/Security-Audit-red?style=flat" alt="Security">
 </p>
 
@@ -207,11 +254,11 @@ Simply ask:
 ```
 claude-skills/
 ├── plugins/
-│   ├── project-readme-author/   # README Generator skill (v1.1.1)
-│   ├── project-logo-author/     # Logo Generator skill (v4.0.0)
-│   ├── claude-settings-author/  # Settings Optimizer skill (v1.0.0)
-│   ├── project-name-author/     # Repo Name Generator skill (v1.0.0)
-│   └── claude-skill-author/     # Skill authoring tools (validation, version bump)
+│   ├── project-readme-author/   # README Generator skill (v2.0.2)
+│   ├── project-logo-author/     # Logo Generator skill (v5.0.0)
+│   ├── project-name-author/     # Repo Name Generator skill (v2.0.0)
+│   ├── claude-settings-author/  # Settings Author skill (v1.1.1)
+│   └── claude-skill-author/     # Skill authoring tools (v1.3.2)
 ├── .claude-plugin/
 │   └── marketplace.json         # Plugin registry
 ├── logo.png                     # Repository logo
