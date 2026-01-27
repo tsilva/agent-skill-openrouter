@@ -5,7 +5,7 @@ argument-hint: "[audit|fix|status] [repo-filter]"
 license: MIT
 metadata:
   author: tsilva
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Repo Maintain
@@ -62,12 +62,15 @@ If any are missing, inform user with specific installation steps.
 |-------|-----------|----------|
 | README_EXISTS | File exists | `project-readme-author create` |
 | README_CURRENT | Staleness heuristics | `project-readme-author optimize` |
+| README_HAS_LICENSE | License section in README | Append `## License` section |
 | LOGO_EXISTS | Standard locations | `project-logo-author` |
 | LOGO_HAS_NAME | Read image visually | Regenerate logo |
 | LOGO_TRANSPARENT | `mcp__image-tools__get_image_metadata` | Regenerate logo |
+| LICENSE_EXISTS | LICENSE/LICENSE.md/LICENSE.txt | Copy MIT from `assets/LICENSE` |
 | GITIGNORE_EXISTS | File exists | Create from template |
 | GITIGNORE_COMPLETE | Pattern check | Append missing entries |
 | CLAUDE_MD_EXISTS | File exists | `/init` |
+| CLAUDE_SETTINGS_SANDBOX | .claude/settings*.json or sandbox in CLAUDE.md | Create settings.local.json |
 | DESCRIPTION_SYNCED | gh API vs README tagline | `gh repo edit --description` |
 | PII_CLEAN | Regex patterns | Manual review |
 | PYTHON_PYPROJECT | File exists if Python | Generate pyproject.toml |
@@ -80,22 +83,33 @@ Process repos in order. For each repo with failures:
 ### Fix Order (dependencies matter)
 
 1. **CLAUDE.md** - Run `/init` in repo directory
-2. **Logo** - Invoke `project-logo-author`
-3. **Logo checks** (if logo exists):
+2. **Claude Settings** - Create `.claude/settings.local.json` if missing:
+   ```json
+   {
+     "permissions": { "allow": [], "deny": [] },
+     "hooks": {},
+     "env": {}
+   }
+   ```
+   Add sandbox mention to CLAUDE.md if not present
+3. **LICENSE** - Copy from `assets/LICENSE`, replace `[year]` with current year, `[fullname]` with GitHub user
+4. **Logo** - Invoke `project-logo-author`
+5. **Logo checks** (if logo exists):
    - Read logo with Read tool
    - Check transparency: `mcp__image-tools__get_image_metadata`
    - If logo has text/name or not transparent → regenerate
-4. **README** - Invoke `project-readme-author create` or `optimize`
-5. **.gitignore**:
+6. **README** - Invoke `project-readme-author create` or `optimize`
+7. **README License** - Append `## License\n\nMIT` if missing
+8. **.gitignore**:
    - If missing: create from `assets/gitignore-template.txt`
    - If incomplete: append missing patterns
-6. **Description sync**:
+9. **Description sync**:
    - Extract tagline from README (first non-header, non-badge line)
    - Run: `gh repo edit --description "tagline"`
-7. **Python fixes**:
-   - Generate pyproject.toml if missing
-   - Fix errors shown by uv
-8. **PII alerts** - List findings for manual review (don't auto-fix)
+10. **Python fixes**:
+    - Generate pyproject.toml if missing
+    - Fix errors shown by uv
+11. **PII alerts** - List findings for manual review (don't auto-fix)
 
 ### Progress Tracking
 

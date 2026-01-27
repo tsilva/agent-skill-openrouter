@@ -410,6 +410,108 @@ def check_pii_clean(repo_path: Path) -> dict:
         }
 
 
+def check_license_exists(repo_path: Path) -> dict:
+    """Check if LICENSE file exists."""
+    for name in ["LICENSE", "LICENSE.md", "LICENSE.txt"]:
+        license_path = repo_path / name
+        if license_path.exists():
+            return {
+                "check": "LICENSE_EXISTS",
+                "passed": True,
+                "path": str(license_path),
+                "message": f"License found at {name}",
+            }
+    return {
+        "check": "LICENSE_EXISTS",
+        "passed": False,
+        "path": None,
+        "message": "No LICENSE file found",
+        "auto_fix": "copy MIT license from template",
+    }
+
+
+def check_readme_has_license(repo_path: Path) -> dict:
+    """Check if README references license."""
+    readme_path = repo_path / "README.md"
+
+    if not readme_path.exists():
+        return {
+            "check": "README_HAS_LICENSE",
+            "passed": False,
+            "message": "README.md does not exist",
+            "auto_fix": "create README first",
+        }
+
+    try:
+        content = readme_path.read_text(encoding="utf-8", errors="ignore")
+        content_lower = content.lower()
+
+        # Check for license section or MIT mention
+        has_license = (
+            "## license" in content_lower or
+            "# license" in content_lower or
+            "mit license" in content_lower or
+            "[mit]" in content_lower
+        )
+
+        return {
+            "check": "README_HAS_LICENSE",
+            "passed": has_license,
+            "message": "README references license" if has_license else "README missing license reference",
+            "auto_fix": "append license section to README",
+        }
+    except Exception as e:
+        return {
+            "check": "README_HAS_LICENSE",
+            "passed": False,
+            "message": f"Error reading README: {e}",
+            "auto_fix": "append license section to README",
+        }
+
+
+def check_claude_settings_sandbox(repo_path: Path) -> dict:
+    """Check if repo has Claude settings with sandbox configuration."""
+    claude_dir = repo_path / ".claude"
+    settings_files = [
+        claude_dir / "settings.json",
+        claude_dir / "settings.local.json",
+    ]
+
+    # Also check CLAUDE.md for sandbox mention
+    claude_md = repo_path / "CLAUDE.md"
+
+    has_settings = any(f.exists() for f in settings_files)
+    has_sandbox_mention = False
+
+    if claude_md.exists():
+        try:
+            content = claude_md.read_text(encoding="utf-8", errors="ignore").lower()
+            has_sandbox_mention = "sandbox" in content
+        except Exception:
+            pass
+
+    # Check settings files for sandbox config
+    for settings_file in settings_files:
+        if settings_file.exists():
+            try:
+                content = settings_file.read_text(encoding="utf-8", errors="ignore").lower()
+                if "sandbox" in content or "permissions" in content:
+                    has_sandbox_mention = True
+            except Exception:
+                pass
+
+    passed = has_settings or has_sandbox_mention
+
+    return {
+        "check": "CLAUDE_SETTINGS_SANDBOX",
+        "passed": passed,
+        "message": "Claude settings with sandbox config found" if passed else "Missing Claude sandbox settings",
+        "has_settings_file": has_settings,
+        "has_sandbox_mention": has_sandbox_mention,
+        "auto_fix": "create .claude/settings.local.json and update CLAUDE.md",
+    }
+
+
 def check_python_pyproject(repo_path: Path) -> dict:
     """Check if Python project has pyproject.toml."""
     # Detect if it's a Python project
@@ -514,10 +616,13 @@ def audit_repo(repo_path: Path) -> dict:
     checks = [
         check_readme_exists(repo_path),
         check_readme_current(repo_path),
+        check_readme_has_license(repo_path),
         check_logo_exists(repo_path),
+        check_license_exists(repo_path),
         check_gitignore_exists(repo_path),
         check_gitignore_complete(repo_path),
         check_claude_md_exists(repo_path),
+        check_claude_settings_sandbox(repo_path),
         check_description_synced(repo_path),
         check_pii_clean(repo_path),
         check_python_pyproject(repo_path),
