@@ -40,8 +40,8 @@ claude-skills/
 Create, modify, validate, and optimize README.md files following GitHub best practices.
 
 **Key files:**
-- `plugins/readme-author/skills/readme-author/SKILL.md` - Skill definition
-- `plugins/readme-author/.claude-plugin/plugin.json` - Plugin metadata
+- `plugins/project-readme-author/skills/project-readme-author/SKILL.md` - Skill definition
+- `plugins/project-readme-author/.claude-plugin/plugin.json` - Plugin metadata
 
 **Operations:**
 - **create** - Build README from scratch for new projects
@@ -52,12 +52,12 @@ Create, modify, validate, and optimize README.md files following GitHub best pra
 **Features:**
 - Smart project analysis (auto-detects language, framework, package manager)
 - Modern README structure with centered hero, badges, and visual hierarchy
-- Logo generation integration with logo-generator skill
+- Logo generation integration with project-logo-author skill
 - Best practices for GitHub READMEs (accessibility, mobile-friendly, scannable)
 
 ## Skill Authoring
 
-For creating or modifying skills, use `/skill-author` which contains the authoritative specification, best practices, validation, version management, and workflows.
+For creating or modifying skills, use `/claude-skill-author` which contains the authoritative specification, best practices, validation, version management, and workflows.
 
 ## Dependency Management Best Practices
 

@@ -1,8 +1,0 @@
-{
-  "name": "logo-generator",
-  "description": "Generates professional logos with native transparent backgrounds. Requires mcp-openrouter MCP server.",
-  "version": "5.0.0",
-  "author": {
-    "name": "tsilva"
-  }
-}
