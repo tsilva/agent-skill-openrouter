@@ -7,7 +7,7 @@ argument-hint: "[style-preference]"
 disable-model-invocation: false
 user-invocable: true
 metadata:
-  version: "4.5.2"
+  version: "4.6.0"
 ---
 
 # Repo Logo Generator
@@ -133,7 +133,27 @@ If `config.compress` is true, use `mcp__image-tools__compress_png`:
 
 ### Step 8: Verify Output
 
-Confirm the output file exists and is a valid PNG with transparency.
+**MANDATORY verification with retry logic:**
+
+1. Read the generated image using the Read tool to visually inspect it
+2. Verify ALL of the following against the original prompt:
+   - Style matches requested style (e.g., pixel art, minimalist, vector)
+   - Visual metaphor is present (unless `visualMetaphor: "none"`)
+   - Color palette uses requested colors (not conflicting with keyColor)
+   - Text presence matches `includeRepoName` setting (text present if true, NO text if false)
+   - Background is transparent (chromakey was successful)
+   - Single centered icon (not multiple elements scattered)
+   - Works at small sizes (clean, not overly detailed)
+
+3. **If ANY requirement is not met:**
+   - Log which requirement(s) failed
+   - Increment attempt counter
+   - If attempts < 3: Return to Step 5 and regenerate with the SAME prompt
+   - If attempts = 3: Abort and report failure with details of what consistently failed
+
+4. **If ALL requirements are met:** Proceed to completion
+
+**Important:** The retry uses the exact same prompt. Do not modify the prompt between attempts - image generation has inherent variability. Three attempts with the same prompt gives reasonable coverage.
 
 ## Configuration Examples
 
