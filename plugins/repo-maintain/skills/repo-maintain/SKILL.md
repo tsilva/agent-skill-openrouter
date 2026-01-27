@@ -1,0 +1,158 @@
+---
+name: repo-maintain
+description: Audits and remediates repos in current directory for standardization. Use when maintaining repos, checking README/logo/gitignore compliance, or syncing GitHub descriptions.
+argument-hint: "[audit|fix|status] [repo-filter]"
+license: MIT
+metadata:
+  author: tsilva
+  version: "1.0.0"
+---
+
+# Repo Maintain
+
+Audit and remediate repositories for standardization compliance.
+
+## Prerequisites
+
+Before any operation, verify dependencies:
+
+**Required Skills:**
+- `project-readme-author` - README creation/optimization
+- `project-logo-author` - logo generation
+
+**Required Tools:**
+- `git` - repo detection
+- `gh` CLI - GitHub API operations
+- `mcp__image-tools__get_image_metadata` - logo transparency check
+
+If any are missing, inform user with specific installation steps.
+
+## Operations
+
+| Operation | Triggers | Purpose |
+|-----------|----------|---------|
+| `audit` | "audit", "check", "scan", no args + no report | Run all checks, output JSON |
+| `fix` | "fix", "remediate", "repair" | Work through audit findings |
+| `status` | "status", "progress", no args + report exists | Show summary and progress |
+
+### Operation Detection
+
+1. Check `$ARGUMENTS` for explicit operation keyword
+2. If no keyword: check for existing report at `~/.claude/repo-maintain-audit.json`
+   - Report exists → `status`
+   - No report → `audit`
+
+## Audit Workflow
+
+1. Run the audit script:
+   ```bash
+   uv run scripts/audit.py --repos-dir "$(pwd)"
+   ```
+
+2. Report saved to `~/.claude/repo-maintain-audit.json`
+
+3. Display summary showing:
+   - Total repos found
+   - Pass rate percentage
+   - Failed checks grouped by repo
+
+### Audit Checks (per-repo)
+
+| Check | Detection | Auto-Fix |
+|-------|-----------|----------|
+| README_EXISTS | File exists | `project-readme-author create` |
+| README_CURRENT | Staleness heuristics | `project-readme-author optimize` |
+| LOGO_EXISTS | Standard locations | `project-logo-author` |
+| LOGO_HAS_NAME | Read image visually | Regenerate logo |
+| LOGO_TRANSPARENT | `mcp__image-tools__get_image_metadata` | Regenerate logo |
+| GITIGNORE_EXISTS | File exists | Create from template |
+| GITIGNORE_COMPLETE | Pattern check | Append missing entries |
+| CLAUDE_MD_EXISTS | File exists | `/init` |
+| DESCRIPTION_SYNCED | gh API vs README tagline | `gh repo edit --description` |
+| PII_CLEAN | Regex patterns | Manual review |
+| PYTHON_PYPROJECT | File exists if Python | Generate pyproject.toml |
+| PYTHON_UV_INSTALL | `uv sync --dry-run` | Fix pyproject.toml |
+
+## Fix Workflow
+
+Process repos in order. For each repo with failures:
+
+### Fix Order (dependencies matter)
+
+1. **CLAUDE.md** - Run `/init` in repo directory
+2. **Logo** - Invoke `project-logo-author`
+3. **Logo checks** (if logo exists):
+   - Read logo with Read tool
+   - Check transparency: `mcp__image-tools__get_image_metadata`
+   - If logo has text/name or not transparent → regenerate
+4. **README** - Invoke `project-readme-author create` or `optimize`
+5. **.gitignore**:
+   - If missing: create from `assets/gitignore-template.txt`
+   - If incomplete: append missing patterns
+6. **Description sync**:
+   - Extract tagline from README (first non-header, non-badge line)
+   - Run: `gh repo edit --description "tagline"`
+7. **Python fixes**:
+   - Generate pyproject.toml if missing
+   - Fix errors shown by uv
+8. **PII alerts** - List findings for manual review (don't auto-fix)
+
+### Progress Tracking
+
+Track progress in `~/.claude/repo-maintain-progress.json`:
+
+```json
+{
+  "audit_file": "~/.claude/repo-maintain-audit.json",
+  "started_at": "ISO timestamp",
+  "last_repo": "repo-name",
+  "completed": ["repo-a", "repo-b"],
+  "skipped": {"repo-c": "reason"},
+  "remaining": ["repo-d"]
+}
+```
+
+After each repo:
+1. Update progress file
+2. Report what was fixed
+3. Move to next repo
+
+If interrupted, resume from `last_repo`.
+
+## Status Workflow
+
+1. Read audit report from `~/.claude/repo-maintain-audit.json`
+2. Read progress from `~/.claude/repo-maintain-progress.json` (if exists)
+3. Display:
+   - Audit summary (repos, pass rate)
+   - Remediation progress (completed/remaining)
+   - Current failures by check type
+
+## Gitignore Template
+
+Template at `assets/gitignore-template.txt` contains:
+- Credential patterns (.env, *.pem, *.key)
+- Build artifacts (__pycache__, node_modules, dist)
+- OS files (.DS_Store)
+- IDE files (.idea, .vscode)
+
+## PII Scanner
+
+The `scripts/pii_scanner.py` detects:
+- AWS keys (AKIA pattern)
+- GitHub tokens (gh[ps]_ pattern)
+- Private keys (BEGIN PRIVATE KEY)
+- Database URLs with credentials
+- Generic passwords/secrets
+
+Respects .gitignore - only scans tracked files.
+
+## Usage Examples
+
+```
+/repo-maintain audit              # Audit all repos in CWD
+/repo-maintain audit my-project   # Audit repos matching "my-project"
+/repo-maintain fix                # Fix all issues (in order)
+/repo-maintain fix my-project     # Fix specific repo
+/repo-maintain status             # Show progress
+```

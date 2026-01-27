@@ -40,6 +40,12 @@
       "source": "./plugins/claude-skill-author",
       "description": "Guides creation and modification of Claude Code agent skills - project-level, personal, and plugin-bundled marketplace skills.",
       "version": "1.3.2"
+    },
+    {
+      "name": "repo-maintain",
+      "source": "./plugins/repo-maintain",
+      "description": "Audit and remediate repos for standardization compliance. Use when maintaining repos, checking README/logo/gitignore compliance.",
+      "version": "1.0.0"
     }
   ]
 }
