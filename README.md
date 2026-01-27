@@ -28,10 +28,10 @@
 
 | Skill | Description | Version | Slash Command |
 |-------|-------------|---------|---------------|
-| [README Generator](#readme-generator) | Create cutting-edge README files with badges and visual hierarchy | 1.1.1 | `/readme-generator` |
-| [Repo Logo Generator](#logo-generator) | Generate logos with native transparent backgrounds (requires mcp-openrouter) | 4.0.0 | `/logo-generator` |
-| [Settings Optimizer](#claude-settings-optimizer) | Audit and optimize Claude Code permission whitelists | 1.0.0 | `/claude-settings-optimizer` |
-| [Repo Name Generator](#name-generator) | Generate creative, memorable repository names | 1.0.0 | `/name-generator` |
+| [README Generator](#readme-generator) | Create cutting-edge README files with badges and visual hierarchy | 1.1.1 | `/project-readme-author` |
+| [Repo Logo Generator](#logo-generator) | Generate logos with native transparent backgrounds (requires mcp-openrouter) | 4.0.0 | `/project-logo-author` |
+| [Settings Optimizer](#claude-settings-optimizer) | Audit and optimize Claude Code permission whitelists | 1.0.0 | `/claude-settings-author` |
+| [Repo Name Generator](#name-generator) | Generate creative, memorable repository names | 1.0.0 | `/project-name-author` |
 
 ## Installation
 
@@ -42,9 +42,9 @@
 /skills-discovery tsilva/claude-skills
 
 # Or install individual skills directly
-/skills-discovery readme-generator
-/skills-discovery logo-generator
-/skills-discovery claude-settings-optimizer
+/skills-discovery project-readme-author
+/skills-discovery project-logo-author
+/skills-discovery claude-settings-author
 ```
 
 ### Manual Installation
@@ -62,19 +62,19 @@ git config core.hooksPath hooks  # Enable pre-commit version validation
 All skills are available as slash commands in Claude Code. Simply type `/` to see available commands with autocomplete:
 
 ```bash
-/readme-generator              # Generate a README for the current project
-/readme-generator ./my-project # Generate README for a specific path
-/logo-generator           # Generate a logo for your repository
-/logo-generator minimalist # Generate with a specific style preference
-/settings-cleaner analyze      # Analyze permission whitelists
-/settings-cleaner clean        # Interactive cleanup with confirmations
-/settings-cleaner auto-fix     # Auto-remove redundant permissions
+/project-readme-author              # Generate a README for the current project
+/project-readme-author ./my-project # Generate README for a specific path
+/project-logo-author           # Generate a logo for your repository
+/project-logo-author minimalist # Generate with a specific style preference
+/claude-settings-author analyze      # Analyze permission whitelists
+/claude-settings-author clean        # Interactive cleanup with confirmations
+/claude-settings-author auto-fix     # Auto-remove redundant permissions
 ```
 
 You can also ask Claude to use these skills naturally:
-- "Create a README for this project" → triggers `/readme-generator`
-- "Generate a logo for my repo" → triggers `/logo-generator`
-- "Clean up my settings" → triggers `/settings-cleaner`
+- "Create a README for this project" → triggers `/project-readme-author`
+- "Generate a logo for my repo" → triggers `/project-logo-author`
+- "Clean up my settings" → triggers `/claude-settings-author`
 
 ### Logo Generation
 
@@ -83,7 +83,7 @@ Logo generation uses the [mcp-openrouter](https://github.com/tsilva/mcp-openrout
 1. **Generate image** via `mcp__openrouter__generate_image` with green background
 2. **Apply chromakey** via the bundled script to convert green to transparent
 
-Simply use `/logo-generator` and Claude handles the workflow automatically.
+Simply use `/project-logo-author` and Claude handles the workflow automatically.
 
 ---
 
@@ -110,10 +110,10 @@ Create READMEs that hook readers in 5 seconds, prove value in 30 seconds, and en
 
 - **Smart analysis** - Auto-detects project type, language, framework
 - **Modern design** - Centered hero, badge collections, visual hierarchy
-- **Logo integration** - Works with logo-generator skill
+- **Logo integration** - Works with project-logo-author skill
 - **Best practices** - Follows GitHub README conventions
 
-[Full documentation](plugins/readme-generator/skills/readme-generator/SKILL.md)
+[Full documentation](plugins/project-readme-author/skills/project-readme-author/SKILL.md)
 
 ---
 
@@ -147,11 +147,11 @@ Generate professional logos with transparent backgrounds using chromakey technol
 
 Requires the [mcp-openrouter](https://github.com/tsilva/mcp-openrouter) MCP server to be configured.
 
-[Full documentation](plugins/logo-generator/skills/logo-generator/SKILL.md)
+[Full documentation](plugins/project-logo-author/skills/project-logo-author/SKILL.md)
 
 ---
 
-### Settings Cleaner
+### Settings Author
 
 <p>
   <img src="https://img.shields.io/badge/Version-1.0.7-green?style=flat" alt="Version">
@@ -175,13 +175,13 @@ Audit and optimize Claude Code permission whitelists by identifying dangerous pa
 
 ```bash
 # Analyze permissions (read-only)
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with colorama plugins/settings-cleaner/skills/settings-cleaner/scripts/settings_cleaner.py analyze
+UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with colorama plugins/claude-settings-author/skills/claude-settings-author/scripts/settings_cleaner.py analyze
 
 # Interactive cleanup with confirmations
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with colorama plugins/settings-cleaner/skills/settings-cleaner/scripts/settings_cleaner.py clean
+UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with colorama plugins/claude-settings-author/skills/claude-settings-author/scripts/settings_cleaner.py clean
 
 # Auto-fix redundant permissions only (safest)
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with colorama plugins/settings-cleaner/skills/settings-cleaner/scripts/settings_cleaner.py auto-fix
+UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with colorama plugins/claude-settings-author/skills/claude-settings-author/scripts/settings_cleaner.py auto-fix
 ```
 
 #### Safety Features
@@ -198,7 +198,7 @@ Simply ask:
 - "Review my permissions"
 - "Audit my security settings"
 
-[Full documentation](plugins/settings-cleaner/skills/settings-cleaner/SKILL.md)
+[Full documentation](plugins/claude-settings-author/skills/claude-settings-author/SKILL.md)
 
 ---
 
@@ -207,10 +207,10 @@ Simply ask:
 ```
 claude-skills/
 ├── plugins/
-│   ├── readme-generator/        # README Generator skill (v1.1.1)
-│   ├── logo-generator/     # Logo Generator skill (v4.0.0)
-│   ├── claude-settings-optimizer/ # Settings Optimizer skill (v1.0.0)
-│   ├── name-generator/     # Repo Name Generator skill (v1.0.0)
+│   ├── project-readme-author/   # README Generator skill (v1.1.1)
+│   ├── project-logo-author/     # Logo Generator skill (v4.0.0)
+│   ├── claude-settings-author/  # Settings Optimizer skill (v1.0.0)
+│   ├── project-name-author/     # Repo Name Generator skill (v1.0.0)
 │   └── claude-skill-author/     # Skill authoring tools (validation, version bump)
 ├── .claude-plugin/
 │   └── marketplace.json         # Plugin registry

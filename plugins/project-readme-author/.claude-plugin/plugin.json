@@ -1,0 +1,8 @@
+{
+  "name": "project-readme-author",
+  "description": "Create, modify, validate, and optimize README.md files following GitHub best practices.",
+  "version": "2.0.2",
+  "author": {
+    "name": "tsilva"
+  }
+}
