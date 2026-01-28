@@ -5,7 +5,7 @@ argument-hint: "[audit|fix|status] [repo-filter]"
 license: MIT
 metadata:
   author: tsilva
-  version: "1.4.3"
+  version: "1.4.4"
 ---
 
 # Repo Maintain
@@ -58,7 +58,7 @@ The script returns JSON with the selected operation and reasoning:
 
 1. Run the audit script:
    ```bash
-   uv run scripts/audit.py --repos-dir "$(pwd)"
+   uv run skills/repo-maintain/scripts/audit.py --repos-dir "$(pwd)"
    ```
 
 2. Report saved to `~/.claude/repo-maintain-audit.json`
@@ -78,7 +78,7 @@ The script returns JSON with the selected operation and reasoning:
 | LOGO_EXISTS | Standard locations | `project-logo-author` |
 | LOGO_HAS_NAME | Read image visually | Regenerate logo |
 | LOGO_TRANSPARENT | `mcp__image-tools__get_image_metadata` | Regenerate logo |
-| LICENSE_EXISTS | LICENSE/LICENSE.md/LICENSE.txt | Copy MIT from `assets/LICENSE` |
+| LICENSE_EXISTS | LICENSE/LICENSE.md/LICENSE.txt | Copy MIT from `skills/repo-maintain/assets/LICENSE` |
 | GITIGNORE_EXISTS | File exists | Create from template |
 | GITIGNORE_COMPLETE | Pattern check | Append missing entries |
 | CLAUDE_MD_EXISTS | File exists | `/init` |
@@ -96,7 +96,7 @@ The script returns JSON with the selected operation and reasoning:
 Before manual intervention, run the safe fix applier to handle trivial fixes:
 
 ```bash
-uv run scripts/apply_safe_fixes.py --audit-report ~/.claude/repo-maintain-audit.json
+uv run skills/repo-maintain/scripts/apply_safe_fixes.py --audit-report ~/.claude/repo-maintain-audit.json
 ```
 
 **Safe fixes (auto-applied):**
@@ -141,8 +141,8 @@ Process repos in order. For each repo with remaining failures:
      }
    }
    ```
-   Or bulk fix: `uv run scripts/fix_sandbox.py --repos-dir "$(pwd)"`
-3. **LICENSE** - Copy from `assets/LICENSE`, replace `[year]` with current year, `[fullname]` with GitHub user
+   Or bulk fix: `uv run skills/repo-maintain/scripts/fix_sandbox.py --repos-dir "$(pwd)"`
+3. **LICENSE** - Copy from `skills/repo-maintain/assets/LICENSE`, replace `[year]` with current year, `[fullname]` with GitHub user
 4. **Logo** - Invoke `project-logo-author`
 5. **Logo checks** (if logo exists):
    - Read logo with Read tool
@@ -151,16 +151,16 @@ Process repos in order. For each repo with remaining failures:
 6. **README** - Invoke `project-readme-author create` or `optimize`
 7. **README License** - Append `## License\n\nMIT` if missing
 8. **.gitignore**:
-   - If missing: create from `assets/gitignore-template.txt`
+   - If missing: create from `skills/repo-maintain/assets/gitignore-template.txt`
    - If incomplete: append missing patterns
 9. **Dependabot** - Create `.github/dependabot.yml`:
    - Auto-detects relevant ecosystems (npm, pip, cargo, gomod, etc.)
    - Always includes github-actions for workflow updates
    - Sets weekly update schedule
 10. **Description sync**:
-    - Use `scripts/extract_tagline.py` for robust tagline extraction
+    - Use `skills/repo-maintain/scripts/extract_tagline.py` for robust tagline extraction
     - Run: `gh repo edit --description "tagline"`
-    - Or bulk sync: `uv run scripts/sync_descriptions.py --repos-dir "$(pwd)"`
+    - Or bulk sync: `uv run skills/repo-maintain/scripts/sync_descriptions.py --repos-dir "$(pwd)"`
 11. **Python fixes**:
     - Generate pyproject.toml if missing
     - Fix errors shown by uv
@@ -199,7 +199,7 @@ If interrupted, resume from `last_repo`.
 
 ## Dependabot Template
 
-Template at `assets/dependabot.yml` creates automated dependency update PRs.
+Template at `skills/repo-maintain/assets/dependabot.yml` creates automated dependency update PRs.
 
 **Auto-detected ecosystems:**
 - `github-actions` - Always included if `.github/workflows/` exists
@@ -214,7 +214,7 @@ All ecosystems use weekly update schedule.
 
 ## Gitignore Template
 
-Template at `assets/gitignore-template.txt` contains:
+Template at `skills/repo-maintain/assets/gitignore-template.txt` contains:
 - Credential patterns (.env, *.pem, *.key)
 - Build artifacts (__pycache__, node_modules, dist)
 - OS files (.DS_Store)
@@ -223,10 +223,10 @@ Template at `assets/gitignore-template.txt` contains:
 
 ## Tagline Extraction
 
-The `scripts/extract_tagline.py` extracts README taglines for GitHub description sync:
+The `skills/repo-maintain/scripts/extract_tagline.py` extracts README taglines for GitHub description sync:
 
 ```bash
-uv run scripts/extract_tagline.py /path/to/README.md
+uv run skills/repo-maintain/scripts/extract_tagline.py /path/to/README.md
 ```
 
 Handles complex README structures:
@@ -240,25 +240,25 @@ Handles complex README structures:
 
 ## Bulk Description Sync
 
-The `scripts/sync_descriptions.py` syncs descriptions for multiple repos:
+The `skills/repo-maintain/scripts/sync_descriptions.py` syncs descriptions for multiple repos:
 
 ```bash
 # Preview changes (dry run)
-uv run scripts/sync_descriptions.py --repos-dir /path/to/repos --dry-run
+uv run skills/repo-maintain/scripts/sync_descriptions.py --repos-dir /path/to/repos --dry-run
 
 # Apply changes
-uv run scripts/sync_descriptions.py --repos-dir /path/to/repos
+uv run skills/repo-maintain/scripts/sync_descriptions.py --repos-dir /path/to/repos
 
 # Filter by repo name
-uv run scripts/sync_descriptions.py --repos-dir /path/to/repos --filter "my-project"
+uv run skills/repo-maintain/scripts/sync_descriptions.py --repos-dir /path/to/repos --filter "my-project"
 
 # JSON output
-uv run scripts/sync_descriptions.py --repos-dir /path/to/repos --json
+uv run skills/repo-maintain/scripts/sync_descriptions.py --repos-dir /path/to/repos --json
 ```
 
 ## PII Scanner
 
-The `scripts/pii_scanner.py` detects:
+The `skills/repo-maintain/scripts/pii_scanner.py` detects:
 - AWS keys (AKIA pattern)
 - GitHub tokens (gh[ps]_ pattern)
 - Private keys (BEGIN PRIVATE KEY)
