@@ -5,7 +5,7 @@ argument-hint: "[aggregate|list] --repos-dir <path>"
 license: MIT
 metadata:
   author: tsilva
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # TODO Aggregator
@@ -24,7 +24,7 @@ Scan a repos directory, collect TODO and TODO.md files from each repo root, and 
 Use the deterministic operation selector:
 
 ```bash
-uv run shared/select_operation.py --skill todo-aggregator --args "$ARGUMENTS" --check-files ""
+uv run {SKILL_DIR}/scripts/select_operation.py --skill todo-aggregator --args "$ARGUMENTS" --check-files ""
 ```
 
 **Fallback rules:**
@@ -36,7 +36,7 @@ uv run shared/select_operation.py --skill todo-aggregator --args "$ARGUMENTS" --
 Run the aggregation script:
 
 ```bash
-uv run scripts/aggregate_todos.py --repos-dir /path/to/repos
+uv run {SKILL_DIR}/scripts/aggregate_todos.py --repos-dir /path/to/repos
 ```
 
 Optional arguments:
@@ -65,7 +65,7 @@ Optional arguments:
 Show repos that have TODO files:
 
 ```bash
-uv run scripts/aggregate_todos.py --repos-dir /path/to/repos --operation list
+uv run {SKILL_DIR}/scripts/aggregate_todos.py --repos-dir /path/to/repos --operation list
 ```
 
 Output:

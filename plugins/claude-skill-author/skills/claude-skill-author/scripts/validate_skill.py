@@ -365,6 +365,65 @@ def validate_no_xml_tags(
     return issues
 
 
+def validate_script_paths_use_skill_dir(body: str, file_path: str) -> list[ValidationIssue]:
+    """
+    Validate that script invocations in bash code blocks use {SKILL_DIR} prefix.
+
+    Rules:
+    - `uv run` and `python` commands should reference scripts via {SKILL_DIR}/scripts/
+    - Bare relative paths like `scripts/foo.py` break when installed as a plugin
+    - Shared utilities (shared/) are repo-level and excluded from this check
+    """
+    issues = []
+
+    if not body.strip():
+        return issues
+
+    # Extract bash code blocks
+    code_blocks = re.findall(r'```(?:bash|sh)?\s*\n(.*?)```', body, re.DOTALL)
+
+    for block in code_blocks:
+        for line in block.strip().split('\n'):
+            line = line.strip()
+            if not line:
+                continue
+
+            # Match uv run or python/python3 commands with a script path argument
+            # Look for patterns like: uv run scripts/foo.py or python scripts/foo.py
+            match = re.search(
+                r'(?:uv run(?:\s+--\S+)*|python3?)\s+(?!-)'
+                r'(\S+\.py)',
+                line
+            )
+            if not match:
+                continue
+
+            script_path = match.group(1)
+
+            # Skip if already using {SKILL_DIR}
+            if '{SKILL_DIR}' in script_path or 'SKILL_DIR' in script_path:
+                continue
+
+            # Skip shared/ references (repo-level utilities)
+            if script_path.startswith('shared/'):
+                continue
+
+            # Skip absolute paths and URLs
+            if script_path.startswith('/') or script_path.startswith('http'):
+                continue
+
+            # Skip placeholders like {name} or $VAR
+            if script_path.startswith('{') or script_path.startswith('$'):
+                continue
+
+            issues.append(ValidationIssue(
+                Severity.WARNING, file_path, "body",
+                f"Script path '{script_path}' should use '{{SKILL_DIR}}/scripts/' prefix for portability"
+            ))
+
+    return issues
+
+
 def validate_no_windows_paths(body: str, file_path: str) -> list[ValidationIssue]:
     """
     Detect Windows-style paths in the body.
@@ -1126,6 +1185,9 @@ def validate_skill(skill_path: Path, suggest: bool = False) -> ValidationResult:
 
     # Validate body
     result.issues.extend(validate_body(body_line_count, rel_path))
+
+    # Validate script paths use {SKILL_DIR} (WARNING level)
+    result.issues.extend(validate_script_paths_use_skill_dir(body, rel_path))
 
     # Validate no Windows-style paths (WARNING level)
     result.issues.extend(validate_no_windows_paths(body, rel_path))

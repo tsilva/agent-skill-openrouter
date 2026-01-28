@@ -6,7 +6,7 @@ argument-hint: "[project|plugin] [skill-name]"
 user-invocable: true
 metadata:
   author: tsilva
-  version: "1.3.4"
+  version: "1.3.5"
 ---
 
 # Skill Author Guide
@@ -114,7 +114,7 @@ Add to `.claude-plugin/marketplace.json` plugins array:
 ### 5. Validate
 
 ```bash
-python plugins/skill-author/skills/skill-author/scripts/validate_skill.py plugins/{name}/skills/{name}
+python {SKILL_DIR}/scripts/validate_skill.py plugins/{name}/skills/{name}
 ```
 
 **Note:** For any future changes to this skill, you MUST bump the version. See "Version Management" section.
@@ -243,7 +243,7 @@ After modifying any file in a plugin skill:
 ### 1. Check if Already Bumped
 
 ```bash
-python plugins/skill-author/skills/skill-author/scripts/bump-version.py {plugin} --check-uncommitted
+python {SKILL_DIR}/scripts/bump-version.py {plugin} --check-uncommitted
 ```
 - Exit 0 = already bumped, skip to validation
 - Exit 1 = needs bump
@@ -259,13 +259,13 @@ python plugins/skill-author/skills/skill-author/scripts/bump-version.py {plugin}
 ### 3. Apply Bump
 
 ```bash
-python plugins/skill-author/skills/skill-author/scripts/bump-version.py {plugin} --type {patch|minor|major}
+python {SKILL_DIR}/scripts/bump-version.py {plugin} --type {patch|minor|major}
 ```
 
 ### 4. Validate
 
 ```bash
-python plugins/skill-author/skills/skill-author/scripts/validate_skill.py plugins/{plugin}/skills/{skill}
+python {SKILL_DIR}/scripts/validate_skill.py plugins/{plugin}/skills/{skill}
 ```
 
 ## Validation
@@ -275,7 +275,7 @@ Validates against Agent Skills spec and repository rules.
 ### Single Skill
 
 ```bash
-python plugins/skill-author/skills/skill-author/scripts/validate_skill.py /path/to/skill
+python {SKILL_DIR}/scripts/validate_skill.py /path/to/skill
 ```
 
 ### Validation Checks
@@ -341,6 +341,7 @@ Skills use 3-tier loading:
 - Document "magic numbers" with comments
 - Helpful error messages that guide resolution
 - Use UV with inline dependencies (PEP 723)
+- **Always use `{SKILL_DIR}/scripts/` prefix** when referencing scripts in SKILL.md bash blocks. Bare paths like `scripts/foo.py` break when installed as a plugin.
 
 ## Skill Optimization
 
@@ -383,13 +384,13 @@ Otherwise → Move to references/ or scripts/
 | Explaining obvious operations | Wastes tokens | Omit entirely |
 | Multiple equivalent examples | Clutters | One canonical example |
 | Verbose error handling | Claude handles naturally | Remove |
-| Hardcoded paths | Breaks portability | Use relative/detect |
+| Hardcoded paths | Breaks portability | Use `{SKILL_DIR}/scripts/` |
 | Missing workflow order | Execution ambiguity | Number steps |
 
 ### Validation with Suggestions
 
 ```bash
-python plugins/skill-author/skills/skill-author/scripts/validate_skill.py /path/to/skill --suggest
+python {SKILL_DIR}/scripts/validate_skill.py /path/to/skill --suggest
 ```
 
 The `--suggest` flag adds optimization hints beyond errors and warnings.
@@ -410,19 +411,19 @@ mkdir -p .claude/skills/{name}
 ```bash
 mkdir -p plugins/{name}/.claude-plugin plugins/{name}/skills/{name}
 # Create plugin.json, SKILL.md, marketplace.json entry
-python plugins/skill-author/skills/skill-author/scripts/validate_skill.py plugins/{name}/skills/{name}
+python {SKILL_DIR}/scripts/validate_skill.py plugins/{name}/skills/{name}
 ```
 
 ### Validate
 
 ```bash
-python plugins/skill-author/skills/skill-author/scripts/validate_skill.py /path/to/skill
+python {SKILL_DIR}/scripts/validate_skill.py /path/to/skill
 ```
 
 ### Version Bump (Required for ANY Change)
 
 ```bash
-python plugins/skill-author/skills/skill-author/scripts/bump-version.py {plugin} --type {patch|minor|major}
+python {SKILL_DIR}/scripts/bump-version.py {plugin} --type {patch|minor|major}
 ```
 
 **Always bump versions.** Any change = version bump. No exceptions.

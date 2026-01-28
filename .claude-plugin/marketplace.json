@@ -21,7 +21,7 @@
       "name": "claude-settings-author",
       "source": "./plugins/claude-settings-author",
       "description": "Optimizes Claude Code settings by analyzing permission whitelists, detecting dangerous patterns, identifying redundancies, and migrating WebFetch domains to sandbox network allowlists.",
-      "version": "1.1.1"
+      "version": "1.1.2"
     },
     {
       "name": "project-name-author",
@@ -39,19 +39,19 @@
       "name": "claude-skill-author",
       "source": "./plugins/claude-skill-author",
       "description": "Guides creation and modification of Claude Code agent skills - project-level, personal, and plugin-bundled marketplace skills.",
-      "version": "1.3.4"
+      "version": "1.3.5"
     },
     {
       "name": "repo-maintain",
       "source": "./plugins/repo-maintain",
       "description": "Audit and remediate repos for standardization compliance. Use when maintaining repos, checking README/logo/gitignore compliance.",
-      "version": "1.4.4"
+      "version": "1.4.5"
     },
     {
       "name": "todo-aggregator",
       "source": "./plugins/todo-aggregator",
       "description": "Scans repos directory, collects TODO/TODO.md files, generates consolidated markdown report.",
-      "version": "1.0.0"
+      "version": "1.0.1"
     }
   ]
 }

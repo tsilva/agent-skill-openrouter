@@ -7,7 +7,7 @@ argument-hint: "[analyze|clean|auto-fix]"
 user-invocable: true
 metadata:
   author: tsilva
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # Claude Settings Optimizer
@@ -25,7 +25,7 @@ Analyzes and optimizes Claude Code permission settings with sandbox-aware WebFet
 ## Usage
 
 ```bash
-UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with colorama SKILL_DIR/scripts/settings_optimizer.py {analyze|clean|auto-fix}
+UV_CACHE_DIR=/tmp/claude/uv-cache uv run --with colorama {SKILL_DIR}/scripts/settings_optimizer.py {analyze|clean|auto-fix}
 ```
 
 Optional arguments:
