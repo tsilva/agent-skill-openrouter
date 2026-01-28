@@ -1,0 +1,8 @@
+{
+  "name": "todo-aggregator",
+  "description": "Scans repos directory, collects TODO/TODO.md files, generates consolidated markdown report.",
+  "version": "1.0.0",
+  "author": {
+    "name": "tsilva"
+  }
+}

@@ -46,6 +46,12 @@
       "source": "./plugins/repo-maintain",
       "description": "Audit and remediate repos for standardization compliance. Use when maintaining repos, checking README/logo/gitignore compliance.",
       "version": "1.3.2"
+    },
+    {
+      "name": "todo-aggregator",
+      "source": "./plugins/todo-aggregator",
+      "description": "Scans repos directory, collects TODO/TODO.md files, generates consolidated markdown report.",
+      "version": "1.0.0"
     }
   ]
 }
