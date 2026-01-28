@@ -43,6 +43,7 @@ SAFE_CHECKS = {
     "LICENSE_EXISTS",
     "CLAUDE_MD_EXISTS",
     "CLAUDE_SETTINGS_SANDBOX",
+    "DEPENDABOT_EXISTS",
 }
 
 # Checks that require LLM intervention
@@ -186,12 +187,89 @@ def fix_claude_settings_sandbox(repo_path: Path, dry_run: bool) -> Tuple[bool, s
         return False, f"Failed to update settings: {e}"
 
 
+def fix_dependabot_exists(repo_path: Path, dry_run: bool) -> Tuple[bool, str]:
+    """Create .github/dependabot.yml with detected ecosystems."""
+    github_dir = repo_path / ".github"
+    target = github_dir / "dependabot.yml"
+    template = ASSETS_DIR / "dependabot.yml"
+
+    if target.exists():
+        return True, "Already exists"
+
+    # Also check yaml extension
+    if (github_dir / "dependabot.yaml").exists():
+        return True, "Already exists (yaml extension)"
+
+    if not template.exists():
+        return False, f"Template not found: {template}"
+
+    # Detect ecosystems for this repo
+    ecosystems = []
+
+    # Always check for GitHub Actions if .github exists
+    if github_dir.exists():
+        workflows_dir = github_dir / "workflows"
+        if workflows_dir.exists() and list(workflows_dir.glob("*.yml")):
+            ecosystems.append(("github-actions", "/"))
+
+    # Check for package managers
+    if (repo_path / "package.json").exists():
+        ecosystems.append(("npm", "/"))
+    if (repo_path / "pyproject.toml").exists() or (repo_path / "requirements.txt").exists():
+        ecosystems.append(("pip", "/"))
+    if (repo_path / "Cargo.toml").exists():
+        ecosystems.append(("cargo", "/"))
+    if (repo_path / "go.mod").exists():
+        ecosystems.append(("gomod", "/"))
+    if (repo_path / "Gemfile").exists():
+        ecosystems.append(("bundler", "/"))
+    if (repo_path / "composer.json").exists():
+        ecosystems.append(("composer", "/"))
+
+    if dry_run:
+        eco_names = [e[0] for e in ecosystems] or ["github-actions"]
+        return True, f"Would create {target} with ecosystems: {', '.join(eco_names)}"
+
+    try:
+        # Create .github directory if needed
+        github_dir.mkdir(exist_ok=True)
+
+        # Build dependabot.yml content
+        lines = [
+            "# Dependabot configuration for automated dependency updates",
+            "# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates",
+            "version: 2",
+            "updates:",
+        ]
+
+        # If no ecosystems detected, at least add github-actions
+        if not ecosystems:
+            ecosystems = [("github-actions", "/")]
+
+        for ecosystem, directory in ecosystems:
+            lines.extend([
+                f"  - package-ecosystem: \"{ecosystem}\"",
+                f"    directory: \"{directory}\"",
+                "    schedule:",
+                "      interval: \"weekly\"",
+            ])
+
+        content = "\n".join(lines) + "\n"
+        target.write_text(content)
+
+        eco_names = [e[0] for e in ecosystems]
+        return True, f"Created {target} with ecosystems: {', '.join(eco_names)}"
+    except Exception as e:
+        return False, f"Failed to create dependabot.yml: {e}"
+
+
 # Map check names to fix functions
 FIX_FUNCTIONS = {
     "GITIGNORE_EXISTS": fix_gitignore_exists,
     "LICENSE_EXISTS": fix_license_exists,
     "CLAUDE_MD_EXISTS": fix_claude_md_exists,
     "CLAUDE_SETTINGS_SANDBOX": fix_claude_settings_sandbox,
+    "DEPENDABOT_EXISTS": fix_dependabot_exists,
 }
 
 

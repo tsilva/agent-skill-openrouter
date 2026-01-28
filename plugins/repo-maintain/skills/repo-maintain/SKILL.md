@@ -5,7 +5,7 @@ argument-hint: "[audit|fix|status] [repo-filter]"
 license: MIT
 metadata:
   author: tsilva
-  version: "1.3.3"
+  version: "1.4.0"
 ---
 
 # Repo Maintain
@@ -83,6 +83,7 @@ The script returns JSON with the selected operation and reasoning:
 | GITIGNORE_COMPLETE | Pattern check | Append missing entries |
 | CLAUDE_MD_EXISTS | File exists | `/init` |
 | CLAUDE_SETTINGS_SANDBOX | .claude/settings*.json or sandbox in CLAUDE.md | Create settings.local.json |
+| DEPENDABOT_EXISTS | .github/dependabot.yml exists | Create from template |
 | DESCRIPTION_SYNCED | gh API vs README tagline | `gh repo edit --description` |
 | PII_CLEAN | Regex patterns | Manual review |
 | PYTHON_PYPROJECT | File exists if Python | Generate pyproject.toml |
@@ -103,6 +104,7 @@ uv run scripts/apply_safe_fixes.py --audit-report ~/.claude/repo-maintain-audit.
 - `LICENSE_EXISTS` - Copy MIT license with year/author
 - `CLAUDE_MD_EXISTS` - Create minimal CLAUDE.md
 - `CLAUDE_SETTINGS_SANDBOX` - Create/update settings.json with sandbox enabled
+- `DEPENDABOT_EXISTS` - Create dependabot.yml with detected ecosystems
 
 **Unsafe fixes (returned for Claude):**
 - `README_EXISTS` - Requires content generation
@@ -151,14 +153,18 @@ Process repos in order. For each repo with remaining failures:
 8. **.gitignore**:
    - If missing: create from `assets/gitignore-template.txt`
    - If incomplete: append missing patterns
-9. **Description sync**:
-   - Use `scripts/extract_tagline.py` for robust tagline extraction
-   - Run: `gh repo edit --description "tagline"`
-   - Or bulk sync: `uv run scripts/sync_descriptions.py --repos-dir "$(pwd)"`
-10. **Python fixes**:
+9. **Dependabot** - Create `.github/dependabot.yml`:
+   - Auto-detects relevant ecosystems (npm, pip, cargo, gomod, etc.)
+   - Always includes github-actions for workflow updates
+   - Sets weekly update schedule
+10. **Description sync**:
+    - Use `scripts/extract_tagline.py` for robust tagline extraction
+    - Run: `gh repo edit --description "tagline"`
+    - Or bulk sync: `uv run scripts/sync_descriptions.py --repos-dir "$(pwd)"`
+11. **Python fixes**:
     - Generate pyproject.toml if missing
     - Fix errors shown by uv
-11. **PII alerts** - List findings for manual review (don't auto-fix)
+12. **PII alerts** - List findings for manual review (don't auto-fix)
 
 ### Progress Tracking
 
@@ -190,6 +196,21 @@ If interrupted, resume from `last_repo`.
    - Audit summary (repos, pass rate)
    - Remediation progress (completed/remaining)
    - Current failures by check type
+
+## Dependabot Template
+
+Template at `assets/dependabot.yml` creates automated dependency update PRs.
+
+**Auto-detected ecosystems:**
+- `github-actions` - Always included if `.github/workflows/` exists
+- `npm` - If `package.json` exists
+- `pip` - If `pyproject.toml` or `requirements.txt` exists
+- `cargo` - If `Cargo.toml` exists
+- `gomod` - If `go.mod` exists
+- `bundler` - If `Gemfile` exists
+- `composer` - If `composer.json` exists
+
+All ecosystems use weekly update schedule.
 
 ## Gitignore Template
 

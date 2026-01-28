@@ -566,6 +566,57 @@ def check_python_uv_install(repo_path: Path) -> dict:
         }
 
 
+def check_dependabot_exists(repo_path: Path) -> dict:
+    """Check if .github/dependabot.yml exists for automated dependency updates."""
+    dependabot_path = repo_path / ".github" / "dependabot.yml"
+    alt_path = repo_path / ".github" / "dependabot.yaml"
+
+    if dependabot_path.exists():
+        return {
+            "check": "DEPENDABOT_EXISTS",
+            "passed": True,
+            "path": str(dependabot_path),
+            "message": "Dependabot config exists",
+        }
+
+    if alt_path.exists():
+        return {
+            "check": "DEPENDABOT_EXISTS",
+            "passed": True,
+            "path": str(alt_path),
+            "message": "Dependabot config exists (yaml extension)",
+        }
+
+    # Detect which ecosystems would be relevant for this repo
+    ecosystems = []
+    if (repo_path / ".github").exists():
+        # Check for workflow files
+        workflows = list((repo_path / ".github" / "workflows").glob("*.yml")) if (repo_path / ".github" / "workflows").exists() else []
+        if workflows:
+            ecosystems.append("github-actions")
+    if (repo_path / "package.json").exists():
+        ecosystems.append("npm")
+    if (repo_path / "pyproject.toml").exists() or (repo_path / "requirements.txt").exists():
+        ecosystems.append("pip")
+    if (repo_path / "Cargo.toml").exists():
+        ecosystems.append("cargo")
+    if (repo_path / "go.mod").exists():
+        ecosystems.append("gomod")
+    if (repo_path / "Gemfile").exists():
+        ecosystems.append("bundler")
+    if (repo_path / "composer.json").exists():
+        ecosystems.append("composer")
+
+    return {
+        "check": "DEPENDABOT_EXISTS",
+        "passed": False,
+        "path": None,
+        "message": "Dependabot config not found (.github/dependabot.yml)",
+        "detected_ecosystems": ecosystems,
+        "auto_fix": "create from template",
+    }
+
+
 def audit_repo(repo_path: Path) -> dict:
     """Run all checks on a single repository."""
     repo_path = Path(repo_path).resolve()
@@ -580,6 +631,7 @@ def audit_repo(repo_path: Path) -> dict:
         check_gitignore_complete(repo_path),
         check_claude_md_exists(repo_path),
         check_claude_settings_sandbox(repo_path),
+        check_dependabot_exists(repo_path),
         check_description_synced(repo_path),
         check_pii_clean(repo_path),
         check_python_pyproject(repo_path),
