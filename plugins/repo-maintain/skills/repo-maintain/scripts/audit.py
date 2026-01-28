@@ -219,6 +219,7 @@ def check_gitignore_complete(repo_path: Path) -> dict:
         "*.pyc",
         ".venv/",
         "venv/",
+        ".claude-sandbox.json",
     ]
 
     if not gitignore_path.exists():

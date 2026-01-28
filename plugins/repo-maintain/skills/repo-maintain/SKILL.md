@@ -5,7 +5,7 @@ argument-hint: "[audit|fix|status] [repo-filter]"
 license: MIT
 metadata:
   author: tsilva
-  version: "1.3.2"
+  version: "1.3.3"
 ---
 
 # Repo Maintain
@@ -198,6 +198,7 @@ Template at `assets/gitignore-template.txt` contains:
 - Build artifacts (__pycache__, node_modules, dist)
 - OS files (.DS_Store)
 - IDE files (.idea, .vscode)
+- Claude Code files (.claude-sandbox.json)
 
 ## Tagline Extraction
 
