@@ -19,6 +19,10 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+# Ensure script directory is in path for local imports
+SCRIPT_DIR = Path(__file__).parent
+sys.path.insert(0, str(SCRIPT_DIR))
+
 # Import local utilities (bundled with plugin for portability)
 from pii_scanner import scan_repo as pii_scan_repo
 from extract_tagline import extract_tagline
