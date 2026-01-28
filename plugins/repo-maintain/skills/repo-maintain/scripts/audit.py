@@ -19,15 +19,12 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-# Import modules from same directory
-SCRIPT_DIR = Path(__file__).parent
-sys.path.insert(0, str(SCRIPT_DIR))
-from pii_scanner import scan_repo as pii_scan_repo
-from extract_tagline import extract_tagline
-
 # Import shared utilities
+SCRIPT_DIR = Path(__file__).parent
 SHARED_DIR = SCRIPT_DIR.parent.parent.parent.parent.parent / "shared"
 sys.path.insert(0, str(SHARED_DIR))
+from pii_scanner import scan_repo as pii_scan_repo
+from extract_tagline import extract_tagline
 from repo_utils import find_repos
 
 

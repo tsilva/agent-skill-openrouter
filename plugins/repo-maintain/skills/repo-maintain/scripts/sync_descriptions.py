@@ -25,30 +25,12 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-# Import extract_tagline from same directory
-SCRIPT_DIR = Path(__file__).parent
-sys.path.insert(0, str(SCRIPT_DIR))
-from extract_tagline import extract_tagline
-
 # Import shared utilities
+SCRIPT_DIR = Path(__file__).parent
 SHARED_DIR = SCRIPT_DIR.parent.parent.parent.parent.parent / "shared"
 sys.path.insert(0, str(SHARED_DIR))
+from extract_tagline import extract_tagline
 from repo_utils import find_repos
-
-
-def check_gh_cli() -> bool:
-    """Find all git repositories in directory."""
-    repos = []
-    repos_dir = Path(repos_dir).resolve()
-
-    if not repos_dir.exists():
-        return repos
-
-    for item in repos_dir.iterdir():
-        if item.is_dir() and (item / ".git").exists():
-            repos.append(item)
-
-    return sorted(repos, key=lambda p: p.name.lower())
 
 
 def check_gh_cli() -> bool:

@@ -24,7 +24,10 @@ claude-skills/
 │               └── assets/      # Static resources like templates, icons (optional)
 ├── shared/                      # Cross-skill utilities
 │   ├── detect_project.py        # Project type detection
+│   ├── extract_tagline.py       # README tagline extraction
 │   ├── load_config.py           # Config loading and merging
+│   ├── pii_scanner.py           # Credential/PII scanning
+│   ├── repo_utils.py            # Repository discovery
 │   ├── select_operation.py      # Operation selection logic
 │   └── substitute_template.py   # Template variable substitution
 ├── CLAUDE.md                    # This file
@@ -137,6 +140,68 @@ This allows the script to function even when optional packages are unavailable.
 
 The `shared/` directory contains deterministic utilities that replace LLM decision-making for algorithmic tasks.
 
+### extract_tagline.py
+
+Extracts tagline from README.md for GitHub description sync.
+
+```bash
+uv run shared/extract_tagline.py /path/to/README.md
+```
+
+**Output:**
+```
+A simple utility for testing things.
+```
+
+**Features:**
+- Handles YAML frontmatter, centered divs, badges
+- Strips bold/italic formatting
+- Truncates to GitHub's 350-char limit
+- Preserves emojis
+
+### pii_scanner.py
+
+Scans repositories for credentials and sensitive data.
+
+```bash
+uv run shared/pii_scanner.py /path/to/repo
+uv run shared/pii_scanner.py /path/to/repo --json
+```
+
+**Output:**
+```json
+{"repo": "/path", "total_findings": 0, "by_severity": {"critical": 0, "high": 0}}
+```
+
+**Detects:**
+- AWS keys, GitHub tokens, private keys
+- Database URLs with credentials
+- Hardcoded passwords and secrets
+- Slack webhooks, Stripe keys, JWTs
+
+**Features:**
+- Respects .gitignore patterns
+- Skips binary files and common directories
+- Returns severity levels (critical, high, medium, low)
+
+### repo_utils.py
+
+Discovers git repositories in a directory.
+
+```bash
+uv run shared/repo_utils.py --path /path/to/repos
+```
+
+**Output:**
+```
+/path/to/repos/repo-alpha
+/path/to/repos/repo-beta
+```
+
+**Features:**
+- Case-insensitive sorting
+- Detects repos by .git directory presence
+
 ### detect_project.py
 
 Detects project type from file presence.
@@ -206,7 +271,10 @@ All utilities support `--test` for self-testing:
 
 ```bash
 uv run shared/detect_project.py --test
+uv run shared/extract_tagline.py --test
 uv run shared/load_config.py --test
+uv run shared/pii_scanner.py --test
+uv run shared/repo_utils.py --test
 uv run shared/select_operation.py --test
 uv run shared/substitute_template.py --test
 ```
