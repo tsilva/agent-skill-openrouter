@@ -78,3 +78,4 @@ node_modules/
 
 # Claude Code
 .claude-sandbox.json
+*.code-workspace

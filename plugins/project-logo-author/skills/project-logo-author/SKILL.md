@@ -7,7 +7,7 @@ argument-hint: "[style-preference]"
 disable-model-invocation: false
 user-invocable: true
 metadata:
-  version: "5.0.1"
+  version: "5.0.2"
 ---
 
 # Logo Generator
@@ -30,13 +30,15 @@ This allows the skill to work for any logo generation task while defaulting to r
 
 Follow these steps exactly.
 
-### Step 1: Load Configuration
+### Step 1: Load Configuration (MANDATORY — do not skip)
+
+**CRITICAL: You MUST complete this step before proceeding. User customizations (style, colors, text, output path) are ONLY available through config loading. Skipping this step produces incorrect output.**
 
 Use the deterministic config loader for consistent merging:
 
 ```bash
 uv run shared/load_config.py \
-  --defaults "/path/to/skills/project-logo-author/assets/default-config.json" \
+  --defaults "{SKILL_DIR}/assets/default-config.json" \
   --user "~/.claude/project-logo-author.json" \
   --project ".claude/project-logo-author.json"
 ```
@@ -61,6 +63,10 @@ Returns merged JSON config:
 3. **Bundled defaults**: `assets/default-config.json`
 
 Use absolute paths. Skip files that don't exist.
+
+Where `{SKILL_DIR}` is the absolute path to this skill's directory (resolve from the plugin installation path).
+
+**Gate check:** Before proceeding, confirm you have a merged config object. If the script failed or was skipped, use the fallback method above. Do NOT proceed with defaults alone — always attempt to load user/project config files.
 
 **Config Parameters:**
 
