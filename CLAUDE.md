@@ -26,7 +26,6 @@ claude-skills/
 │   ├── detect_project.py        # Project type detection
 │   ├── extract_tagline.py       # README tagline extraction
 │   ├── load_config.py           # Config loading and merging
-│   ├── pii_scanner.py           # Credential/PII scanning
 │   ├── repo_utils.py            # Repository discovery
 │   ├── select_operation.py      # Operation selection logic
 │   └── substitute_template.py   # Template variable substitution
@@ -161,31 +160,6 @@ A simple utility for testing things.
 - Truncates to GitHub's 350-char limit
 - Preserves emojis
 
-### pii_scanner.py
-
-Scans repositories for credentials and sensitive data.
-
-```bash
-uv run shared/pii_scanner.py /path/to/repo
-uv run shared/pii_scanner.py /path/to/repo --json
-```
-
-**Output:**
-```json
-{"repo": "/path", "total_findings": 0, "by_severity": {"critical": 0, "high": 0}}
-```
-
-**Detects:**
-- AWS keys, GitHub tokens, private keys
-- Database URLs with credentials
-- Hardcoded passwords and secrets
-- Slack webhooks, Stripe keys, JWTs
-
-**Features:**
-- Respects .gitignore patterns
-- Skips binary files and common directories
-- Returns severity levels (critical, high, medium, low)
-
 ### repo_utils.py
 
 Discovers git repositories in a directory.
@@ -275,7 +249,6 @@ All utilities support `--test` for self-testing:
 uv run shared/detect_project.py --test
 uv run shared/extract_tagline.py --test
 uv run shared/load_config.py --test
-uv run shared/pii_scanner.py --test
 uv run shared/repo_utils.py --test
 uv run shared/select_operation.py --test
 uv run shared/substitute_template.py --test

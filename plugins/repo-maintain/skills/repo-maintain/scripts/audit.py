@@ -24,7 +24,6 @@ SCRIPT_DIR = Path(__file__).parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 # Import local utilities (bundled with plugin for portability)
-from pii_scanner import scan_repo as pii_scan_repo
 from extract_tagline import extract_tagline
 from repo_utils import find_repos
 
@@ -338,41 +337,6 @@ def check_description_synced(repo_path: Path) -> dict:
     }
 
 
-def check_pii_clean(repo_path: Path) -> dict:
-    """Check for PII/credentials using pii_scanner."""
-    try:
-        results = pii_scan_repo(repo_path, respect_gitignore=True)
-
-        if "error" in results:
-            return {
-                "check": "PII_CLEAN",
-                "passed": False,
-                "message": results["error"],
-                "auto_fix": "manual review required",
-            }
-
-        has_critical = results["by_severity"]["critical"] > 0
-        has_findings = results["total_findings"] > 0
-
-        return {
-            "check": "PII_CLEAN",
-            "passed": not has_findings,
-            "message": f"No credentials found" if not has_findings else f"Found {results['total_findings']} potential credentials ({results['by_severity']['critical']} critical)",
-            "findings_count": results["total_findings"],
-            "by_severity": results["by_severity"],
-            "files_with_findings": list(results["findings"].keys())[:10],  # Limit to 10
-            "auto_fix": "manual review required",
-        }
-
-    except Exception as e:
-        return {
-            "check": "PII_CLEAN",
-            "passed": False,
-            "message": f"PII scan error: {e}",
-            "auto_fix": "manual review required",
-        }
-
-
 def check_license_exists(repo_path: Path) -> dict:
     """Check if LICENSE file exists."""
     for name in ["LICENSE", "LICENSE.md", "LICENSE.txt"]:
@@ -631,7 +595,6 @@ def audit_repo(repo_path: Path) -> dict:
         check_claude_settings_sandbox(repo_path),
         check_dependabot_exists(repo_path),
         check_description_synced(repo_path),
-        check_pii_clean(repo_path),
         check_python_pyproject(repo_path),
         check_python_uv_install(repo_path),
     ]

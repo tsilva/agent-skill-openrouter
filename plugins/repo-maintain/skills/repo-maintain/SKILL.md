@@ -5,7 +5,7 @@ argument-hint: "[audit|fix|status] [repo-filter]"
 license: MIT
 metadata:
   author: tsilva
-  version: "1.4.5"
+  version: "1.5.0"
 ---
 
 # Repo Maintain
@@ -85,7 +85,6 @@ The script returns JSON with the selected operation and reasoning:
 | CLAUDE_SETTINGS_SANDBOX | .claude/settings*.json or sandbox in CLAUDE.md | Create settings.local.json |
 | DEPENDABOT_EXISTS | .github/dependabot.yml exists | Create from template |
 | DESCRIPTION_SYNCED | gh API vs README tagline | `gh repo edit --description` |
-| PII_CLEAN | Regex patterns | Manual review |
 | PYTHON_PYPROJECT | File exists if Python | Generate pyproject.toml |
 | PYTHON_UV_INSTALL | `uv sync --dry-run` | Fix pyproject.toml |
 
@@ -111,8 +110,6 @@ uv run {SKILL_DIR}/scripts/apply_safe_fixes.py --audit-report ~/.claude/repo-mai
 - `LOGO_EXISTS` - Requires image generation
 - `README_CURRENT` - Requires content analysis
 - `DESCRIPTION_SYNCED` - Requires API calls
-- `PII_CLEAN` - Requires manual review
-
 The script returns JSON showing what was applied and what remains:
 ```json
 {
@@ -164,8 +161,6 @@ Process repos in order. For each repo with remaining failures:
 11. **Python fixes**:
     - Generate pyproject.toml if missing
     - Fix errors shown by uv
-12. **PII alerts** - List findings for manual review (don't auto-fix)
-
 ### Progress Tracking
 
 Track progress in `~/.claude/repo-maintain-progress.json`:
@@ -255,17 +250,6 @@ uv run {SKILL_DIR}/scripts/sync_descriptions.py --repos-dir /path/to/repos --fil
 # JSON output
 uv run {SKILL_DIR}/scripts/sync_descriptions.py --repos-dir /path/to/repos --json
 ```
-
-## PII Scanner
-
-The `{SKILL_DIR}/scripts/pii_scanner.py` detects:
-- AWS keys (AKIA pattern)
-- GitHub tokens (gh[ps]_ pattern)
-- Private keys (BEGIN PRIVATE KEY)
-- Database URLs with credentials
-- Generic passwords/secrets
-
-Respects .gitignore - only scans tracked files.
 
 ## Usage Examples
 
