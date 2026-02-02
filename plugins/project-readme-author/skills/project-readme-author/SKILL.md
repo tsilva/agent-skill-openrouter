@@ -8,7 +8,7 @@ disable-model-invocation: false
 user-invocable: true
 metadata:
   author: tsilva
-  version: "2.1.0"
+  version: "2.2.0"
 ---
 
 # README Author
@@ -297,6 +297,8 @@ Good taglines lead with benefits, not features:
 - ❌ "A Python library for doing Y" (no emoji, too generic)
 - ❌ "Version 2.0 of the Z project" (no emoji, self-focused)
 
+- **Source from pyproject.toml** - If the project has a `pyproject.toml` with a `description` field, use it as the base tagline. Enhance with emojis per the rules above, but keep the core message faithful to the description. If crafting a new tagline and `pyproject.toml` exists, update its `description` field to stay in sync.
+
 ### GIF Demo Placement
 
 For CLI tools, place an animated GIF demo **immediately after the tagline**. This is the single most distinctive pattern across successful CLI projects (thefuck, lazygit, fzf, bat).
@@ -487,6 +489,9 @@ Avoid these mistakes:
    Returns: `{"type": "python", "confidence": "high", "files": ["pyproject.toml"]}`
 
 2. **Extract metadata** - name, description, version, author, license from detected files
+   - **Tagline source of truth**: If `pyproject.toml` exists and has a `description` field, use it as the tagline (add emojis/formatting per tagline rules but preserve the core message)
+   - If `pyproject.toml` exists but has no `description`, write the crafted tagline back to `pyproject.toml`'s `description` field as well
+   - If no `pyproject.toml`, proceed normally (tagline lives only in README)
 3. **Check for existing logo** - look for `logo.png` at repo root
 4. **Generate logo if missing** - use project-logo-author skill
 5. **Calculate display width** - use half the actual image pixel width (for retina displays)
@@ -498,7 +503,7 @@ Avoid these mistakes:
 2. **Identify sections** - map to standard structure
 3. **Detect custom content** - look for markers and non-standard prose
 4. **Confirm uncertain deletions** - when content relevance is unclear, use AskUserQuestion to confirm with user before removing
-5. **Apply requested changes** - update only what was asked
+5. **Apply requested changes** - update only what was asked (if rewriting the tagline, follow the pyproject.toml sync rules from the Create workflow)
 6. **Preserve custom content** - keep user-written sections intact
 7. **Validate result** - ensure no broken links or formatting
 
@@ -516,7 +521,7 @@ Avoid these mistakes:
 
 1. **Run validation first** - identify issues
 2. **Apply quick wins** - safe auto-fixes
-3. **Present suggestions** - changes requiring approval
+3. **Present suggestions** - changes requiring approval (if rewriting the tagline, follow the pyproject.toml sync rules from the Create workflow)
 4. **Apply approved changes** - with user confirmation
 5. **Re-validate** - show improvement
 
