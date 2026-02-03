@@ -79,3 +79,9 @@ node_modules/
 # Claude Code
 .claude-sandbox.json
 *.code-workspace
+
+
+# Managed by tsilva/.github
+# Do not remove - synced automatically
+.claude/
+*.pyc
