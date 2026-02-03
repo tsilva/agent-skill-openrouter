@@ -19,11 +19,10 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-# Ensure script directory is in path for local imports
-SCRIPT_DIR = Path(__file__).parent
-sys.path.insert(0, str(SCRIPT_DIR))
+# Import shared utilities from repository root
+SHARED_DIR = Path(__file__).resolve().parents[5] / "shared"
+sys.path.insert(0, str(SHARED_DIR))
 
-# Import local utilities (bundled with plugin for portability)
 from extract_tagline import extract_tagline
 from repo_utils import find_repos
 

@@ -8,3 +8,11 @@ version = "0.1.0"
 description = "**🧩 A curated collection of Claude Code skills that supercharge your AI-assisted development workflow**"
 requires-python = ">=3.10"
 dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]

@@ -45,19 +45,13 @@
       "name": "repo-maintain",
       "source": "./plugins/repo-maintain",
       "description": "Audit and remediate repos for standardization compliance. Use when maintaining repos, checking README/logo/gitignore compliance.",
-      "version": "1.5.0"
-    },
-    {
-      "name": "todo-aggregator",
-      "source": "./plugins/todo-aggregator",
-      "description": "Scans repos directory, collects TODO/TODO.md files, generates consolidated markdown report.",
-      "version": "1.0.1"
+      "version": "1.5.1"
     },
     {
       "name": "bulk-run",
       "source": "./plugins/bulk-run",
       "description": "Run any Claude Code skill across multiple repos in parallel with progress tracking and resume.",
-      "version": "1.0.0"
+      "version": "1.0.1"
     }
   ]
 }

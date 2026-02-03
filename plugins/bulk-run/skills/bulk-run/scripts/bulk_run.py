@@ -22,20 +22,13 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Import shared utilities from repository root
+SHARED_DIR = Path(__file__).resolve().parents[5] / "shared"
+sys.path.insert(0, str(SHARED_DIR))
+
+from repo_utils import find_repos
+
 PROGRESS_FILE = Path.home() / ".claude" / "bulk-run-progress.json"
-
-
-def find_repos(repos_dir: Path) -> list[Path]:
-    """Find all git repositories in directory, sorted case-insensitively."""
-    repos_dir = Path(repos_dir).resolve()
-    if not repos_dir.exists():
-        return []
-    repos = [
-        item
-        for item in repos_dir.iterdir()
-        if item.is_dir() and (item / ".git").exists()
-    ]
-    return sorted(repos, key=lambda p: p.name.lower())
 
 
 def load_progress() -> dict | None:

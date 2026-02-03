@@ -5,7 +5,7 @@ argument-hint: "[audit|fix|status] [repo-filter]"
 license: MIT
 metadata:
   author: tsilva
-  version: "1.5.0"
+  version: "1.5.1"
 ---
 
 # Repo Maintain

@@ -5,7 +5,7 @@ argument-hint: "<skill-name> [--filter <pattern>] [--batch-size <n>] [--repos-di
 license: MIT
 metadata:
   author: tsilva
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # Bulk Run
