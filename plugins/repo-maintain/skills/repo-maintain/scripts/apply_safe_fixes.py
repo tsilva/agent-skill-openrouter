@@ -18,7 +18,6 @@ Unsafe fixes (returned for Claude to handle):
     - LOGO_EXISTS: Requires image generation
     - README_HAS_TAGLINE: Requires creative writing
     - README_CURRENT: Requires content analysis
-    - DESCRIPTION_SYNCED: Requires API call + verification
     - PII_CLEAN: Requires manual review
 
 Output:
@@ -52,7 +51,6 @@ UNSAFE_CHECKS = {
     "README_CURRENT",
     "README_HAS_LICENSE",
     "LOGO_EXISTS",
-    "DESCRIPTION_SYNCED",
     "PII_CLEAN",
     "GITIGNORE_COMPLETE",
     "PYTHON_PYPROJECT",

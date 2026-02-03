@@ -23,7 +23,6 @@ from pathlib import Path
 SHARED_DIR = Path(__file__).resolve().parents[5] / "shared"
 sys.path.insert(0, str(SHARED_DIR))
 
-from extract_tagline import extract_tagline
 from repo_utils import find_repos
 
 
@@ -264,75 +263,6 @@ def check_claude_md_exists(repo_path: Path) -> dict:
         "path": str(claude_md_path) if exists else None,
         "message": "CLAUDE.md exists" if exists else "CLAUDE.md not found",
         "auto_fix": "/init",
-    }
-
-
-def check_description_synced(repo_path: Path) -> dict:
-    """Check if GitHub description matches README tagline."""
-    readme_path = repo_path / "README.md"
-
-    if not readme_path.exists():
-        return {
-            "check": "DESCRIPTION_SYNCED",
-            "passed": False,
-            "message": "README.md does not exist",
-            "auto_fix": "create README first",
-        }
-
-    # Get repo name
-    repo_name = repo_path.name
-
-    # Try to get GitHub description
-    try:
-        result = subprocess.run(
-            ["gh", "repo", "view", repo_name, "--json", "description"],
-            capture_output=True,
-            text=True,
-            timeout=10,
-            cwd=str(repo_path),
-        )
-
-        if result.returncode != 0:
-            return {
-                "check": "DESCRIPTION_SYNCED",
-                "passed": False,
-                "message": "Could not fetch GitHub description (not a GitHub repo or not authenticated)",
-                "auto_fix": "gh repo edit --description",
-            }
-
-        gh_data = json.loads(result.stdout)
-        gh_description = gh_data.get("description", "") or ""
-
-    except Exception as e:
-        return {
-            "check": "DESCRIPTION_SYNCED",
-            "passed": False,
-            "message": f"Error fetching GitHub description: {e}",
-            "auto_fix": "gh repo edit --description",
-        }
-
-    # Extract tagline from README using robust extraction
-    readme_tagline = extract_tagline(readme_path)
-
-    if not readme_tagline:
-        return {
-            "check": "DESCRIPTION_SYNCED",
-            "passed": False,
-            "message": "Could not extract tagline from README",
-            "gh_description": gh_description,
-            "auto_fix": "add tagline to README",
-        }
-
-    # Compare descriptions (case-insensitive)
-    synced = gh_description.lower().strip() == readme_tagline.lower().strip()
-
-    return {
-        "check": "DESCRIPTION_SYNCED",
-        "passed": synced,
-        "message": "Description synced" if synced else "GitHub description differs from README tagline",
-        "gh_description": gh_description,
-        "readme_tagline": readme_tagline[:200],
-        "auto_fix": "gh repo edit --description",
     }
 
 
@@ -593,7 +523,6 @@ def audit_repo(repo_path: Path) -> dict:
         check_claude_md_exists(repo_path),
         check_claude_settings_sandbox(repo_path),
         check_dependabot_exists(repo_path),
-        check_description_synced(repo_path),
         check_python_pyproject(repo_path),
         check_python_uv_install(repo_path),
     ]

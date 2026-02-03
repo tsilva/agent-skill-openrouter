@@ -24,7 +24,6 @@ claude-skills/
 │               └── assets/      # Static resources like templates, icons (optional)
 ├── shared/                      # Cross-skill utilities
 │   ├── detect_project.py        # Project type detection
-│   ├── extract_tagline.py       # README tagline extraction
 │   ├── load_config.py           # Config loading and merging
 │   ├── repo_utils.py            # Repository discovery
 │   ├── select_operation.py      # Operation selection logic
@@ -141,25 +140,6 @@ This allows the script to function even when optional packages are unavailable.
 
 The `shared/` directory contains deterministic utilities that replace LLM decision-making for algorithmic tasks.
 
-### extract_tagline.py
-
-Extracts tagline from README.md for GitHub description sync.
-
-```bash
-uv run shared/extract_tagline.py /path/to/README.md
-```
-
-**Output:**
-```
-A simple utility for testing things.
-```
-
-**Features:**
-- Handles YAML frontmatter, centered divs, badges
-- Strips bold/italic formatting
-- Truncates to GitHub's 350-char limit
-- Preserves emojis
-
 ### repo_utils.py
 
 Discovers git repositories in a directory.
@@ -247,7 +227,6 @@ All utilities support `--test` for self-testing:
 
 ```bash
 uv run shared/detect_project.py --test
-uv run shared/extract_tagline.py --test
 uv run shared/load_config.py --test
 uv run shared/repo_utils.py --test
 uv run shared/select_operation.py --test

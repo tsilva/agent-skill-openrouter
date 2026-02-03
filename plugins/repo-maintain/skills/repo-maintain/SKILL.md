@@ -1,11 +1,11 @@
 ---
 name: repo-maintain
-description: Audits and remediates repos in current directory for standardization. Use when maintaining repos, checking README/logo/gitignore compliance, or syncing GitHub descriptions.
+description: Audits and remediates repos in current directory for standardization. Use when maintaining repos, checking README/logo/gitignore compliance.
 argument-hint: "[audit|fix|status] [repo-filter]"
 license: MIT
 metadata:
   author: tsilva
-  version: "1.5.1"
+  version: "1.6.0"
 ---
 
 # Repo Maintain
@@ -84,7 +84,6 @@ The script returns JSON with the selected operation and reasoning:
 | CLAUDE_MD_EXISTS | File exists | `/init` |
 | CLAUDE_SETTINGS_SANDBOX | .claude/settings*.json or sandbox in CLAUDE.md | Create settings.local.json |
 | DEPENDABOT_EXISTS | .github/dependabot.yml exists | Create from template |
-| DESCRIPTION_SYNCED | gh API vs README tagline | `gh repo edit --description` |
 | PYTHON_PYPROJECT | File exists if Python | Generate pyproject.toml |
 | PYTHON_UV_INSTALL | `uv sync --dry-run` | Fix pyproject.toml |
 
@@ -109,7 +108,7 @@ uv run {SKILL_DIR}/scripts/apply_safe_fixes.py --audit-report ~/.claude/repo-mai
 - `README_EXISTS` - Requires content generation
 - `LOGO_EXISTS` - Requires image generation
 - `README_CURRENT` - Requires content analysis
-- `DESCRIPTION_SYNCED` - Requires API calls
+
 The script returns JSON showing what was applied and what remains:
 ```json
 {
@@ -154,11 +153,7 @@ Process repos in order. For each repo with remaining failures:
    - Auto-detects relevant ecosystems (npm, pip, cargo, gomod, etc.)
    - Always includes github-actions for workflow updates
    - Sets weekly update schedule
-10. **Description sync**:
-    - Use `{SKILL_DIR}/scripts/extract_tagline.py` for robust tagline extraction
-    - Run: `gh repo edit --description "tagline"`
-    - Or bulk sync: `uv run {SKILL_DIR}/scripts/sync_descriptions.py --repos-dir "$(pwd)"`
-11. **Python fixes**:
+10. **Python fixes**:
     - Generate pyproject.toml if missing
     - Fix errors shown by uv
 ### Progress Tracking
@@ -215,41 +210,6 @@ Template at `{SKILL_DIR}/assets/gitignore-template.txt` contains:
 - OS files (.DS_Store)
 - IDE files (.idea, .vscode)
 - Claude Code files (.claude-sandbox.json)
-
-## Tagline Extraction
-
-The `{SKILL_DIR}/scripts/extract_tagline.py` extracts README taglines for GitHub description sync:
-
-```bash
-uv run {SKILL_DIR}/scripts/extract_tagline.py /path/to/README.md
-```
-
-Handles complex README structures:
-- YAML frontmatter (`---` blocks)
-- Centered divs with logos, titles, badges
-- Bold formatting (`**tagline**` → `tagline`)
-- Badge lines (`[![`, `![`)
-- Link-only lines
-- Emoji preservation
-- GitHub 350 char limit
-
-## Bulk Description Sync
-
-The `{SKILL_DIR}/scripts/sync_descriptions.py` syncs descriptions for multiple repos:
-
-```bash
-# Preview changes (dry run)
-uv run {SKILL_DIR}/scripts/sync_descriptions.py --repos-dir /path/to/repos --dry-run
-
-# Apply changes
-uv run {SKILL_DIR}/scripts/sync_descriptions.py --repos-dir /path/to/repos
-
-# Filter by repo name
-uv run {SKILL_DIR}/scripts/sync_descriptions.py --repos-dir /path/to/repos --filter "my-project"
-
-# JSON output
-uv run {SKILL_DIR}/scripts/sync_descriptions.py --repos-dir /path/to/repos --json
-```
 
 ## Usage Examples
 
