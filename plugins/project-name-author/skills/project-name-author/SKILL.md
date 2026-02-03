@@ -5,7 +5,7 @@ license: MIT
 compatibility: Any environment
 metadata:
   author: tsilva
-  version: "2.0.0"
+  version: "2.1.0"
 argument-hint: "[project-path]"
 disable-model-invocation: false
 user-invocable: true
@@ -22,6 +22,14 @@ Before generating names, determine the context:
 1. **Check for git repository**: Look for `.git` directory or use git status
 2. **If in a repo**: Analyze codebase to generate repository names
 3. **If not in a repo**: Ask user what they're naming (project, product, tool, etc.)
+
+### Python Project Detection
+
+For Python projects, enable PyPI availability checking:
+
+1. Run `shared/detect_project.py --path <project-path>` to detect project type
+2. If `"type": "python"` is returned, enable PyPI checking workflow (see below)
+3. PyPI checking only applies to Python projects - skip for other project types
 
 ## Quick Start
 
@@ -93,6 +101,32 @@ Present exactly 6 name suggestions in this format:
 (continue for all 6 suggestions)
 ```
 
+### PyPI Availability Check (Python Projects Only)
+
+For Python projects, after generating 6 names:
+
+1. Run the PyPI checker with all suggested names:
+   ```bash
+   uv run plugins/project-name-author/skills/project-name-author/scripts/check_pypi.py --json name1 name2 name3 name4 name5 name6
+   ```
+
+2. Include PyPI status in the output format:
+
+   **If available:**
+   ```markdown
+   **Style:** Creative | **PyPI:** Available | **Why it works:** Brief explanation
+   ```
+
+   **If taken:**
+   ```markdown
+   **Style:** Creative | **PyPI:** Taken (consider `prettify-cli` or `py-prettify`) | **Why it works:** Brief explanation
+   ```
+
+3. When a name is taken on PyPI, suggest 1-2 alternative variations:
+   - Add a prefix: `py-`, `python-`
+   - Add a suffix: `-cli`, `-lib`, `-py`
+   - Use a variant: `-x`, `-2`, `-ng`
+
 ## Guidelines
 
 - Names should be lowercase, hyphenated if multi-word
@@ -111,40 +145,42 @@ For a CLI tool that formats code:
 ### 1. **prettify**
 > Make your code beautiful
 
-**Style:** Creative | **Why it works:** Evocative verb, easy to remember, hints at purpose
+**Style:** Creative | **PyPI:** Taken (consider `prettify-cli` or `py-prettify`) | **Why it works:** Evocative verb, easy to remember, hints at purpose
 
 ---
 
 ### 2. **codeshine**
 > Polish your codebase to perfection
 
-**Style:** Professional | **Why it works:** Compound word, professional feel, clear purpose
+**Style:** Professional | **PyPI:** Available | **Why it works:** Compound word, professional feel, clear purpose
 
 ---
 
 ### 3. **tidy**
 > Clean code, happy developers
 
-**Style:** Playful | **Why it works:** Short, friendly, universal appeal
+**Style:** Playful | **PyPI:** Taken (consider `tidy-py` or `tidy-code`) | **Why it works:** Short, friendly, universal appeal
 
 ---
 
 ### 4. **fmt**
 > Fast, minimal formatter
 
-**Style:** Technical | **Why it works:** Unix-style brevity, instantly recognized by devs
+**Style:** Technical | **PyPI:** Taken (consider `fmt-py` or `pyfmt`) | **Why it works:** Unix-style brevity, instantly recognized by devs
 
 ---
 
 ### 5. **brushstroke**
 > Paint your code with style
 
-**Style:** Creative | **Why it works:** Artistic metaphor, memorable imagery
+**Style:** Creative | **PyPI:** Available | **Why it works:** Artistic metaphor, memorable imagery
 
 ---
 
 ### 6. **lint-roller**
 > Roll away the code lint
 
-**Style:** Punny | **Why it works:** Visual pun on lint removal, memorable and shareable
+**Style:** Punny | **PyPI:** Available | **Why it works:** Visual pun on lint removal, memorable and shareable
 ```
+
+**Note:** The example above demonstrates Python project output with PyPI status. For non-Python projects, omit the **PyPI:** field entirely.
