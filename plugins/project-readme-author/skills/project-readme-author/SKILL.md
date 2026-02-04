@@ -8,7 +8,7 @@ disable-model-invocation: false
 user-invocable: true
 metadata:
   author: tsilva
-  version: "2.4.0"
+  version: "2.5.0"
 ---
 
 # README Author
@@ -184,12 +184,29 @@ A bold line placed after badges, before tagline, to create an information gap:
 
 ### Tagline Rules
 
-- **Must include emoji(s)** — 1-3 relevant emojis reinforcing the message
+**The tagline is THE hook** — the single most critical line in your README. Users decide to stay or leave based on this one sentence. It must be short, witty, and instantly communicate what the project does.
+
+**Bookend Emoji Pattern:**
+- One emoji at START, one emoji at END
+- Creates visual framing that draws the eye
+- Reinforces the message from both sides
+
+**Requirements:**
 - **Max 350 characters** — ideal 80-150 chars, punchy and scannable
-- ✅ "🔧 Magnificent app which corrects your previous console command"
-- ✅ "⚡ High-performance, easy to learn, fast to code, ready for production"
-- ❌ "A Python library for doing Y" (no emoji, too generic)
-- **Source from pyproject.toml** — if `description` field exists, use as base tagline and enhance with emojis. If crafting new and `pyproject.toml` exists, sync back.
+- **Instantly clear** — reader must understand what project does from this line alone
+- **Source from pyproject.toml** — if `description` field exists, use as base and enhance. If crafting new, sync back.
+
+**Great taglines (bookend pattern):**
+- ✅ `🚀 Build production-ready APIs in minutes, not hours ⚡`
+- ✅ `🔍 Find anything in your codebase instantly 🎯`
+- ✅ `🎨 Turn designs into code with one command 💻`
+- ✅ `🔧 Magnificent app which corrects your previous console command ✨`
+
+**Anti-patterns:**
+- ❌ "A Python library for doing Y" — no emojis, too generic
+- ❌ "⚡ Fast and easy to use" — vague, doesn't explain what it does
+- ❌ "Tool for developers" — meaningless, could be anything
+- ❌ "🚀 🔥 ⚡ Super awesome project 💪 🎉" — emoji spam, no substance
 
 ### GIF Demo Placement
 
