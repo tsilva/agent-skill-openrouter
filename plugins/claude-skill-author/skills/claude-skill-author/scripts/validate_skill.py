@@ -297,13 +297,26 @@ def validate_optional_fields(frontmatter: dict[str, Any], file_path: str) -> lis
 
 
 def validate_body(body_line_count: int, file_path: str) -> list[ValidationIssue]:
-    """Validate SKILL.md body (warning if >500 lines)."""
+    """
+    Validate SKILL.md body line count.
+
+    Limits:
+    - >300 lines: WARNING - consider using references/
+    - >400 lines: ERROR - must use references/
+    """
     issues = []
 
-    if body_line_count > 500:
+    if body_line_count > 400:
+        issues.append(ValidationIssue(
+            Severity.ERROR, file_path, "body",
+            f"Body exceeds 400 lines ({body_line_count} lines). "
+            f"Must extract content to references/ directory."
+        ))
+    elif body_line_count > 300:
         issues.append(ValidationIssue(
             Severity.WARNING, file_path, "body",
-            f"Body exceeds 500 lines ({body_line_count} lines) - consider reducing"
+            f"Body exceeds 300 lines ({body_line_count} lines). "
+            f"Consider extracting detailed content to references/ directory."
         ))
 
     return issues
@@ -311,26 +324,82 @@ def validate_body(body_line_count: int, file_path: str) -> list[ValidationIssue]
 
 def validate_character_budget(
     skill_md_path: Path,
-    file_path: str,
-    char_budget: int = 15000
+    file_path: str
 ) -> list[ValidationIssue]:
-    """Validate skill file size is within context budget."""
+    """
+    Validate skill file size is within context budget.
+
+    Limits:
+    - >8,000 chars: WARNING - consider compressing
+    - >12,000 chars: ERROR - must compress or use references
+    """
     issues = []
+
+    warn_threshold = 8000
+    error_threshold = 12000
 
     try:
         content = skill_md_path.read_text()
         char_count = len(content)
 
-        if char_count > char_budget:
+        if char_count > error_threshold:
             issues.append(ValidationIssue(
                 Severity.ERROR, file_path, "character-budget",
-                f"SKILL.md exceeds context budget ({char_count:,} chars, limit: {char_budget:,}). "
-                f"Skill must be compressed. See references/compression-guide.md."
+                f"SKILL.md exceeds {error_threshold:,} character limit ({char_count:,} chars). "
+                f"Must compress or move content to references/. See references/compression-guide.md."
+            ))
+        elif char_count > warn_threshold:
+            issues.append(ValidationIssue(
+                Severity.WARNING, file_path, "character-budget",
+                f"SKILL.md exceeds {warn_threshold:,} characters ({char_count:,} chars). "
+                f"Consider compressing content. See references/compression-guide.md."
             ))
     except Exception as e:
         issues.append(ValidationIssue(
             Severity.ERROR, file_path, "character-budget",
             f"Could not read file: {e}"
+        ))
+
+    return issues
+
+
+def validate_references_usage(
+    skill_path: Path,
+    body: str,
+    body_line_count: int,
+    char_count: int,
+    file_path: str
+) -> list[ValidationIssue]:
+    """
+    Validate that large skills use references/ for progressive disclosure.
+
+    Checks:
+    - >150 body lines without references/ directory usage: WARNING
+    - >6,000 chars without references mentioned in body: WARNING
+    """
+    issues = []
+
+    # Check if references are mentioned in body
+    has_references_mention = 'references/' in body
+
+    # Check if references directory exists and has content
+    references_dir = skill_path / "references"
+    has_references_dir = references_dir.exists() and any(references_dir.iterdir()) if references_dir.exists() else False
+
+    uses_references = has_references_mention or has_references_dir
+
+    if body_line_count > 150 and not uses_references:
+        issues.append(ValidationIssue(
+            Severity.WARNING, file_path, "references",
+            f"Body has {body_line_count} lines without using references/. "
+            f"Consider extracting detailed content to references/ for progressive disclosure."
+        ))
+
+    if char_count > 6000 and not uses_references:
+        issues.append(ValidationIssue(
+            Severity.WARNING, file_path, "references",
+            f"SKILL.md has {char_count:,} characters without using references/. "
+            f"Consider moving detailed documentation to references/ directory."
         ))
 
     return issues
@@ -429,7 +498,7 @@ def validate_no_windows_paths(body: str, file_path: str) -> list[ValidationIssue
     Detect Windows-style paths in the body.
 
     Rules:
-    - Flag backslashes that look like paths (C:\, \word patterns)
+    - Flag backslashes that look like paths (C:\\, \\word patterns)
     - Cross-platform skills should use forward slashes
     """
     issues = []
@@ -627,13 +696,13 @@ def suggest_instruction_optimization(
             ))
             break
 
-    # Check for large body without references
-    if body_line_count > 200:
+    # Check for large body without references (lowered threshold for stricter limits)
+    if body_line_count > 150:
         has_reference = 'references/' in body
         if not has_reference:
             issues.append(ValidationIssue(
                 Severity.SUGGESTION, file_path, "body",
-                f"Large body ({body_line_count} lines) without reference files. Consider extracting detailed content to references/"
+                f"Body has {body_line_count} lines without reference files. Consider extracting detailed content to references/"
             ))
 
     return issues
@@ -1197,6 +1266,15 @@ def validate_skill(skill_path: Path, suggest: bool = False) -> ValidationResult:
 
     # Validate character budget
     result.issues.extend(validate_character_budget(skill_md_path, rel_path))
+
+    # Validate references usage for large skills
+    try:
+        char_count = len(skill_md_path.read_text())
+    except Exception:
+        char_count = 0
+    result.issues.extend(validate_references_usage(
+        skill_path, body, body_line_count, char_count, rel_path
+    ))
 
     # Detect skill type and validate plugin-specific files
     skill_type, plugin_json_path, marketplace_path = detect_skill_type(skill_path)

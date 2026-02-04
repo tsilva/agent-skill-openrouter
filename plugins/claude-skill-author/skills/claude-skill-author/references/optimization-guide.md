@@ -284,8 +284,9 @@ python scripts/validate.py $PATH
 - [ ] Run `validate_skill.py` with zero errors
 - [ ] Description under 1024 chars
 - [ ] Description includes trigger phrases
-- [ ] SKILL.md body under 500 lines
-- [ ] Character budget under 15,000
+- [ ] SKILL.md body under 300 lines (400 max)
+- [ ] Character budget under 8,000 (12,000 max)
+- [ ] Large skills (>150 lines) use references/
 - [ ] All paths are relative or auto-detected
 - [ ] Workflow steps are numbered
 - [ ] No obvious operation explanations
@@ -323,11 +324,11 @@ description: Validate API schemas and generate TypeScript types. Use when review
 
 ### SKILL.md Size Targets
 
-| Component | Target | Max |
-|-----------|--------|-----|
-| Description | 100-200 chars | 1024 chars |
-| Body | 200-400 lines | 500 lines |
-| Total | 8,000-12,000 chars | 15,000 chars |
+| Component | Target | Warning | Error |
+|-----------|--------|---------|-------|
+| Description | 100-200 chars | - | 1024 chars |
+| Body | 150-250 lines | 300 lines | 400 lines |
+| Total | 6,000-8,000 chars | 8,000 chars | 12,000 chars |
 
 ### Severity Levels
 

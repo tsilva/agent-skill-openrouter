@@ -6,7 +6,7 @@ argument-hint: "[project|plugin] [skill-name]"
 user-invocable: true
 metadata:
   author: tsilva
-  version: "1.3.5"
+  version: "1.4.0"
 ---
 
 # Skill Author Guide
@@ -141,31 +141,14 @@ python {SKILL_DIR}/scripts/validate_skill.py plugins/{name}/skills/{name}
 
 ### Argument Hints
 
-Add `argument-hint` to user-invocable skills to show expected arguments in the slash command autocomplete menu. This improves discoverability and UX.
+Add `argument-hint` to show expected arguments in autocomplete:
 
-**Format patterns:**
-- `[required]` - Required argument
-- `[optional]` - Optional argument (brackets convey optionality)
-- `[a|b|c]` - Choice between options
-- `[operation] [target]` - Multiple arguments
-
-**Examples:**
 ```yaml
-argument-hint: "[create|modify|validate|optimize] [path]"  # README author
-argument-hint: "[audit|fix|status] [repo-filter]"          # Repo maintain
-argument-hint: "[project|plugin] [skill-name]"             # Skill author
-argument-hint: "[server-name]"                             # MCP author
-argument-hint: "[style-preference]"                        # Logo author
+argument-hint: "[create|modify|validate] [path]"  # Operations
+argument-hint: "[project|plugin] [skill-name]"    # Multiple args
 ```
 
-**When to add:**
-- Skill accepts arguments via `$ARGUMENTS`
-- Skill has multiple operations or modes
-- Skill targets a specific file/path
-
-**When to skip:**
-- Skill takes no arguments
-- Skill is not user-invocable (`user-invocable: false`)
+Add when skill accepts arguments via `$ARGUMENTS`. Skip if no arguments or not user-invocable.
 
 ### Slash Commands
 
@@ -185,29 +168,21 @@ skill-name/
 
 ### Character Budget
 
-**Hard limit: 15,000 characters** for SKILL.md. Validation enforces this.
+| Threshold | Severity | Action |
+|-----------|----------|--------|
+| 8,000 chars | WARNING | Consider compressing |
+| 12,000 chars | ERROR | Must compress or use references/ |
 
 If over budget, see `references/compression-guide.md`.
 
 ## Description Best Practices
 
-The description triggers skill activation. Claude uses it to select from 100+ skills.
+The description triggers skill activation. Claude selects from 100+ skills based on it.
 
-**Good:**
-```yaml
-description: Extract text from PDFs, fill forms, merge documents. Use when working with PDF files or when user mentions PDFs, forms, extraction.
-```
+**Rules:** Third person ("Generates..."), include triggers ("Use when..."), add keywords, 1-1024 chars.
 
-**Bad:**
-```yaml
-description: Helps with documents
-```
-
-**Rules:**
-- Third person ("Generates..." not "Generate...")
-- Include trigger phrases ("Use when...", "Triggers on...")
-- Keywords Claude can match on
-- 1-1024 characters
+**Good:** `Extract text from PDFs, fill forms. Use when working with PDF files.`
+**Bad:** `Helps with documents`
 
 ## Separation of Concerns
 
@@ -287,11 +262,14 @@ python {SKILL_DIR}/scripts/validate_skill.py /path/to/skill
 - Name cannot use "claude-" prefix (use descriptive names)
 - Name/description cannot contain XML characters (`<`, `>`)
 - Description: 1-1024 chars, non-empty
-- Character budget: max 15,000 chars
+- Character budget: >12,000 chars
+- Body lines: >400 lines
 - Version sync (plugin skills): SKILL.md, plugin.json, marketplace.json
 
 **Warnings (should fix):**
-- Body lines: warning if >500
+- Character budget: >8,000 chars
+- Body lines: >300 lines
+- Large skills (>150 lines or >6,000 chars) without references/
 - Windows-style paths (backslashes) - use forward slashes
 - Vague names: "helper", "utils", "tools", "documents", "data", "files"
 - Referenced files in SKILL.md that don't exist
@@ -315,11 +293,8 @@ python {SKILL_DIR}/scripts/validate_skill.py /path/to/skill
 
 ### Conciseness
 
-Claude is smart. Only add context Claude doesn't already have.
-
 - Challenge each piece: "Does Claude really need this?"
 - One good example beats three mediocre ones
-- Keep SKILL.md body under 500 lines
 
 ### Progressive Disclosure
 
@@ -345,55 +320,14 @@ Skills use 3-tier loading:
 
 ## Skill Optimization
 
-Optimize skills for better instruction following, token efficiency, and trigger accuracy.
-
-### Description Optimization
-
-The description is Claude's primary signal for skill selection:
-
-| Pattern | Example |
-|---------|---------|
-| Action + Domain | "Generate API documentation" |
-| Triggers | "Use when asked to document APIs" |
-| Keywords | Include words users naturally say |
-
-**Bad:** "Helps with documents"
-**Good:** "Generate and update README files with badges and usage sections. Use when creating docs."
-
-### Instruction Clarity
-
-Use the WIRE framework:
-
-1. **W**orkflow: Number steps explicitly (1, 2, 3...)
-2. **I**nputs: Define with types and constraints
-3. **R**ules: State as explicit rules, not suggestions
-4. **E**xamples: One canonical example per concept
-
-### Token Efficiency
-
-```
-Needed for EVERY invocation? → Keep in SKILL.md
-Needed for MOST invocations? → Keep in SKILL.md, compress
-Otherwise → Move to references/ or scripts/
-```
-
-### Anti-Patterns
-
-| Anti-Pattern | Problem | Fix |
-|--------------|---------|-----|
-| Explaining obvious operations | Wastes tokens | Omit entirely |
-| Multiple equivalent examples | Clutters | One canonical example |
-| Verbose error handling | Claude handles naturally | Remove |
-| Hardcoded paths | Breaks portability | Use `{SKILL_DIR}/scripts/` |
-| Missing workflow order | Execution ambiguity | Number steps |
-
-### Validation with Suggestions
-
+Use `--suggest` flag for optimization hints:
 ```bash
 python {SKILL_DIR}/scripts/validate_skill.py /path/to/skill --suggest
 ```
 
-The `--suggest` flag adds optimization hints beyond errors and warnings.
+**WIRE framework:** Workflow (numbered steps), Inputs (typed), Rules (explicit), Examples (one per concept).
+
+**Anti-patterns:** Explaining obvious operations, multiple equivalent examples, verbose error handling, hardcoded paths.
 
 For detailed optimization techniques, see `references/optimization-guide.md`.
 

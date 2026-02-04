@@ -1,6 +1,6 @@
 # Skill Compression Guide
 
-SKILL.md must fit within **15,000 characters**. This guide helps when you exceed the budget.
+SKILL.md must fit within **12,000 characters** (error) with a warning at 8,000. This guide helps when you exceed the budget.
 
 ## Table of Contents
 
@@ -137,5 +137,6 @@ python plugins/skill-author/skills/skill-author/scripts/validate_skill.py /path/
 
 Check for:
 - 0 errors
-- Character count under 15,000
+- Character count under 12,000 (warning at 8,000)
+- Body under 400 lines (warning at 300)
 - Skill still functions correctly

@@ -124,7 +124,7 @@ Skills use 3-tier loading to minimize context usage:
 
 - Loaded when skill triggers (explicit `/name` or auto-triggered)
 - Contains: Everything between `---` markers and end of file
-- Budget: **15,000 characters maximum** (hard limit)
+- Budget: **12,000 characters maximum** (error), warning at 8,000
 
 ### Tier 3: Bundled Resources (variable)
 
@@ -137,13 +137,16 @@ Skills use 3-tier loading to minimize context usage:
 
 ## Size Limits Summary
 
-| Element | Limit | Enforcement |
-|---------|-------|-------------|
+| Element | Threshold | Enforcement |
+|---------|-----------|-------------|
 | `name` | 64 chars | Error |
 | `description` | 1024 chars | Error |
 | `compatibility` | 500 chars | Error |
-| SKILL.md total | 15,000 chars | Error |
-| Body lines | 500 lines | Warning |
+| SKILL.md total | >8,000 chars | Warning |
+| SKILL.md total | >12,000 chars | Error |
+| Body lines | >300 lines | Warning |
+| Body lines | >400 lines | Error |
+| Large skill without references/ | >150 lines or >6,000 chars | Warning |
 
 ## Validation Rules Summary
 
@@ -157,14 +160,17 @@ Skills use 3-tier loading to minimize context usage:
 | Reserved "anthropic" | name | Cannot contain "anthropic" |
 | No XML in name | name | Cannot contain `<` or `>` |
 | No XML in description | description | Cannot contain `<` or `>` |
-| Character budget | SKILL.md | Max 15,000 characters |
+| Character budget | SKILL.md | >12,000 characters |
+| Body lines | body | >400 lines |
 | Version sync | version | Must match across SKILL.md, plugin.json, marketplace.json |
 
 ### Warnings (Should Fix)
 
 | Rule | Field | Description |
 |------|-------|-------------|
-| Body length | body | Warning if >500 lines |
+| Character budget | SKILL.md | >8,000 characters |
+| Body length | body | >300 lines |
+| References usage | body | Large skill (>150 lines or >6,000 chars) without references/ |
 | Windows paths | body | Use forward slashes `/` not backslashes `\` |
 | Vague names | name | Avoid "helper", "utils", "tools", etc. |
 | Missing files | body | Referenced markdown links should exist |
