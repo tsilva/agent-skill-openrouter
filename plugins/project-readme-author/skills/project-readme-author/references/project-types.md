@@ -2,11 +2,62 @@
 
 ## Table of Contents
 
+- [Virality Patterns by Type](#virality-patterns-by-type)
 - [Standard Sections (All Projects)](#standard-sections-all-projects)
 - [AI/ML Projects](#aiml-projects)
 - [CLI Tools](#cli-tools)
 - [Libraries](#libraries)
 - [Web Apps](#web-apps)
+
+---
+
+## Virality Patterns by Type
+
+Each project type has specific patterns that maximize shareability:
+
+| Type | Aha Moment | Shareable Hook | Example |
+|------|------------|----------------|---------|
+| **CLI** | Speed GIF (before → command → after) | "X in Y seconds" | ripgrep: "Search 1M files in 0.2s" |
+| **Library** | 3-line code with commented output | "Y lines → Z lines" | requests: "HTTP in 1 line" |
+| **AI/ML** | Benchmark chart vs alternatives | "X% improvement over Y" | "92.4% accuracy (BERT: 88.1%)" |
+| **Web App** | Demo GIF of core interaction | "Deploy in X minutes" | Vercel: "Deploy in 30 seconds" |
+
+### CLI Virality Formula
+
+```
+[Speed metric] + [Comparison to familiar tool] + [Visual proof]
+```
+
+Example: "10x faster than grep" + GIF showing side-by-side execution
+
+### Library Virality Formula
+
+```
+[Lines reduced] + [Complexity hidden] + [Output shown]
+```
+
+Example:
+```python
+# Before: 50 lines of urllib + json + error handling
+# After:
+response = requests.get(url).json()  # That's it.
+```
+
+### AI/ML Virality Formula
+
+```
+[Benchmark metric] + [Comparison to known model] + [Resource efficiency]
+```
+
+Example: "94% accuracy | 3x faster than GPT-3 | Runs on consumer GPU"
+
+### Web App Virality Formula
+
+```
+[Time to deploy] + [One-liner command] + [Live demo link]
+```
+
+Example: "Zero-config deploys in 30 seconds" + `npx deploy` + [Try the demo](link)
 
 ---
 

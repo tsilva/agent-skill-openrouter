@@ -2,6 +2,14 @@
 
 Reference material for badge implementation, visual elements, and social proof.
 
+## Priority Badge for Virality
+
+The star badge is the highest-impact social proof badge. Include if stars > 100:
+
+```markdown
+[![GitHub stars](https://img.shields.io/github/stars/user/repo?style=social)](https://github.com/user/repo)
+```
+
 ## Badge Implementation
 
 ```markdown
@@ -17,6 +25,20 @@ Reference material for badge implementation, visual elements, and social proof.
 - Use shields.io for all badges (consistent styling)
 - Pick one style (flat, flat-square, for-the-badge) and use it consistently
 - For CLI tools, include a Repology badge showing packaging status
+
+## Impressive Metrics Badges
+
+Only include metrics that are impressive. Thresholds:
+
+| Metric | Include If | Badge |
+|--------|------------|-------|
+| Stars | > 100 | `![Stars](https://img.shields.io/github/stars/user/repo?style=social)` |
+| Downloads | > 1000/week | `![Downloads](https://img.shields.io/pypi/dw/package)` |
+| Contributors | > 10 | `![Contributors](https://img.shields.io/github/contributors/user/repo)` |
+| Forks | > 50 | `![Forks](https://img.shields.io/github/forks/user/repo?style=social)` |
+| Last commit | < 30 days | `![Last commit](https://img.shields.io/github/last-commit/user/repo)` |
+
+**Rule:** If a metric isn't impressive, don't include it. A badge showing "2 stars" hurts more than it helps.
 
 ## Dark/Light Mode Support
 
@@ -95,6 +117,24 @@ Engaging call-to-action patterns:
 - `🌟 If this helped, a star would make our day!`
 
 **Rules**: One CTA max. Humor optional but never cringe.
+
+### Testimonial Formatting
+
+Format endorsements for maximum impact:
+
+```markdown
+> "This tool is incredible. Saved us 10 hours/week."
+> — [@notable_person](https://twitter.com/notable_person), CTO at Company
+
+> "The best debugging tool I've used in years."
+> — [@developer](https://github.com/developer), Maintainer of PopularProject
+```
+
+**Rules:**
+- Include real link to person's profile
+- Include role and company/project for authority
+- Quote must be permission-granted or public (from tweet, blog post, etc.)
+- Prioritize: industry leaders > popular project maintainers > power users
 
 ### Community Links
 

@@ -10,7 +10,7 @@ README Validation Report
 
 Overall Score: 72/100 (Professional)
 
-ESSENTIAL (Required) - 6/7 passed
+ESSENTIAL (40% weight) - 6/7 passed
   ✅ Project logo present
   ✅ Badges (5 found)
   ✅ One-liner description
@@ -19,7 +19,7 @@ ESSENTIAL (Required) - 6/7 passed
   ✅ Code example
   ✅ License info
 
-PROFESSIONAL - 4/6 passed
+PROFESSIONAL (25% weight) - 4/6 passed
   ✅ Table of contents
   ✅ Feature highlights
   ❌ Multiple install methods
@@ -27,7 +27,7 @@ PROFESSIONAL - 4/6 passed
   ✅ Contributing section
   ❌ "Used by" logos
 
-ELITE - 1/6 passed
+ELITE (15% weight) - 1/6 passed
   ❌ Dark/light mode images
   ❌ Architecture diagram
   ❌ Benchmark comparisons
@@ -35,19 +35,34 @@ ELITE - 1/6 passed
   ✅ Star history graph
   ❌ Contributor avatars
 
+VIRALITY (20% weight) - 3/10 passed
+  ❌ Aha moment visual in first 500px
+  ✅ Quantified social proof
+  ❌ Comparison table vs alternatives
+  ❌ Pain point narrative
+  ❌ Quotable stats block
+  ✅ At least one CTA
+  ❌ Curiosity hook in hero
+  ❌ Before/after demonstration
+  ✅ Tagline with emoji
+  ❌ Tiered CTAs (try, learn, connect)
+
 Recommendations:
-1. Add a GIF demo showing core functionality
-2. Include installation options for npm, yarn, and pnpm
-3. Add "Used by" section with company logos
+1. Add a GIF demo showing core functionality (Essential + Virality)
+2. Include installation options for npm, yarn, and pnpm (Professional)
+3. Add "Used by" section with company logos (Professional)
+4. Add curiosity hook after badges: "Ever spent hours debugging X?" (Virality)
+5. Restructure overview as pain point narrative (Virality)
 ```
 
 ## Scoring Tiers
 
 | Tier | Score Range | Meaning |
 |------|-------------|---------|
-| Essential | 0-50 | Missing critical elements |
-| Professional | 51-80 | Solid README, room for improvement |
-| Elite | 81-100 | Exceptional, comprehensive README |
+| Essential | 0-40 | Missing critical elements |
+| Professional | 41-60 | Solid README, room for improvement |
+| Elite | 61-80 | Exceptional, comprehensive README |
+| **Viral** | 81-100 | Maximum engagement potential |
 
 ## Project-Type Specific Checks
 
@@ -90,6 +105,19 @@ For AI/ML projects, also check:
 - [ ] FAQ section
 - [ ] Star history graph
 - [ ] Contributor avatars
+
+### Virality Tier
+
+- [ ] Aha moment visual in first 500px of scroll
+- [ ] Quantified social proof (stars, downloads with numbers)
+- [ ] Comparison table vs alternatives
+- [ ] Pain point narrative (problem → solution → result)
+- [ ] Quotable stats block
+- [ ] Tiered CTAs (try, learn, connect, support, contribute)
+- [ ] Curiosity hook in hero
+- [ ] Before/after demonstration
+- [ ] Testimonial or endorsement
+- [ ] Social preview image configured
 
 ### AI/ML Specific
 
