@@ -7,7 +7,7 @@ argument-hint: "[style-preference]"
 disable-model-invocation: false
 user-invocable: true
 metadata:
-  version: "5.0.2"
+  version: "5.0.3"
 ---
 
 # Logo Generator
@@ -15,6 +15,29 @@ metadata:
 Generate professional logos with transparent backgrounds using:
 1. **mcp-openrouter** - generates logo with solid chromakey background
 2. **mcp-image-tools** - converts background to transparent with smooth edges
+
+## Pre-flight Check (MANDATORY)
+
+Before executing, verify all required MCP tools are available:
+
+**Required Tools:**
+| Tool | Server | Purpose |
+|------|--------|---------|
+| `mcp__openrouter__generate_image` | mcp-openrouter | AI image generation |
+| `mcp__image-tools__chromakey_to_transparent` | mcp-image-tools | Background removal |
+| `mcp__image-tools__compress_png` | mcp-image-tools | PNG compression |
+
+**Verification:** Attempt to list available tools or check MCP server configuration.
+
+**If any tool is unavailable, STOP and inform the user:**
+
+1. Which MCP server(s) are missing
+2. Installation instructions:
+   - **mcp-openrouter**: `npm install -g mcp-openrouter` or add to Claude settings
+   - **mcp-image-tools**: `npm install -g mcp-image-tools` or add to Claude settings
+3. Link to MCP setup documentation
+
+**Do NOT proceed with the workflow if MCP tools are unavailable.** The skill will fail at Step 5/6/7 without proper error context.
 
 ## Context Detection
 
