@@ -1,18 +1,18 @@
 ---
-name: terminal-styler
+name: bash-output-styler
 description: |
-  Applies gorgeous terminal styling to shell scripts using gum with ANSI fallback.
-  Use when creating or modifying shell scripts that produce user-facing terminal output.
-  Use when asked to "style output", "make pretty", "add colors", or "improve terminal UX".
+  Applies gorgeous terminal styling to bash scripts using gum with ANSI fallback.
+  Use when creating or modifying bash/shell scripts that produce user-facing terminal output.
+  Use when asked to "style bash output", "make pretty", "add colors to shell script", or "improve terminal UX".
 license: MIT
 user-invocable: true
 argument-hint: "[script-path]"
 metadata:
   author: tsilva
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
-# Terminal Styling
+# Bash Output Styling
 
 Style all user-facing shell script output using the bundled `style.sh` library.
 

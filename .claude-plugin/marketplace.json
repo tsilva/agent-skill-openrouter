@@ -54,9 +54,15 @@
       "version": "1.0.1"
     },
     {
-      "name": "terminal-styler",
-      "source": "./plugins/terminal-styler",
-      "description": "Applies gorgeous terminal styling to shell scripts using gum with ANSI fallback.",
+      "name": "bash-output-styler",
+      "source": "./plugins/bash-output-styler",
+      "description": "Applies gorgeous terminal styling to bash scripts using gum with ANSI fallback.",
+      "version": "2.0.0"
+    },
+    {
+      "name": "python-output-styler",
+      "source": "./plugins/python-output-styler",
+      "description": "Applies gorgeous terminal styling to Python scripts using Rich with plain-text fallback.",
       "version": "1.0.0"
     }
   ]

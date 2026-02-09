@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# style.sh - Terminal styling library
+# style.sh - Bash output styling library
 #
 # Source this file in shell scripts for gorgeous terminal output.
 # Uses gum (charmbracelet) for borders, spinners, and interactive widgets.

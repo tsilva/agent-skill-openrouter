@@ -1,0 +1,8 @@
+{
+  "name": "python-output-styler",
+  "description": "Applies gorgeous terminal styling to Python scripts using Rich with plain-text fallback.",
+  "version": "1.0.0",
+  "author": {
+    "name": "tsilva"
+  }
+}

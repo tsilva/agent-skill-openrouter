@@ -1,8 +1,0 @@
-{
-  "name": "terminal-styler",
-  "description": "Applies gorgeous terminal styling to shell scripts using gum with ANSI fallback.",
-  "version": "1.0.0",
-  "author": {
-    "name": "tsilva"
-  }
-}

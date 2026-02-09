@@ -1,0 +1,8 @@
+{
+  "name": "bash-output-styler",
+  "description": "Applies gorgeous terminal styling to bash scripts using gum with ANSI fallback.",
+  "version": "2.0.0",
+  "author": {
+    "name": "tsilva"
+  }
+}
