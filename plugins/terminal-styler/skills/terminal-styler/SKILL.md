@@ -1,5 +1,5 @@
 ---
-name: terminal-styling
+name: terminal-styler
 description: |
   Applies gorgeous terminal styling to shell scripts using gum with ANSI fallback.
   Use when creating or modifying shell scripts that produce user-facing terminal output.

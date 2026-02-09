@@ -54,8 +54,8 @@
       "version": "1.0.1"
     },
     {
-      "name": "terminal-styling",
-      "source": "./plugins/terminal-styling",
+      "name": "terminal-styler",
+      "source": "./plugins/terminal-styler",
       "description": "Applies gorgeous terminal styling to shell scripts using gum with ANSI fallback.",
       "version": "1.0.0"
     }
