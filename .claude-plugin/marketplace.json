@@ -52,6 +52,12 @@
       "source": "./plugins/bulk-run",
       "description": "Run any Claude Code skill across multiple repos in parallel with progress tracking and resume.",
       "version": "1.0.1"
+    },
+    {
+      "name": "terminal-styling",
+      "source": "./plugins/terminal-styling",
+      "description": "Applies gorgeous terminal styling to shell scripts using gum with ANSI fallback.",
+      "version": "1.0.0"
     }
   ]
 }
