@@ -7,7 +7,7 @@ argument-hint: "[style-preference]"
 disable-model-invocation: false
 user-invocable: true
 metadata:
-  version: "5.0.3"
+  version: "5.1.0"
 ---
 
 # Logo Generator
@@ -37,7 +37,7 @@ Before executing, verify all required MCP tools are available:
    - **mcp-image-tools**: `npm install -g mcp-image-tools` or add to Claude settings
 3. Link to MCP setup documentation
 
-**Do NOT proceed with the workflow if MCP tools are unavailable.** The skill will fail at Step 5/6/7 without proper error context.
+**Do NOT proceed with the workflow if MCP tools are unavailable.** The skill will fail at Step 5/6/8 without proper error context.
 
 ## Context Detection
 
@@ -108,6 +108,8 @@ Where `{SKILL_DIR}` is the absolute path to this skill's directory (resolve from
 | `outputPath` | `"logo.png"` | Output file path |
 | `compress` | `true` | Enable PNG compression |
 | `compressQuality` | `80` | Compression quality |
+| `trim` | `true` | Trim transparent padding to maximize canvas utilization |
+| `trimMargin` | `5` | Trim margin percentage (0-25) |
 
 ### Step 2: Resolve Output Path
 
@@ -161,7 +163,7 @@ Set `visualMetaphor: "none"` in config to omit the metaphor entirely.
 A {STYLE} logo for {PROJECT_NAME}: {VISUAL_METAPHOR}.
 Clean vector style. Icon colors from: {ICON_COLORS}.
 Pure {KEY_COLOR} background only. Do not use similar tones in the design.
-{TEXT_INSTRUCTIONS} Single centered icon, geometric shapes, works at 64x64.
+{TEXT_INSTRUCTIONS} Single centered icon, geometric shapes. The icon must fill the entire canvas edge-to-edge with minimal padding. No empty space around the design. Scalable to small sizes.
 ```
 
 **Then:**
@@ -185,14 +187,29 @@ Use `mcp__image-tools__chromakey_to_transparent`:
 - `key_color`: config.keyColor
 - `tolerance`: config.tolerance
 
-### Step 7: Compress (if enabled)
+### Step 7: Trim Transparent Padding (if enabled)
+
+If `config.trim` is true (default), run the trim script to maximize canvas utilization:
+
+```bash
+uv run {SKILL_DIR}/scripts/trim_transparent.py \
+  --input "resolvedOutputPath" \
+  --output "resolvedOutputPath" \
+  --margin config.trimMargin
+```
+
+Where `{SKILL_DIR}` is the absolute path to this skill's directory.
+
+This crops to the content bounding box (plus margin), then resizes back to the original dimensions so the icon fills the canvas. Outputs JSON with trimming results.
+
+### Step 8: Compress (if enabled)
 
 If `config.compress` is true, use `mcp__image-tools__compress_png`:
 - `input_path`: `resolvedOutputPath`
 - `output_path`: `resolvedOutputPath` (overwrites in-place)
 - `quality`: config.compressQuality
 
-### Step 8: Verify Output
+### Step 9: Verify Output
 
 **MANDATORY verification with retry logic:**
 
@@ -204,6 +221,7 @@ If `config.compress` is true, use `mcp__image-tools__compress_png`:
    - Text presence matches `includeRepoName` setting (text present if true, NO text if false)
    - Background is transparent (chromakey was successful)
    - Single centered icon (not multiple elements scattered)
+   - Canvas utilization: icon fills at least 70% of canvas width or height (no excessive padding)
    - Works at small sizes (clean, not overly detailed)
 
 3. **If ANY requirement is not met:**

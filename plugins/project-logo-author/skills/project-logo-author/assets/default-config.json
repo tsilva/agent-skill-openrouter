@@ -12,6 +12,8 @@
     "tolerance": 70,
     "outputPath": "logo.png",
     "compress": true,
-    "compressQuality": 80
+    "compressQuality": 80,
+    "trim": true,
+    "trimMargin": 5
   }
 }

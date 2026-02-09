@@ -26,6 +26,8 @@ REQUIRED_LOGO_KEYS = {
     "outputPath",
     "compress",
     "compressQuality",
+    "trim",
+    "trimMargin",
 }
 
 

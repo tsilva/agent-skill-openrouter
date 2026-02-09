@@ -7,7 +7,7 @@
   [![Claude Code](https://img.shields.io/badge/Claude_Code-Plugin-blueviolet)](https://claude.ai/code)
   [![Skills](https://img.shields.io/badge/Skills-6-green)](plugins/)
 
-  **🧩 A curated collection of Claude Code skills that supercharge your AI-assisted development workflow**
+  **🔧 Modular skills that supercharge Claude Code with specialized capabilities ⚡**
 
   [Installation](#-installation) · [Available Skills](#-available-skills) · [Creating Skills](#-creating-your-own-skills)
 </div>
