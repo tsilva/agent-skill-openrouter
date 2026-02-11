@@ -18,12 +18,12 @@
 
 - [Installation](#-installation)
 - [Available Skills](#-available-skills)
+  - [bash-output-styler](#bash-output-styler)
   - [claude-skill-author](#claude-skill-author)
-  - [claude-settings-author](#claude-settings-author)
   - [mcp-author](#mcp-author)
   - [project-logo-author](#project-logo-author)
-  - [project-name-author](#project-name-author)
   - [project-readme-author](#project-readme-author)
+  - [python-output-styler](#python-output-styler)
 - [Creating Your Own Skills](#-creating-your-own-skills)
 - [Repository Structure](#-repository-structure)
 - [License](#-license)
@@ -48,24 +48,24 @@ https://github.com/tsilva/claude-skills
 
 ## 🧩 Available Skills
 
+### bash-output-styler
+**v2.0.0** · Applies gorgeous terminal styling to bash scripts using gum with ANSI fallback
+
+Style all user-facing shell script output with a bundled `style.sh` library that provides headers, spinners, tables, progress bars, and color-coded messages with graceful degradation.
+
+```
+/bash-output-styler [script-path]
+```
+
+---
+
 ### claude-skill-author
-**v1.3.2** · Guides creation and modification of Claude Code agent skills
+**v1.4.0** · Guides creation and modification of Claude Code agent skills
 
 Create project-level, personal, and plugin-bundled marketplace skills with best practices baked in.
 
 ```
 /claude-skill-author
-```
-
----
-
-### claude-settings-author
-**v1.1.1** · Optimizes Claude Code settings configuration
-
-Analyzes permission whitelists, detects dangerous patterns, identifies redundancies, and migrates WebFetch domains to sandbox network allowlists.
-
-```
-/claude-settings-author
 ```
 
 ---
@@ -82,7 +82,7 @@ Build production-ready MCP servers with proper patterns for integrating external
 ---
 
 ### project-logo-author
-**v5.0.0** · Generates professional logos with transparent backgrounds
+**v5.1.0** · Generates professional logos with transparent backgrounds
 
 Creates distinctive project logos using AI image generation. Requires the `mcp-openrouter` MCP server.
 
@@ -92,24 +92,24 @@ Creates distinctive project logos using AI image generation. Requires the `mcp-o
 
 ---
 
-### project-name-author
-**v2.0.0** · Generates creative, memorable project names
-
-Creates catchy, searchable names optimized for virality and discoverability.
-
-```
-/project-name-author
-```
-
----
-
 ### project-readme-author
-**v2.0.2** · Create and optimize README files
+**v2.5.1** · Create and optimize README files
 
 Create, modify, validate, and optimize README.md files following GitHub best practices with modern visual hierarchy.
 
 ```
 /project-readme-author create|modify|validate|optimize
+```
+
+---
+
+### python-output-styler
+**v1.0.0** · Applies gorgeous terminal styling to Python scripts using Rich with plain-text fallback
+
+Style all user-facing Python script output with a bundled `style.py` module that provides headers, spinners, tables, progress bars, and color-coded messages with graceful degradation.
+
+```
+/python-output-styler [script-path]
 ```
 
 ---
@@ -153,12 +153,13 @@ claude-skills/
 ├── .claude-plugin/
 │   └── marketplace.json     # Lists all available plugins
 ├── plugins/
+│   ├── bash-output-styler/
 │   ├── claude-skill-author/
-│   ├── claude-settings-author/
 │   ├── mcp-author/
 │   ├── project-logo-author/
-│   ├── project-name-author/
-│   └── project-readme-author/
+│   ├── project-readme-author/
+│   └── python-output-styler/
+├── shared/                  # Cross-skill utilities
 ├── CLAUDE.md                # Project instructions for Claude
 ├── README.md                # This file
 └── logo.png                 # Repository logo
