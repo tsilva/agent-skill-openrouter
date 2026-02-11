@@ -74,22 +74,6 @@ SKILL_RULES: Dict[str, Dict] = {
         },
         "primary_file": "README.md",
     },
-    "repo-maintain": {
-        "operations": ["audit", "fix"],
-        "default_exists": "audit",
-        "default_missing": "audit",
-        "keywords": {
-            "audit": "audit",
-            "check": "audit",
-            "scan": "audit",
-            "analyze": "audit",
-            "fix": "fix",
-            "repair": "fix",
-            "resolve": "fix",
-            "apply": "fix",
-        },
-        "primary_file": None,  # No single primary file
-    },
     "claude-skill-author": {
         "operations": ["create", "modify", "validate", "version"],
         "default_exists": "modify",
@@ -265,7 +249,7 @@ def run_tests() -> bool:
 
 def main():
     parser = argparse.ArgumentParser(description="Select skill operation from arguments and file state")
-    parser.add_argument("--skill", required=False, help="Skill name (e.g., readme, repo-maintain)")
+    parser.add_argument("--skill", required=False, help="Skill name (e.g., readme, project-readme-author)")
     parser.add_argument("--args", default="", help="User arguments to parse")
     parser.add_argument("--check-files", default="", help="Comma-separated list of files to check")
     parser.add_argument("--path", default=".", help="Base path for file checks (default: current)")

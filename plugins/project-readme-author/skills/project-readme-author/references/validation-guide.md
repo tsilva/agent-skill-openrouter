@@ -8,9 +8,9 @@ Reference material for the validate and optimize operations.
 README Validation Report
 ========================
 
-Overall Score: 72/100 (Professional)
+Overall Score: 62/100 (Elite)
 
-ESSENTIAL (40% weight) - 6/7 passed
+ESSENTIAL (40% weight) - 6/8 passed
   ✅ Project logo present
   ✅ Badges (5 found)
   ✅ One-liner description
@@ -18,6 +18,7 @@ ESSENTIAL (40% weight) - 6/7 passed
   ✅ Installation command
   ✅ Code example
   ✅ License info
+  ❌ Section ordering (Features before value proposition)
 
 PROFESSIONAL (25% weight) - 4/6 passed
   ✅ Table of contents
@@ -27,17 +28,12 @@ PROFESSIONAL (25% weight) - 4/6 passed
   ✅ Contributing section
   ❌ "Used by" logos
 
-ELITE (15% weight) - 1/6 passed
-  ❌ Dark/light mode images
+ELITE (15% weight) - 0/2 passed
   ❌ Architecture diagram
-  ❌ Benchmark comparisons
-  ❌ FAQ section
-  ✅ Star history graph
   ❌ Contributor avatars
 
-VIRALITY (20% weight) - 3/10 passed
+VIRALITY (20% weight) - 2/8 passed
   ❌ Aha moment visual in first 500px
-  ✅ Quantified social proof
   ❌ Comparison table vs alternatives
   ❌ Pain point narrative
   ❌ Quotable stats block
@@ -45,7 +41,6 @@ VIRALITY (20% weight) - 3/10 passed
   ❌ Curiosity hook in hero
   ❌ Before/after demonstration
   ✅ Tagline with emoji
-  ❌ Tiered CTAs (try, learn, connect)
 
 Recommendations:
 1. Add a GIF demo showing core functionality (Essential + Virality)
@@ -87,6 +82,7 @@ For AI/ML projects, also check:
 - [ ] One-liner installation command
 - [ ] Minimal working code example
 - [ ] License information
+- [ ] Section ordering follows Hook → Prove → Enable → Extend (e.g., value proposition/why before features list, quick start before deep reference docs)
 
 ### Professional Tier
 
@@ -99,24 +95,18 @@ For AI/ML projects, also check:
 
 ### Elite Tier
 
-- [ ] Dark/light mode image support
 - [ ] Architecture diagram
-- [ ] Benchmark comparisons
-- [ ] FAQ section
-- [ ] Star history graph
 - [ ] Contributor avatars
 
 ### Virality Tier
 
 - [ ] Aha moment visual in first 500px of scroll
-- [ ] Quantified social proof (stars, downloads with numbers)
 - [ ] Comparison table vs alternatives
 - [ ] Pain point narrative (problem → solution → result)
 - [ ] Quotable stats block
 - [ ] Tiered CTAs (try, learn, connect, support, contribute)
 - [ ] Curiosity hook in hero
 - [ ] Before/after demonstration
-- [ ] Testimonial or endorsement
 - [ ] Social preview image configured
 
 ### AI/ML Specific

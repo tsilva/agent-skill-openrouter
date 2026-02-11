@@ -205,7 +205,7 @@ uv run shared/select_operation.py \
 {"operation": "validate", "reason": "Explicit keyword found", "source": "argument_keyword"}
 ```
 
-**Supported skills:** readme, project-readme-author, repo-maintain, claude-skill-author, project-logo-author
+**Supported skills:** readme, project-readme-author, claude-skill-author, project-logo-author
 
 ### substitute_template.py
 

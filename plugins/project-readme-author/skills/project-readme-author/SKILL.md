@@ -8,7 +8,7 @@ disable-model-invocation: false
 user-invocable: true
 metadata:
   author: tsilva
-  version: "2.5.0"
+  version: "2.5.1"
 ---
 
 # README Author
@@ -346,6 +346,8 @@ For visual elements, social proof, and community links, see [references/badges-a
 ### Validate Workflow
 
 Run Essential → Professional → Elite → Virality checklists plus project-type specifics. Calculate weighted score (Essential 40%, Professional 25%, Elite 15%, Virality 20%), generate report with actionable recommendations. See [references/validation-guide.md](references/validation-guide.md).
+
+**Critical: Check section ordering against Hook → Prove → Enable → Extend.** Verify that value proposition / "why" sections appear before feature lists, quick start appears before deep reference docs, and extend content (contributing, community) comes last. Misordered sections undermine conversion regardless of content quality.
 
 ### Optimize Workflow
 

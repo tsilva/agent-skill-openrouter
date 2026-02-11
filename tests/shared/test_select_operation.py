@@ -52,15 +52,6 @@ def test_unknown_skill():
     assert "valid_skills" in result
 
 
-def test_repo_maintain_operations():
-    """repo-maintain skill has correct operations."""
-    result = select_operation("repo-maintain", "audit repos", [], Path("."))
-    assert result["operation"] == "audit"
-
-    result = select_operation("repo-maintain", "fix issues", [], Path("."))
-    assert result["operation"] == "fix"
-
-
 def test_project_logo_author_operations(temp_dir):
     """project-logo-author skill operations."""
     # Missing logo -> create
@@ -89,7 +80,7 @@ def test_parse_keywords_no_match():
 
 def test_skill_rules_defined():
     """All expected skills have rules."""
-    expected_skills = ["readme", "project-readme-author", "repo-maintain",
+    expected_skills = ["readme", "project-readme-author",
                        "claude-skill-author", "project-logo-author"]
     for skill in expected_skills:
         assert skill in SKILL_RULES, f"Missing rules for {skill}"

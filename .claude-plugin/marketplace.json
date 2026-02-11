@@ -9,7 +9,7 @@
       "name": "project-readme-author",
       "source": "./plugins/project-readme-author",
       "description": "Create, modify, validate, and optimize README.md files following GitHub best practices.",
-      "version": "2.5.0"
+      "version": "2.5.1"
     },
     {
       "name": "project-logo-author",
@@ -40,12 +40,6 @@
       "source": "./plugins/claude-skill-author",
       "description": "Guides creation and modification of Claude Code agent skills - project-level, personal, and plugin-bundled marketplace skills.",
       "version": "1.4.0"
-    },
-    {
-      "name": "repo-maintain",
-      "source": "./plugins/repo-maintain",
-      "description": "Audit and remediate repos for standardization compliance. Use when maintaining repos, checking README/logo/gitignore compliance.",
-      "version": "1.6.0"
     },
     {
       "name": "bulk-run",

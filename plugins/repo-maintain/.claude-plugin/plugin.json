@@ -1,8 +1,0 @@
-{
-  "name": "repo-maintain",
-  "description": "Audit and remediate repos for standardization compliance.",
-  "version": "1.6.0",
-  "author": {
-    "name": "tsilva"
-  }
-}
