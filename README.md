@@ -138,7 +138,7 @@ Style all user-facing Python script output with a bundled `style.py` module that
 
 ---
 
-## 🛠️ Creating Your Own Skills
+## 🛠 Creating Your Own Skills
 
 Use the `/claude-skill-author` skill to create new skills following the official specification:
 
