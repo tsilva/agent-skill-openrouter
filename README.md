@@ -5,7 +5,7 @@
 
   [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
   [![Claude Code](https://img.shields.io/badge/Claude_Code-Plugin-blueviolet)](https://claude.ai/code)
-  [![Skills](https://img.shields.io/badge/Skills-7-green)](plugins/)
+  [![Skills](https://img.shields.io/badge/Skills-8-green)](plugins/)
 
   **🔧 Modular skills that supercharge Claude Code with specialized capabilities ⚡**
 
@@ -20,6 +20,7 @@
 - [Available Skills](#-available-skills)
   - [bash-output-styler](#bash-output-styler)
   - [claude-skill-author](#claude-skill-author)
+  - [code-simplifier](#code-simplifier)
   - [mcp-author](#mcp-author)
   - [project-logo-author](#project-logo-author)
   - [project-readme-author](#project-readme-author)
@@ -67,6 +68,17 @@ Create project-level, personal, and plugin-bundled marketplace skills with best 
 
 ```
 /claude-skill-author
+```
+
+---
+
+### code-simplifier
+**v1.0.0** · Scans a codebase for simplification opportunities and applies approved changes
+
+Analyze an entire codebase for dead code, nested complexity, duplication, and unnecessary abstractions. Review findings, then apply approved changes safely.
+
+```
+/code-simplifier
 ```
 
 ---
@@ -167,6 +179,7 @@ claude-skills/
 ├── plugins/
 │   ├── bash-output-styler/
 │   ├── claude-skill-author/
+│   ├── code-simplifier/
 │   ├── mcp-author/
 │   ├── project-logo-author/
 │   ├── project-readme-author/
