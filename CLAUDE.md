@@ -61,6 +61,23 @@ Create, modify, validate, and optimize README.md files following GitHub best pra
 - Logo generation integration with project-logo-author skill
 - Best practices for GitHub READMEs (accessibility, mobile-friendly, scannable)
 
+### Spec Extractor
+
+Analyze a codebase and generate a pure requirements specification (SPEC.md) capturing what the project does without how it's built.
+
+**Key files:**
+- `plugins/project-spec-extractor/skills/project-spec-extractor/SKILL.md` - Skill definition
+- `plugins/project-spec-extractor/.claude-plugin/plugin.json` - Plugin metadata
+
+**Modes:**
+- **Tech-preserving** (default) - Lists specific stack names in Technology Constraints
+- **Tech-agnostic** (`--tech-agnostic`) - Describes abstract capabilities instead
+
+**Use cases:**
+- Rebuild a project from scratch with cleaner code
+- Port a project to a different tech stack
+- Generate living documentation as a portable blueprint
+
 ## Skill Authoring
 
 For creating or modifying skills, use `/claude-skill-author` which contains the authoritative specification, best practices, validation, version management, and workflows.

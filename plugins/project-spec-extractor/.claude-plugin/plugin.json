@@ -1,0 +1,8 @@
+{
+  "name": "project-spec-extractor",
+  "description": "Analyzes a codebase and generates a pure requirements specification (SPEC.md) with no implementation details.",
+  "version": "1.0.0",
+  "author": {
+    "name": "tsilva"
+  }
+}

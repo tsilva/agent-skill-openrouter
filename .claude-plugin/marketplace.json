@@ -40,6 +40,18 @@
       "source": "./plugins/python-output-styler",
       "description": "Applies gorgeous terminal styling to Python scripts using Rich with plain-text fallback.",
       "version": "1.0.0"
+    },
+    {
+      "name": "project-spec-extractor",
+      "source": "./plugins/project-spec-extractor",
+      "description": "Analyzes a codebase and generates a pure requirements specification (SPEC.md) with no implementation details.",
+      "version": "1.0.0"
+    },
+    {
+      "name": "code-simplifier",
+      "source": "./plugins/code-simplifier",
+      "description": "Scans a codebase for simplification opportunities and applies approved changes. Use when asked to simplify code, reduce complexity, or clean up a project.",
+      "version": "1.0.0"
     }
   ]
 }

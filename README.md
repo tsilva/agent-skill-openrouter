@@ -5,7 +5,7 @@
 
   [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
   [![Claude Code](https://img.shields.io/badge/Claude_Code-Plugin-blueviolet)](https://claude.ai/code)
-  [![Skills](https://img.shields.io/badge/Skills-6-green)](plugins/)
+  [![Skills](https://img.shields.io/badge/Skills-7-green)](plugins/)
 
   **🔧 Modular skills that supercharge Claude Code with specialized capabilities ⚡**
 
@@ -23,6 +23,7 @@
   - [mcp-author](#mcp-author)
   - [project-logo-author](#project-logo-author)
   - [project-readme-author](#project-readme-author)
+  - [project-spec-extractor](#project-spec-extractor)
   - [python-output-styler](#python-output-styler)
 - [Creating Your Own Skills](#-creating-your-own-skills)
 - [Repository Structure](#-repository-structure)
@@ -103,6 +104,17 @@ Create, modify, validate, and optimize README.md files following GitHub best pra
 
 ---
 
+### project-spec-extractor
+**v1.0.0** · Analyzes a codebase and generates a pure requirements specification
+
+Extract what a project does into a clean SPEC.md — no implementation details, just behaviors, features, and acceptance criteria. Use for rebuilding projects from scratch, porting to different stacks, or living documentation.
+
+```
+/project-spec-extractor [--tech-agnostic] [path]
+```
+
+---
+
 ### python-output-styler
 **v1.0.0** · Applies gorgeous terminal styling to Python scripts using Rich with plain-text fallback
 
@@ -158,6 +170,7 @@ claude-skills/
 │   ├── mcp-author/
 │   ├── project-logo-author/
 │   ├── project-readme-author/
+│   ├── project-spec-extractor/
 │   └── python-output-styler/
 ├── shared/                  # Cross-skill utilities
 ├── CLAUDE.md                # Project instructions for Claude

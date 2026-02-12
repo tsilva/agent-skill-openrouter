@@ -1,0 +1,8 @@
+{
+  "name": "code-simplifier",
+  "description": "Scans a codebase for simplification opportunities and applies approved changes. Use when asked to simplify code, reduce complexity, or clean up a project.",
+  "version": "1.0.0",
+  "author": {
+    "name": "tsilva"
+  }
+}
