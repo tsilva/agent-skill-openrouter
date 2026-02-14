@@ -6,7 +6,7 @@ user-invocable: true
 disable-model-invocation: true
 metadata:
   author: tsilva
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Code Simplifier
@@ -20,7 +20,7 @@ Analyze an entire codebase for simplification opportunities, present findings fo
 1. Build a file manifest of all source files in the project.
 2. **Exclude:** tests, generated code, vendor/node_modules, configs (JSON/YAML/TOML), lock files, migrations, build output, `.min.*` files.
 3. Read every source file. Map cross-file references: call sites, imports, exports, type usage.
-4. Apply the four rule categories below to every file. Record each finding with: file path, line range, category, description, estimated lines removable.
+4. Apply the five rule categories below to every file. Record each finding with: file path, line range, category, description, estimated lines removable.
 
 ### Rule Categories
 
@@ -35,13 +35,18 @@ Analyze an entire codebase for simplification opportunities, present findings fo
 
 **Before marking dead:** Search the entire codebase including string literals (dynamic dispatch, reflection, serialization keys, route tables, CLI handlers). If a function name appears in strings or configs, flag it but do NOT auto-mark as dead.
 
-#### 2. Flatten & Inline
-- Nested conditionals reducible via early return / guard clause
+#### 2. Flatten, Inline & Reduce Nesting
+- **Guard clauses:** Invert top-level `if` blocks wrapping entire function bodies — test failure case, return early, dedent main logic
+- **Nested conditionals:** Collapse into flat guard sequences
+- **`else` after early exit:** Remove wrapping `else` after `return`/`continue`/`break`/`throw`, dedent remaining code
+- **Loop nesting:** Use `continue`-on-mismatch to reduce loop body indentation; extract inner loops when nesting exceeds 2 levels
+- **Callback/promise nesting:** Flatten into `async`/`await` sequences
 - Trivial one-line helpers called from a single site — inline them
-- `else` after `return`/`continue`/`break` — remove the else, dedent
 - Ternary or expression form where clearer than if/else block
 - Wrapper functions that just forward arguments with no added logic
 - Unnecessary intermediate variables used only once on the next line
+
+**Nesting target:** After applying this category, no function should exceed 3 levels of indentation from its definition.
 
 #### 3. DRY Consolidation
 - Duplicated blocks (3+ lines, ≥2 occurrences) — extract shared function
@@ -60,6 +65,19 @@ Analyze an entire codebase for simplification opportunities, present findings fo
 - Single-link delegation chains (A calls B calls C, A could call C)
 - Config/options objects wrapping 1-2 values — pass directly
 
+#### 5. Legacy & Compatibility Code Removal
+- `@deprecated` / `@obsolete` shims kept for backwards compatibility
+- Version-checking code for versions below the project's minimum (e.g., `if sys.version_info < (3, 6)`)
+- Polyfills for universally available features (e.g., `Array.prototype.flat`, `fetch`, `Promise`)
+- Compatibility wrappers normalizing old platform APIs (vendor prefixes, etc.)
+- Renamed-but-kept re-exports (`export { newName as oldName }`)
+- Migration or schema-upgrade code that has already been applied
+- TODO/FIXME comments referencing completed work or merged PRs
+- Feature flags for permanently-enabled features
+- `try`/`except ImportError` blocks for packages that are now hard dependencies
+
+**Before removing:** Check the project's declared minimum version (e.g., `engines`, `python_requires`, `tsconfig.target`) before removing version-gated code. If no minimum is declared, flag for user confirmation rather than auto-removing.
+
 ## Phase 2 — Report
 
 Present findings in this format:
@@ -75,13 +93,16 @@ Present findings in this format:
 |---|------|-------|---------|---------------|
 | 1 | src/utils.ts | 42-58 | `formatLegacy()` never called | 17 |
 
-### 2. Flatten & Inline ({count} findings, ~{lines} lines)
+### 2. Flatten, Inline & Reduce Nesting ({count} findings, ~{lines} lines)
 ...
 
 ### 3. DRY Consolidation ({count} findings, ~{lines} lines)
 ...
 
 ### 4. Remove Unnecessary Abstractions ({count} findings, ~{lines} lines)
+...
+
+### 5. Legacy & Compatibility Code Removal ({count} findings, ~{lines} lines)
 ...
 ```
 

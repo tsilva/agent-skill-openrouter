@@ -73,9 +73,9 @@ Create project-level, personal, and plugin-bundled marketplace skills with best 
 ---
 
 ### code-simplifier
-**v1.0.0** · Scans a codebase for simplification opportunities and applies approved changes
+**v1.1.0** · Scans a codebase for simplification opportunities and applies approved changes
 
-Analyze an entire codebase for dead code, nested complexity, duplication, and unnecessary abstractions. Review findings, then apply approved changes safely.
+Analyze an entire codebase for dead code, nested complexity, duplication, unnecessary abstractions, and legacy compatibility code. Reduces indentation via guard clauses and early returns. Review findings, then apply approved changes safely.
 
 ```
 /code-simplifier
