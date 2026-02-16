@@ -106,16 +106,6 @@ Applies terminal styling to Python scripts using Rich with plain-text fallback.
 - `plugins/python-output-styler/skills/python-output-styler/SKILL.md` - Skill definition
 - `plugins/python-output-styler/skills/python-output-styler/references/style.py` - Styling module
 
-### Code Simplifier
-
-Scans a codebase for simplification opportunities and applies approved changes. Inspired by spartan programming principles.
-
-**Key files:**
-- `plugins/code-simplifier/skills/code-simplifier/SKILL.md` - Skill definition
-- `plugins/code-simplifier/.claude-plugin/plugin.json` - Plugin metadata
-
-**Phases:** Analysis (scan + rule categories) → Report → Apply approved changes
-
 ## Skill Authoring
 
 For creating or modifying skills, use the `plugin-dev` plugin which provides comprehensive guidance on skill structure, progressive disclosure, trigger phrases, and best practices.

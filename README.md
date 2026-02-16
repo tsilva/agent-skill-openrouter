@@ -5,7 +5,7 @@
 
   [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
   [![Claude Code](https://img.shields.io/badge/Claude_Code-Plugin-blueviolet)](https://claude.ai/code)
-  [![Skills](https://img.shields.io/badge/Skills-6-green)](plugins/)
+  [![Skills](https://img.shields.io/badge/Skills-5-green)](plugins/)
 
   **🔧 Modular skills that supercharge Claude Code with specialized capabilities ⚡**
 
@@ -19,7 +19,6 @@
 - [Installation](#-installation)
 - [Available Skills](#-available-skills)
   - [bash-output-styler](#bash-output-styler)
-  - [code-simplifier](#code-simplifier)
   - [project-logo-author](#project-logo-author)
   - [project-readme-author](#project-readme-author)
   - [project-spec-extractor](#project-spec-extractor)
@@ -55,17 +54,6 @@ Style all user-facing shell script output with a bundled `style.sh` library that
 
 ```
 /bash-output-styler [script-path]
-```
-
----
-
-### code-simplifier
-**v1.1.0** · Scans a codebase for simplification opportunities and applies approved changes
-
-Analyze an entire codebase for dead code, nested complexity, duplication, unnecessary abstractions, and legacy compatibility code. Reduces indentation via guard clauses and early returns. Review findings, then apply approved changes safely.
-
-```
-/code-simplifier
 ```
 
 ---
@@ -154,7 +142,6 @@ claude-skills/
 │   └── marketplace.json     # Lists all available plugins
 ├── plugins/
 │   ├── bash-output-styler/
-│   ├── code-simplifier/
 │   ├── project-logo-author/
 │   ├── project-readme-author/
 │   ├── project-spec-extractor/
