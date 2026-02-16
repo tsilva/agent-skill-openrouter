@@ -3,9 +3,9 @@
 Validate a single skill against the Agent Skills specification.
 
 Usage:
-    python validate_skill.py /path/to/skill-dir           # Validate skill at path
-    python validate_skill.py /path/to/skill-dir --verbose # Show all details
-    python validate_skill.py /path/to/skill-dir --suggest # Include optimization hints
+    python shared/validate_skill.py /path/to/skill-dir           # Validate skill at path
+    python shared/validate_skill.py /path/to/skill-dir --verbose # Show all details
+    python shared/validate_skill.py /path/to/skill-dir --suggest # Include optimization hints
 
 For plugin-bundled skills, also validates plugin.json and version sync.
 For project-level skills (.claude/skills/), skips plugin-specific checks.
@@ -346,13 +346,13 @@ def validate_character_budget(
             issues.append(ValidationIssue(
                 Severity.ERROR, file_path, "character-budget",
                 f"SKILL.md exceeds {error_threshold:,} character limit ({char_count:,} chars). "
-                f"Must compress or move content to references/. See references/compression-guide.md."
+                f"Must compress or move content to references/."
             ))
         elif char_count > warn_threshold:
             issues.append(ValidationIssue(
                 Severity.WARNING, file_path, "character-budget",
                 f"SKILL.md exceeds {warn_threshold:,} characters ({char_count:,} chars). "
-                f"Consider compressing content. See references/compression-guide.md."
+                f"Consider compressing content or moving detailed sections to references/."
             ))
     except Exception as e:
         issues.append(ValidationIssue(

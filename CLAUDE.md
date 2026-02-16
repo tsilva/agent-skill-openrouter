@@ -23,11 +23,13 @@ claude-skills/
 │               ├── references/  # Documentation loaded on-demand (optional)
 │               └── assets/      # Static resources like templates, icons (optional)
 ├── shared/                      # Cross-skill utilities
+│   ├── bump-version.py          # Plugin version bumping
 │   ├── detect_project.py        # Project type detection
 │   ├── load_config.py           # Config loading and merging
 │   ├── repo_utils.py            # Repository discovery
 │   ├── select_operation.py      # Operation selection logic
-│   └── substitute_template.py   # Template variable substitution
+│   ├── substitute_template.py   # Template variable substitution
+│   └── validate_skill.py        # Skill validation against spec
 ├── CLAUDE.md                    # This file
 └── README.md                    # Repository documentation
 ```
@@ -88,16 +90,6 @@ Generate professional logos with transparent backgrounds using AI image generati
 
 **Requirements:** mcp-openrouter and mcp-image-tools MCP servers
 
-### Skill Author
-
-Guides creation and modification of Claude Code agent skills — project-level, personal, and plugin-bundled marketplace skills.
-
-**Key files:**
-- `plugins/claude-skill-author/skills/claude-skill-author/SKILL.md` - Skill definition
-- `plugins/claude-skill-author/.claude-plugin/plugin.json` - Plugin metadata
-
-**Skill types:** Project-level (`.claude/skills/`), Personal (`~/.claude/skills/`), Plugin-bundled (`plugins/`)
-
 ### MCP Author
 
 Creates production-ready MCP servers using FastMCP for Claude Code integration.
@@ -135,9 +127,13 @@ Scans a codebase for simplification opportunities and applies approved changes. 
 
 ## Skill Authoring
 
-For creating or modifying skills, use `/claude-skill-author` which contains the authoritative specification, best practices, validation, version management, and workflows.
+For creating or modifying skills, use the `plugin-dev` plugin which provides comprehensive guidance on skill structure, progressive disclosure, trigger phrases, and best practices.
 
-**IMPORTANT:** Always invoke `/claude-skill-author` for ANY change to ANY file within a plugin directory (`plugins/*/`). This includes small fixes, script tweaks, and documentation updates. The skill contains mandatory version management workflow that must be followed.
+**Version management tooling:**
+- `shared/validate_skill.py` - Validates skills against the Agent Skills specification
+- `shared/bump-version.py` - Bumps plugin versions across all 3 locations (SKILL.md, plugin.json, marketplace.json)
+
+**IMPORTANT:** When making ANY change to ANY file within a plugin directory (`plugins/*/`), version must be bumped. Use `shared/bump-version.py <plugin-name> --type patch` to bump versions consistently.
 
 ## Dependency Management Best Practices
 
@@ -277,7 +273,7 @@ uv run shared/select_operation.py \
 {"operation": "validate", "reason": "Explicit keyword found", "source": "argument_keyword"}
 ```
 
-**Supported skills:** readme, project-readme-author, claude-skill-author, project-logo-author
+**Supported skills:** readme, project-readme-author, project-logo-author
 
 ### substitute_template.py
 
@@ -292,6 +288,36 @@ uv run shared/substitute_template.py \
 **Features:**
 - Reports unsubstituted variables as warnings
 - Case-sensitive matching (uppercase only)
+
+### validate_skill.py
+
+Validates a single skill against the Agent Skills specification.
+
+```bash
+uv run shared/validate_skill.py plugins/my-skill/skills/my-skill/
+uv run shared/validate_skill.py plugins/my-skill/skills/my-skill/ --suggest
+```
+
+**Checks:**
+- Frontmatter fields (name, description, compatibility)
+- Body line count and character budget limits
+- Plugin.json schema and version sync across all 3 locations
+- Script path portability ({SKILL_DIR} usage)
+- Referenced file existence
+
+**Exit codes:** 0 = passed, 1 = failed
+
+### bump-version.py
+
+Bumps plugin version numbers across all 3 locations with semantic versioning.
+
+```bash
+uv run shared/bump-version.py <plugin-name> --type patch
+uv run shared/bump-version.py <plugin-name> --type minor --dry-run
+uv run shared/bump-version.py <plugin-name> --check-uncommitted
+```
+
+**Updates:** SKILL.md metadata, plugin.json, marketplace.json
 
 ### Self-Testing
 

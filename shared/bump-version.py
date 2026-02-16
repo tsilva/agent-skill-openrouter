@@ -7,15 +7,15 @@ based on the changes made.
 
 Usage:
   # Check if version already bumped in uncommitted changes
-  python plugins/claude-skill-author/skills/claude-skill-author/scripts/bump-version.py <plugin-name> --check-uncommitted
+  python shared/bump-version.py <plugin-name> --check-uncommitted
   # Exit 0 = version already changed (skip bump)
   # Exit 1 = version not changed (needs bump)
 
   # Preview bump without applying
-  python plugins/claude-skill-author/skills/claude-skill-author/scripts/bump-version.py <plugin-name> --type minor --dry-run
+  python shared/bump-version.py <plugin-name> --type minor --dry-run
 
   # Apply bump
-  python plugins/claude-skill-author/skills/claude-skill-author/scripts/bump-version.py <plugin-name> --type patch
+  python shared/bump-version.py <plugin-name> --type patch
 
 Updates version in:
 1. plugins/<plugin>/skills/<skill>/SKILL.md (metadata.version)
@@ -194,13 +194,13 @@ def main():
         epilog="""
 Examples:
   # Check if version already bumped in uncommitted changes
-  python plugins/claude-skill-author/skills/claude-skill-author/scripts/bump-version.py readme-generator --check-uncommitted
+  python shared/bump-version.py readme-generator --check-uncommitted
 
   # Preview what would be bumped
-  python plugins/claude-skill-author/skills/claude-skill-author/scripts/bump-version.py readme-generator --type minor --dry-run
+  python shared/bump-version.py readme-generator --type minor --dry-run
 
   # Apply version bump
-  python plugins/claude-skill-author/skills/claude-skill-author/scripts/bump-version.py readme-generator --type patch
+  python shared/bump-version.py readme-generator --type patch
 """
     )
     parser.add_argument("plugin_name", help="Name of the plugin to bump version for")

@@ -81,6 +81,6 @@ def test_parse_keywords_no_match():
 def test_skill_rules_defined():
     """All expected skills have rules."""
     expected_skills = ["readme", "project-readme-author",
-                       "claude-skill-author", "project-logo-author"]
+                       "project-logo-author"]
     for skill in expected_skills:
         assert skill in SKILL_RULES, f"Missing rules for {skill}"

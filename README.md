@@ -5,7 +5,7 @@
 
   [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
   [![Claude Code](https://img.shields.io/badge/Claude_Code-Plugin-blueviolet)](https://claude.ai/code)
-  [![Skills](https://img.shields.io/badge/Skills-8-green)](plugins/)
+  [![Skills](https://img.shields.io/badge/Skills-7-green)](plugins/)
 
   **🔧 Modular skills that supercharge Claude Code with specialized capabilities ⚡**
 
@@ -19,7 +19,6 @@
 - [Installation](#-installation)
 - [Available Skills](#-available-skills)
   - [bash-output-styler](#bash-output-styler)
-  - [claude-skill-author](#claude-skill-author)
   - [code-simplifier](#code-simplifier)
   - [mcp-author](#mcp-author)
   - [project-logo-author](#project-logo-author)
@@ -57,17 +56,6 @@ Style all user-facing shell script output with a bundled `style.sh` library that
 
 ```
 /bash-output-styler [script-path]
-```
-
----
-
-### claude-skill-author
-**v1.4.0** · Guides creation and modification of Claude Code agent skills
-
-Create project-level, personal, and plugin-bundled marketplace skills with best practices baked in.
-
-```
-/claude-skill-author
 ```
 
 ---
@@ -140,10 +128,10 @@ Style all user-facing Python script output with a bundled `style.py` module that
 
 ## 🛠 Creating Your Own Skills
 
-Use the `/claude-skill-author` skill to create new skills following the official specification:
+Use the `plugin-dev` plugin to create new skills following the official specification:
 
 ```
-/claude-skill-author create my-new-skill
+/plugin-dev:skill-development
 ```
 
 ### Skill Structure
@@ -178,7 +166,6 @@ claude-skills/
 │   └── marketplace.json     # Lists all available plugins
 ├── plugins/
 │   ├── bash-output-styler/
-│   ├── claude-skill-author/
 │   ├── code-simplifier/
 │   ├── mcp-author/
 │   ├── project-logo-author/
