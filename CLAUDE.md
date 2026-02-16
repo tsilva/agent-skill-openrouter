@@ -90,15 +90,6 @@ Generate professional logos with transparent backgrounds using AI image generati
 
 **Requirements:** mcp-openrouter and mcp-image-tools MCP servers
 
-### MCP Author
-
-Creates production-ready MCP servers using FastMCP for Claude Code integration.
-
-**Key files:**
-- `plugins/mcp-author/skills/mcp-author/SKILL.md` - Skill definition
-- `plugins/mcp-author/.claude-plugin/plugin.json` - Plugin metadata
-- `plugins/mcp-author/skills/mcp-author/assets/templates/` - Server templates
-
 ### Bash Output Styler
 
 Applies terminal styling to bash scripts using gum with ANSI fallback.

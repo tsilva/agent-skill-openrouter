@@ -5,7 +5,7 @@
 
   [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
   [![Claude Code](https://img.shields.io/badge/Claude_Code-Plugin-blueviolet)](https://claude.ai/code)
-  [![Skills](https://img.shields.io/badge/Skills-7-green)](plugins/)
+  [![Skills](https://img.shields.io/badge/Skills-6-green)](plugins/)
 
   **🔧 Modular skills that supercharge Claude Code with specialized capabilities ⚡**
 
@@ -20,7 +20,6 @@
 - [Available Skills](#-available-skills)
   - [bash-output-styler](#bash-output-styler)
   - [code-simplifier](#code-simplifier)
-  - [mcp-author](#mcp-author)
   - [project-logo-author](#project-logo-author)
   - [project-readme-author](#project-readme-author)
   - [project-spec-extractor](#project-spec-extractor)
@@ -67,17 +66,6 @@ Analyze an entire codebase for dead code, nested complexity, duplication, unnece
 
 ```
 /code-simplifier
-```
-
----
-
-### mcp-author
-**v1.0.1** · Creates MCP servers using FastMCP
-
-Build production-ready MCP servers with proper patterns for integrating external APIs with Claude Code.
-
-```
-/mcp-author
 ```
 
 ---
@@ -167,7 +155,6 @@ claude-skills/
 ├── plugins/
 │   ├── bash-output-styler/
 │   ├── code-simplifier/
-│   ├── mcp-author/
 │   ├── project-logo-author/
 │   ├── project-readme-author/
 │   ├── project-spec-extractor/

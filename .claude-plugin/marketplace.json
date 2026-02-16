@@ -17,12 +17,6 @@
       "description": "Generates professional logos with native transparent backgrounds. Requires mcp-openrouter MCP server. Use when asked to 'generate a logo' or 'create logo'.",
       "version": "5.1.0"
     },
-    {
-      "name": "mcp-author",
-      "source": "./plugins/mcp-author",
-      "description": "Creates MCP servers using FastMCP with production-ready patterns. Use when asked to create an MCP server, build MCP tools, or integrate external APIs with Claude Code.",
-      "version": "1.0.1"
-    },
 {
       "name": "bash-output-styler",
       "source": "./plugins/bash-output-styler",

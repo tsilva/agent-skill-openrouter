@@ -1,6 +1,0 @@
-"""Entry point for {SERVER_NAME}."""
-
-from .server import main
-
-if __name__ == "__main__":
-    main()
