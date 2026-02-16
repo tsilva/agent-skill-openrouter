@@ -78,6 +78,61 @@ Analyze a codebase and generate a pure requirements specification (SPEC.md) capt
 - Port a project to a different tech stack
 - Generate living documentation as a portable blueprint
 
+### Logo Author
+
+Generate professional logos with transparent backgrounds using AI image generation and chromakey processing.
+
+**Key files:**
+- `plugins/project-logo-author/skills/project-logo-author/SKILL.md` - Skill definition
+- `plugins/project-logo-author/.claude-plugin/plugin.json` - Plugin metadata
+
+**Requirements:** mcp-openrouter and mcp-image-tools MCP servers
+
+### Skill Author
+
+Guides creation and modification of Claude Code agent skills — project-level, personal, and plugin-bundled marketplace skills.
+
+**Key files:**
+- `plugins/claude-skill-author/skills/claude-skill-author/SKILL.md` - Skill definition
+- `plugins/claude-skill-author/.claude-plugin/plugin.json` - Plugin metadata
+
+**Skill types:** Project-level (`.claude/skills/`), Personal (`~/.claude/skills/`), Plugin-bundled (`plugins/`)
+
+### MCP Author
+
+Creates production-ready MCP servers using FastMCP for Claude Code integration.
+
+**Key files:**
+- `plugins/mcp-author/skills/mcp-author/SKILL.md` - Skill definition
+- `plugins/mcp-author/.claude-plugin/plugin.json` - Plugin metadata
+- `plugins/mcp-author/skills/mcp-author/assets/templates/` - Server templates
+
+### Bash Output Styler
+
+Applies terminal styling to bash scripts using gum with ANSI fallback.
+
+**Key files:**
+- `plugins/bash-output-styler/skills/bash-output-styler/SKILL.md` - Skill definition
+- `plugins/bash-output-styler/skills/bash-output-styler/references/style.sh` - Styling library
+
+### Python Output Styler
+
+Applies terminal styling to Python scripts using Rich with plain-text fallback.
+
+**Key files:**
+- `plugins/python-output-styler/skills/python-output-styler/SKILL.md` - Skill definition
+- `plugins/python-output-styler/skills/python-output-styler/references/style.py` - Styling module
+
+### Code Simplifier
+
+Scans a codebase for simplification opportunities and applies approved changes. Inspired by spartan programming principles.
+
+**Key files:**
+- `plugins/code-simplifier/skills/code-simplifier/SKILL.md` - Skill definition
+- `plugins/code-simplifier/.claude-plugin/plugin.json` - Plugin metadata
+
+**Phases:** Analysis (scan + rule categories) → Report → Apply approved changes
+
 ## Skill Authoring
 
 For creating or modifying skills, use `/claude-skill-author` which contains the authoritative specification, best practices, validation, version management, and workflows.
@@ -249,6 +304,11 @@ uv run shared/repo_utils.py --test
 uv run shared/select_operation.py --test
 uv run shared/substitute_template.py --test
 ```
+
+## Maintenance
+
+- **Keep Available Skills in sync**: When adding a new plugin, add an entry to the Available Skills section above
+- **README.md must be kept up to date** with any significant project changes
 
 ## Conventions
 
