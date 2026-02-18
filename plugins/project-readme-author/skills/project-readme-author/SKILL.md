@@ -8,7 +8,7 @@ disable-model-invocation: false
 user-invocable: true
 metadata:
   author: tsilva
-  version: "2.6.0"
+  version: "2.6.1"
 ---
 
 # README Author
@@ -219,12 +219,14 @@ For CLI tools, place an animated GIF demo **immediately after the tagline**.
 If `.archived.md` exists at repo root, place this block as the absolute first README element (before hero `<div align="center">`):
 
 ```markdown
-> [!CAUTION]
+> [!WARNING]
 > ## Archived
 > This project is archived and no longer maintained.
 >
-> {.archived.md contents verbatim}
+> {rewritten .archived.md content}
 ```
+
+Read `.archived.md` and rewrite its content to match the README's tone and style — clear, concise, well-formatted prose. Preserve all factual information (reasons, alternatives, migration paths) but do not copy the raw text literally. Adapt structure, phrasing, and formatting to feel native to the README.
 
 Replace existing notice (never duplicate). Remove notice when `.archived.md` is absent.
 

@@ -1,4 +1,4 @@
-"""Shared pytest fixtures for claude-skills tests."""
+"""Shared pytest fixtures for claudeskillz tests."""
 import sys
 import tempfile
 from pathlib import Path

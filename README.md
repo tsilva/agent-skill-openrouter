@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="logo.png" alt="claude-skills" width="512"/>
+  <img src="logo.png" alt="claudeskillz" width="512"/>
 
-  # claude-skills
+  # claudeskillz
 
   [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
   [![Claude Code](https://img.shields.io/badge/Claude_Code-Plugin-blueviolet)](https://claude.ai/code)
@@ -34,13 +34,13 @@
 Add this repository to your Claude Code plugins:
 
 ```bash
-claude plugins:add tsilva/claude-skills
+claude plugins:add tsilva/claudeskillz
 ```
 
 Or install individual skills by navigating to `Settings → Plugins → Add from URL` and using:
 
 ```
-https://github.com/tsilva/claude-skills
+https://github.com/tsilva/claudeskillz
 ```
 
 ---
@@ -137,7 +137,7 @@ plugins/
 ## 📁 Repository Structure
 
 ```
-claude-skills/
+claudeskillz/
 ├── .claude-plugin/
 │   └── marketplace.json     # Lists all available plugins
 ├── plugins/

@@ -1,9 +1,11 @@
 {
+  "permissions": {
+    "allow": [
+      "mcp__openrouter__generate_image"
+    ],
+    "deny": []
+  },
   "sandbox": {
     "enabled": true
-  },
-  "permissions": {
-    "allow": [],
-    "deny": []
   }
 }

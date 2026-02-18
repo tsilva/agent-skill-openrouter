@@ -1,5 +1,5 @@
 {
-  "name": "claude-skills",
+  "name": "claudeskillz",
   "description": "A collection of Claude Code skills providing specialized capabilities through modular plugins.",
   "owner": {
     "name": "tsilva"
@@ -9,7 +9,7 @@
       "name": "project-readme-author",
       "source": "./plugins/project-readme-author",
       "description": "Create, modify, validate, and optimize README.md files following GitHub best practices.",
-      "version": "2.6.0"
+      "version": "2.6.1"
     },
     {
       "name": "project-logo-author",

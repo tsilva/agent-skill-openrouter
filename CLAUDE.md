@@ -9,7 +9,7 @@ This is a Claude Code skills repository containing multiple modular plugins. Eac
 ## Repository Architecture
 
 ```
-claude-skills/
+claudeskillz/
 ├── .claude-plugin/
 │   └── marketplace.json         # Lists all available plugins
 ├── plugins/
