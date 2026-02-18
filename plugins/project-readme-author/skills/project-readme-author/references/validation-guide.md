@@ -10,7 +10,8 @@ README Validation Report
 
 Overall Score: 62/100 (Elite)
 
-ESSENTIAL (40% weight) - 6/8 passed
+ESSENTIAL (40% weight) - 7/9 passed
+  ✅ Archive notice (matches .archived.md state)
   ✅ Project logo present
   ✅ Badges (5 found)
   ✅ One-liner description
@@ -83,6 +84,7 @@ For AI/ML projects, also check:
 - [ ] Minimal working code example
 - [ ] License information
 - [ ] Section ordering follows Hook → Prove → Enable → Extend (e.g., value proposition/why before features list, quick start before deep reference docs)
+- [ ] Archive notice matches `.archived.md` state (present if file exists, absent if not)
 
 ### Professional Tier
 

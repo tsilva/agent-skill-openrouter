@@ -8,7 +8,7 @@ disable-model-invocation: false
 user-invocable: true
 metadata:
   author: tsilva
-  version: "2.5.1"
+  version: "2.6.0"
 ---
 
 # README Author
@@ -44,6 +44,7 @@ uv run shared/select_operation.py --skill project-readme-author --args "$ARGUMEN
 Use when building a README from scratch. Follow the Core Framework and Workflow sections below.
 
 **Mandatory pre-draft checklist:**
+- [ ] Archive status checked — `.archived.md` exists? If yes, archive notice goes first
 - [ ] Aha moment identified — "What's the most impressive single thing?"
 - [ ] Tagline crafted with emoji(s)
 - [ ] At least one quantified metric (if available)
@@ -60,6 +61,7 @@ Use when updating an existing README while preserving its structure.
 - **Preserve manual notes** — any hand-written note, warning, tip that's factually relevant
 - **Default to preservation** — when relevance is unclear, use AskUserQuestion to confirm
 - **Never assume obsolescence** — only remove when explicitly asked or factually incorrect
+- **Archive notice sync** — if `.archived.md` exists, ensure notice is present and current; if removed, remove the notice
 - **Deprecated sections** — ask user via AskUserQuestion before removing
 
 **When in doubt, preserve existing content and use AskUserQuestion to confirm before removing anything.**
@@ -72,7 +74,7 @@ Score an existing README against best practices. Run Essential → Professional 
 
 ## Optimize Operation
 
-**Quick Wins (auto-apply):** Center hero, add alt text, fix badge URLs, add TOC if >500 words, standardize badge style, fix heading hierarchy, add emojis to headers.
+**Quick Wins (auto-apply):** Center hero, add alt text, fix badge URLs, add TOC if >500 words, standardize badge style, fix heading hierarchy, add emojis to headers, add archive notice if `.archived.md` exists and notice is missing.
 
 **Virality Quick Wins (auto-apply):**
 - Add star badge if stars > 100
@@ -212,6 +214,20 @@ A bold line placed after badges, before tagline, to create an information gap:
 
 For CLI tools, place an animated GIF demo **immediately after the tagline**.
 
+## Archive Notice
+
+If `.archived.md` exists at repo root, place this block as the absolute first README element (before hero `<div align="center">`):
+
+```markdown
+> [!CAUTION]
+> ## Archived
+> This project is archived and no longer maintained.
+>
+> {.archived.md contents verbatim}
+```
+
+Replace existing notice (never duplicate). Remove notice when `.archived.md` is absent.
+
 ## Pain Point Narrative
 
 Structure the Overview section using Problem-Solution-Result pattern for emotional connection:
@@ -332,16 +348,18 @@ For visual elements, social proof, and community links, see [references/badges-a
 
 1. **Detect project type**: `uv run shared/detect_project.py --path "$(pwd)"`
 2. **Extract metadata** — name, description, version, author, license. Use `pyproject.toml` `description` as tagline if available (add emojis, preserve core message). If no description, write crafted tagline back.
-3. **Check/generate logo** — look for `logo.png`, generate with project-logo-author if missing
-4. **Calculate display width** — half actual pixel width for retina
-5. **Generate README.md** — following Hook → Prove → Enable → Extend structure
+3. **Check archive status** — if `.archived.md` exists, read contents for archive notice (placed at README top)
+4. **Check/generate logo** — look for `logo.png`, generate with project-logo-author if missing
+5. **Calculate display width** — half actual pixel width for retina
+6. **Generate README.md** — following Hook → Prove → Enable → Extend structure
 
 ### Modify Workflow
 
 1. Read existing README, identify sections, detect custom content
-2. Confirm uncertain deletions via AskUserQuestion
-3. Apply requested changes (follow pyproject.toml tagline sync rules)
-4. Validate result — no broken links or formatting
+2. Check `.archived.md` status — add/update/remove archive notice accordingly
+3. Confirm uncertain deletions via AskUserQuestion
+4. Apply requested changes (follow pyproject.toml tagline sync rules)
+5. Validate result — no broken links or formatting
 
 ### Validate Workflow
 

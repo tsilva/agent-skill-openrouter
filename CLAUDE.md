@@ -62,6 +62,7 @@ Create, modify, validate, and optimize README.md files following GitHub best pra
 - Modern README structure with centered hero, badges, and visual hierarchy
 - Logo generation integration with project-logo-author skill
 - Best practices for GitHub READMEs (accessibility, mobile-friendly, scannable)
+- Archive-aware: detects `.archived.md` and adds prominent archive notice
 
 ### Spec Extractor
 
