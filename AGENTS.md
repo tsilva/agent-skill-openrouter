@@ -83,13 +83,13 @@ Analyze a codebase and generate a pure requirements specification (SPEC.md) capt
 
 ### Logo Author
 
-Generate professional logos with transparent backgrounds using AI image generation and chromakey processing.
+Generate professional logos with transparent backgrounds using the `repologogen` CLI.
 
 **Key files:**
 - `plugins/project-logo-author/skills/project-logo-author/SKILL.md` - Skill definition
 - `plugins/project-logo-author/.claude-plugin/plugin.json` - Plugin metadata
 
-**Requirements:** mcp-openrouter and mcp-image-tools MCP servers
+**Requirements:** `repologogen` CLI (`pip install repologogen`)
 
 ### Bash Output Styler
 

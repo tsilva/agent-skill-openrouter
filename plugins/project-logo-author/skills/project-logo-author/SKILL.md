@@ -2,306 +2,82 @@
 name: project-logo-author
 description: Generates professional logos with programmatic transparency conversion. Works with pixel art, vector designs, and complex multi-colored styles. Use when asked to "generate a logo", "create logo", or "make a project logo".
 license: MIT
-compatibility: requires mcp-openrouter and mcp-image-tools MCP servers
+compatibility: requires repologogen CLI (pip install repologogen)
 argument-hint: "[style-preference]"
 disable-model-invocation: false
 user-invocable: true
 metadata:
-  version: "5.1.0"
+  version: "6.0.0"
 ---
 
 # Logo Generator
 
-Generate professional logos with transparent backgrounds using:
-1. **mcp-openrouter** - generates logo with solid chromakey background
-2. **mcp-image-tools** - converts background to transparent with smooth edges
+Generate professional logos with transparent backgrounds using the `repologogen` CLI.
 
 ## Pre-flight Check (MANDATORY)
 
-Before executing, verify all required MCP tools are available:
+Run `which repologogen` to verify the CLI is installed.
 
-**Required Tools:**
-| Tool | Server | Purpose |
-|------|--------|---------|
-| `mcp__openrouter__generate_image` | mcp-openrouter | AI image generation |
-| `mcp__image-tools__chromakey_to_transparent` | mcp-image-tools | Background removal |
-| `mcp__image-tools__compress_png` | mcp-image-tools | PNG compression |
+**If not found, STOP and inform the user:**
+- Install with: `pip install repologogen` or `uv tool install repologogen`
+- An `OPENROUTER_API_KEY` environment variable (or `~/.repologogen/config.yaml`) is required
+- Link: https://github.com/tsilva/repologogen
 
-**Verification:** Attempt to list available tools or check MCP server configuration.
+**Do NOT proceed if repologogen is not installed.**
 
-**If any tool is unavailable, STOP and inform the user:**
+## Execution
 
-1. Which MCP server(s) are missing
-2. Installation instructions:
-   - **mcp-openrouter**: `npm install -g mcp-openrouter` or add to Claude settings
-   - **mcp-image-tools**: `npm install -g mcp-image-tools` or add to Claude settings
-3. Link to MCP setup documentation
-
-**Do NOT proceed with the workflow if MCP tools are unavailable.** The skill will fail at Step 5/6/8 without proper error context.
-
-## Context Detection
-
-Before generating, determine the context:
-
-1. **Check for git repository**: Look for `.git` directory or use git status
-2. **If in a repo**: Proceed with project analysis (README, package files, etc.)
-3. **If not in a repo**: Ask user what the logo is for (project name, purpose, style preferences)
-
-This allows the skill to work for any logo generation task while defaulting to repo-aware behavior when appropriate.
-
-## Execution Workflow
-
-Follow these steps exactly.
-
-### Step 1: Load Configuration (MANDATORY — do not skip)
-
-**CRITICAL: You MUST complete this step before proceeding. User customizations (style, colors, text, output path) are ONLY available through config loading. Skipping this step produces incorrect output.**
-
-Use the deterministic config loader for consistent merging:
+Run from the project root:
 
 ```bash
-uv run shared/load_config.py \
-  --defaults "{SKILL_DIR}/assets/default-config.json" \
-  --user "~/.claude/project-logo-author.json" \
-  --project ".claude/project-logo-author.json"
+repologogen [path] [flags]
 ```
 
-The script handles:
-- Missing files gracefully (skips and continues)
-- Deep merging (project overrides user overrides defaults)
-- Environment variable expansion (`$HOME`, `$CWD`)
+### Flag Mapping
 
-Returns merged JSON config:
-```json
-{
-  "style": "minimalist",
-  "keyColor": "#00FF00",
-  "_meta": {"sources": ["defaults", "user"]}
-}
-```
+Map user preferences to CLI flags:
 
-**Fallback (if script unavailable):** Use the Read tool to check each config file in order:
-1. **Project config**: `{CWD}/.claude/project-logo-author.json`
-2. **User config**: `{HOME}/.claude/project-logo-author.json`
-3. **Bundled defaults**: `assets/default-config.json`
+| User Request | Flag | Example |
+|-------------|------|---------|
+| Custom style | `-s` | `-s "pixel art"` |
+| Output path | `-o` | `-o assets/logo.png` |
+| Project name override | `-n` | `-n "My Project"` |
+| Custom model | `-m` | `-m "openai/dall-e-3"` |
+| Config file | `-c` | `-c custom-config.yaml` |
+| Skip trimming | `--no-trim` | |
+| Skip compression | `--no-compress` | |
+| Preview only | `--dry-run` | |
+| Template variables | `--var` | `--var KEY=VALUE` (repeatable) |
+| Verbose output | `-v` | |
 
-Use absolute paths. Skip files that don't exist.
-
-Where `{SKILL_DIR}` is the absolute path to this skill's directory (resolve from the plugin installation path).
-
-**Gate check:** Before proceeding, confirm you have a merged config object. If the script failed or was skipped, use the fallback method above. Do NOT proceed with defaults alone — always attempt to load user/project config files.
-
-**Config Parameters:**
-
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `promptTemplate` | null | Full prompt template (null = use default) |
-| `style` | `"minimalist"` | Style descriptor |
-| `visualMetaphor` | null | Override metaphor, `"none"` to omit |
-| `includeRepoName` | `false` | Include project name as stylized text |
-| `iconColors` | `["#58a6ff", ...]` | Design colors |
-| `additionalInstructions` | `""` | Appended to prompt |
-| `keyColor` | `"#00FF00"` | Chromakey background |
-| `tolerance` | `70` | Chromakey edge tolerance |
-| `model` | `"google/gemini-3-pro-image-preview"` | Image model |
-| `size` | `"1K"` | Image size |
-| `outputPath` | `"logo.png"` | Output file path |
-| `compress` | `true` | Enable PNG compression |
-| `compressQuality` | `80` | Compression quality |
-| `trim` | `true` | Trim transparent padding to maximize canvas utilization |
-| `trimMargin` | `5` | Trim margin percentage (0-25) |
-
-### Step 2: Resolve Output Path
-
-Resolve `config.outputPath` to an absolute path for use by all MCP tools:
-
-1. If `outputPath` contains `{PROJECT_NAME}`, substitute it first
-2. If the result is a relative path (doesn't start with `/`), prepend CWD
-3. Store as `resolvedOutputPath` (e.g., `/Users/name/my-project/logo.png`)
-
-**Example resolutions:**
-- `logo.png` → `{CWD}/logo.png`
-- `assets/logo.png` → `{CWD}/assets/logo.png`
-- `/absolute/path/logo.png` → `/absolute/path/logo.png`
-
-### Step 3: Gather Context (Always Runs)
-
-Gather these values for template variable substitution:
-
-| Variable | Source |
-|----------|--------|
-| `{PROJECT_NAME}` | Current directory name |
-| `{PROJECT_TYPE}` | Auto-detected from package files |
-| `{VISUAL_METAPHOR}` | config.visualMetaphor OR auto-select from table |
-| `{STYLE}` | config.style |
-| `{ICON_COLORS}` | config.iconColors joined with ", " |
-| `{KEY_COLOR}` | config.keyColor |
-| `{TEXT_INSTRUCTIONS}` | If `includeRepoName`: `Include "{PROJECT_NAME}" as stylized text.` else `No text, no letters, no words.` |
-
-**Visual Metaphors by Project Type:**
-
-| Type | Metaphor |
-|------|----------|
-| CLI tool | Origami transformation, geometric terminal |
-| Library | Interconnected building blocks |
-| Web app | Modern interface window |
-| API | Messenger bird carrying data packet |
-| Framework | Architectural scaffold |
-| Converter | Metamorphosis symbol |
-| Database | Stacked cylinders, data nodes |
-| Security | Shield, lock, key |
-| Default | Abstract geometric shape |
-
-Set `visualMetaphor: "none"` in config to omit the metaphor entirely.
-
-### Step 4: Build Prompt
-
-**If `config.promptTemplate` is set:** Use it as the prompt template.
-
-**Otherwise, use default template:**
-```
-A {STYLE} logo for {PROJECT_NAME}: {VISUAL_METAPHOR}.
-Clean vector style. Icon colors from: {ICON_COLORS}.
-Pure {KEY_COLOR} background only. Do not use similar tones in the design.
-{TEXT_INSTRUCTIONS} Single centered icon, geometric shapes. The icon must fill the entire canvas edge-to-edge with minimal padding. No empty space around the design. Scalable to small sizes.
-```
-
-**Then:**
-1. Substitute ALL template variables in the prompt
-2. Append `config.additionalInstructions` if non-empty
-
-### Step 5: Generate Image
-
-Use `mcp__openrouter__generate_image`:
-- `model`: config.model
-- `prompt`: constructed prompt from Step 4
-- `output_path`: `resolvedOutputPath` (absolute path from Step 2)
-- `aspect_ratio`: `"1:1"`
-- `size`: config.size
-
-### Step 6: Apply Chromakey Transparency
-
-Use `mcp__image-tools__chromakey_to_transparent`:
-- `input_path`: `resolvedOutputPath`
-- `output_path`: `resolvedOutputPath` (overwrites in-place)
-- `key_color`: config.keyColor
-- `tolerance`: config.tolerance
-
-### Step 7: Trim Transparent Padding (if enabled)
-
-If `config.trim` is true (default), run the trim script to maximize canvas utilization:
+### Examples
 
 ```bash
-uv run {SKILL_DIR}/scripts/trim_transparent.py \
-  --input "resolvedOutputPath" \
-  --output "resolvedOutputPath" \
-  --margin config.trimMargin
+# Default — auto-detects project, generates logo.png
+repologogen
+
+# Custom style
+repologogen -s "16-bit pixel art"
+
+# Custom output path with verbose logging
+repologogen -o assets/logo.png -v
+
+# Dry run to preview prompt
+repologogen --dry-run
+
+# Specific project directory
+repologogen /path/to/project -s "minimalist vector"
 ```
 
-Where `{SKILL_DIR}` is the absolute path to this skill's directory.
+## Configuration
 
-This crops to the content bounding box (plus margin), then resizes back to the original dimensions so the icon fills the canvas. Outputs JSON with trimming results.
+repologogen loads config in priority order:
+1. **Project**: `.config.yaml` in project root
+2. **User**: `~/.repologogen/config.yaml`
+3. **Built-in defaults**
 
-### Step 8: Compress (if enabled)
+See repologogen docs for all config options (`style`, `icon_colors`, `key_color`, `trim`, `compress`, etc.).
 
-If `config.compress` is true, use `mcp__image-tools__compress_png`:
-- `input_path`: `resolvedOutputPath`
-- `output_path`: `resolvedOutputPath` (overwrites in-place)
-- `quality`: config.compressQuality
+## Post-Generation
 
-### Step 9: Verify Output
-
-**MANDATORY verification with retry logic:**
-
-1. Read the generated image using the Read tool to visually inspect it
-2. Verify ALL of the following against the original prompt:
-   - Style matches requested style (e.g., pixel art, minimalist, vector)
-   - Visual metaphor is present (unless `visualMetaphor: "none"`)
-   - Color palette uses requested colors (not conflicting with keyColor)
-   - Text presence matches `includeRepoName` setting (text present if true, NO text if false)
-   - Background is transparent (chromakey was successful)
-   - Single centered icon (not multiple elements scattered)
-   - Canvas utilization: icon fills at least 70% of canvas width or height (no excessive padding)
-   - Works at small sizes (clean, not overly detailed)
-
-3. **If ANY requirement is not met:**
-   - Log which requirement(s) failed
-   - Increment attempt counter
-   - If attempts < 3: Return to Step 5 and regenerate with the SAME prompt
-   - If attempts = 3: Abort and report failure with details of what consistently failed
-
-4. **If ALL requirements are met:** Proceed to completion
-
-**Important:** The retry uses the exact same prompt. Do not modify the prompt between attempts - image generation has inherent variability. Three attempts with the same prompt gives reasonable coverage.
-
-## Configuration Examples
-
-**Default behavior (no config needed):**
-```json
-{}
-```
-
-**Use project name in custom style:**
-```json
-{
-  "logo": {
-    "style": "SNES pixel art for {PROJECT_NAME}. Charming mascot. Pure {KEY_COLOR} background."
-  }
-}
-```
-
-**Full custom prompt:**
-```json
-{
-  "logo": {
-    "promptTemplate": "A {STYLE} icon for {PROJECT_NAME}. Colors: {ICON_COLORS}. Solid {KEY_COLOR} bg."
-  }
-}
-```
-
-**Magenta chromakey (for green-heavy designs):**
-```json
-{
-  "logo": {
-    "keyColor": "#FF00FF",
-    "style": "nature-themed with greens and blues"
-  }
-}
-```
-
-**Pixel art with custom output path:**
-```json
-{
-  "logo": {
-    "style": "16-bit pixel art. Visible chunky pixels with dithering. Bright saturated colors. Pure {KEY_COLOR} background.",
-    "outputPath": "assets/{PROJECT_NAME}-logo.png"
-  }
-}
-```
-
-**Include project name as text:**
-```json
-{
-  "logo": {
-    "includeRepoName": true,
-    "style": "SNES pixel art with banner"
-  }
-}
-```
-
-## Guidelines
-
-- Avoid green tones in icons when using default `#00FF00` keyColor (reserved for chromakey)
-- Avoid magenta tones when using `#FF00FF` keyColor
-- When `includeRepoName: false` (default), logos have no text for small-size clarity
-- Always complete the chromakey step for transparency
-
-## Tool Path Requirements
-
-All MCP tools require **absolute paths**. The `resolvedOutputPath` from Step 2 ensures compatibility:
-
-| Tool | Path Parameters |
-|------|-----------------|
-| `mcp__openrouter__generate_image` | `output_path`: absolute |
-| `mcp__image-tools__chromakey_to_transparent` | `input_path`, `output_path`: both absolute |
-| `mcp__image-tools__compress_png` | `input_path`, `output_path`: both absolute |
+After `repologogen` completes, read the generated image with the Read tool to visually verify the result. If unsatisfactory, re-run with adjusted flags (e.g., different `-s` style).
